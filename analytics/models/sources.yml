@@ -3,9 +3,9 @@ version: 2
 sources:
   - name: raw
     description: >-
-      Run-scoped raw strings loaded only after a Plan 002 manifest and its
-      immutable CMS blob reconcile. This source has the full CMS transport
-      grain and no analytical interpretation.
+      Run-scoped raw strings loaded only after source-specific immutable
+      manifests and their referenced blobs reconcile. These relations retain
+      transport grains and lineage without analytical interpretation.
     schema: raw
     tables:
       - name: cms_om_gv
@@ -51,3 +51,59 @@ sources:
             description: UTC retrieval timestamp from the manifest.
           - name: source_modified_at
             description: Upstream source modified date from the manifest.
+      - name: cdc_svi_county_2022
+        description: >-
+          The 17 required attributes from the CDC/ATSDR SVI 2022 U.S. county
+          layer, preserved as JSON token text or null with exact page and
+          snapshot lineage. Its grain is one source row per STCNTY.
+        columns:
+          - name: ST
+            description: Raw two-character state FIPS text.
+          - name: STATE
+            description: Raw CDC/ATSDR state name.
+          - name: ST_ABBR
+            description: Raw CDC/ATSDR state abbreviation.
+          - name: STCNTY
+            description: Raw five-character county FIPS text.
+          - name: COUNTY
+            description: Raw CDC/ATSDR county name.
+          - name: RPL_THEMES
+            description: Raw overall U.S. county percentile-rank token.
+          - name: RPL_THEME1
+            description: Raw Socioeconomic Status theme rank token.
+          - name: RPL_THEME2
+            description: Raw Household Characteristics theme rank token.
+          - name: RPL_THEME3
+            description: Raw Racial and Ethnic Minority Status rank token.
+          - name: RPL_THEME4
+            description: Raw Housing Type and Transportation rank token.
+          - name: EP_POV150
+            description: Raw persons-below-150%-poverty percentage token.
+          - name: EP_UNINSUR
+            description: Raw uninsured-population percentage token.
+          - name: EP_AGE65
+            description: Raw age-65-and-older percentage token.
+          - name: EP_DISABL
+            description: Raw disability percentage token.
+          - name: EP_LIMENG
+            description: Raw speaks-English-less-than-well percentage token.
+          - name: EP_NOVEH
+            description: Raw no-vehicle-household percentage token.
+          - name: GRASP_ID
+            description: Raw ArcGIS object-ID token used only for transport.
+          - name: source_id
+            description: Logical source identifier from the verified manifest.
+          - name: source_manifest_run_id
+            description: Pipeline run identifier from the verified manifest.
+          - name: source_snapshot_sha256
+            description: SHA-256 identity of the ordered exact-page set.
+          - name: source_retrieved_at_utc
+            description: UTC retrieval timestamp from the manifest.
+          - name: source_modified_at
+            description: ArcGIS layer edit timestamp from the manifest.
+          - name: source_page_index
+            description: Zero-based page index from the manifest.
+          - name: source_page_offset
+            description: Requested ArcGIS result offset for the source row.
+          - name: source_page_sha256
+            description: SHA-256 identity of the exact JSON page bytes.

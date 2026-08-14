@@ -54,6 +54,12 @@ Use Python 3.12 and `uv`, and keep `uv.lock` committed. Dependency changes requi
 - Preserve immutable, content-addressed raw snapshots and manifests. Publish marts atomically and update the latest-successful pointer only after all required checks pass.
 - Respect DuckDB's single-writer discipline; BI consumes published Parquet rather than a live writable database.
 
+## Handoff and commits
+
+- Include a proposed commit message in the closing response for every completed repository change, even when the user does not ask for one explicitly.
+- Make the proposed message ready to use, concise, imperative, and representative of the complete change set.
+- Do not create a commit or push changes unless the user explicitly requests it.
+
 ## Canonical bootstrap verification
 
 Run these commands from the repository root after the local prerequisites are available:

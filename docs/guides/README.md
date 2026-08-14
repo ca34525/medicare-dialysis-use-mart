@@ -25,6 +25,8 @@ Current guides:
   `plans/003-cms-om-gv-raw-to-stage.md`.
 - `004-svi-source-contract-explained.html` corresponds to
   `plans/004-cdc-svi-county-source-contract.md`.
+- `005-svi-source-to-fact-explained.html` corresponds to
+  `plans/005-cdc-svi-source-to-fact.md`.
 
 ## Required content
 

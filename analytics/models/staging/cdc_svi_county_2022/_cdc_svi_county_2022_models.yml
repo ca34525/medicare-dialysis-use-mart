@@ -1,0 +1,224 @@
+version: 2
+
+models:
+  - name: stg_cdc_svi_county_2022
+    description: >-
+      One typed row per five-character county FIPS in the static CDC/ATSDR
+      SVI 2022 U.S. county release, based on 2018-2022 ACS data. Raw JSON token
+      text and explicit availability status remain beside every governed value.
+      SVI is contextual and is not a clinical, causal, prevalence, need, or
+      opportunity measure.
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: county_fips
+        data_type: varchar
+        description: Canonical five-character county FIPS retained as text.
+        data_tests: [not_null]
+      - name: state_fips
+        data_type: varchar
+        description: Two-character state FIPS retained as text.
+        data_tests: [not_null]
+      - name: state_name
+        data_type: varchar
+        description: CDC/ATSDR source state label.
+        data_tests: [not_null]
+      - name: state_abbreviation
+        data_type: varchar
+        description: CDC/ATSDR source state abbreviation.
+        data_tests: [not_null]
+      - name: county_name
+        data_type: varchar
+        description: CDC/ATSDR source county label.
+        data_tests: [not_null]
+      - name: source_object_id
+        data_type: integer
+        description: Positive ArcGIS transport key; not a business key.
+        data_tests: [not_null]
+      - name: svi_vintage
+        data_type: integer
+        description: Static SVI release year, always 2022 in this model.
+        data_tests: [not_null]
+      - name: acs_period_start
+        data_type: integer
+        description: First year of the source ACS period, 2018.
+        data_tests: [not_null]
+      - name: acs_period_end
+        data_type: integer
+        description: Last year of the source ACS period, 2022.
+        data_tests: [not_null]
+
+      - name: rpl_themes_raw
+        data_type: varchar
+        description: Raw RPL_THEMES token for the overall U.S. county rank.
+      - name: rpl_themes
+        data_type: decimal(18, 10)
+        description: Overall U.S. county percentile rank on the 0-to-1 scale.
+      - name: rpl_themes_status
+        data_type: varchar
+        description: Availability/typing status for RPL_THEMES.
+        data_tests: [not_null]
+      - name: rpl_theme1_raw
+        data_type: varchar
+        description: Raw RPL_THEME1 Socioeconomic Status rank token.
+      - name: rpl_theme1
+        data_type: decimal(18, 10)
+        description: Socioeconomic Status U.S. county rank on the 0-to-1 scale.
+      - name: rpl_theme1_status
+        data_type: varchar
+        description: Availability/typing status for RPL_THEME1.
+        data_tests: [not_null]
+      - name: rpl_theme2_raw
+        data_type: varchar
+        description: Raw RPL_THEME2 Household Characteristics rank token.
+      - name: rpl_theme2
+        data_type: decimal(18, 10)
+        description: Household Characteristics U.S. county rank, 0 to 1.
+      - name: rpl_theme2_status
+        data_type: varchar
+        description: Availability/typing status for RPL_THEME2.
+        data_tests: [not_null]
+      - name: rpl_theme3_raw
+        data_type: varchar
+        description: Raw RPL_THEME3 minority-status rank token.
+      - name: rpl_theme3
+        data_type: decimal(18, 10)
+        description: Racial and Ethnic Minority Status U.S. county rank, 0 to 1.
+      - name: rpl_theme3_status
+        data_type: varchar
+        description: Availability/typing status for RPL_THEME3.
+        data_tests: [not_null]
+      - name: rpl_theme4_raw
+        data_type: varchar
+        description: Raw RPL_THEME4 housing/transportation rank token.
+      - name: rpl_theme4
+        data_type: decimal(18, 10)
+        description: Housing Type and Transportation U.S. county rank, 0 to 1.
+      - name: rpl_theme4_status
+        data_type: varchar
+        description: Availability/typing status for RPL_THEME4.
+        data_tests: [not_null]
+
+      - name: ep_pov150_raw
+        data_type: varchar
+        description: Raw EP_POV150 percentage token.
+      - name: ep_pov150
+        data_type: decimal(18, 10)
+        description: >-
+          Persons below 150% of poverty on the source 0-to-100 scale; official
+          denominator S1701_C01_001E.
+      - name: ep_pov150_status
+        data_type: varchar
+        description: Availability/typing status for EP_POV150.
+        data_tests: [not_null]
+      - name: ep_uninsur_raw
+        data_type: varchar
+        description: Raw EP_UNINSUR percentage token.
+      - name: ep_uninsur
+        data_type: decimal(18, 10)
+        description: >-
+          Uninsured share on the source 0-to-100 scale; denominator is the
+          civilian noninstitutionalized population in S2701_C05_001E.
+      - name: ep_uninsur_status
+        data_type: varchar
+        description: Availability/typing status for EP_UNINSUR.
+        data_tests: [not_null]
+      - name: ep_age65_raw
+        data_type: varchar
+        description: Raw EP_AGE65 percentage token.
+      - name: ep_age65
+        data_type: decimal(18, 10)
+        description: >-
+          Persons age 65+ on the source 0-to-100 scale; denominator is the total
+          population represented by S0101_C02_030E.
+      - name: ep_age65_status
+        data_type: varchar
+        description: Availability/typing status for EP_AGE65.
+        data_tests: [not_null]
+      - name: ep_disabl_raw
+        data_type: varchar
+        description: Raw EP_DISABL percentage token.
+      - name: ep_disabl
+        data_type: decimal(18, 10)
+        description: >-
+          Disability share on the source 0-to-100 scale; denominator is the
+          civilian noninstitutionalized population represented by DP02_0072PE.
+      - name: ep_disabl_status
+        data_type: varchar
+        description: Availability/typing status for EP_DISABL.
+        data_tests: [not_null]
+      - name: ep_limeng_raw
+        data_type: varchar
+        description: Raw EP_LIMENG percentage token.
+      - name: ep_limeng
+        data_type: decimal(18, 10)
+        description: >-
+          Persons age 5+ speaking English less than well on the 0-to-100 scale;
+          official denominator B16005_001E.
+      - name: ep_limeng_status
+        data_type: varchar
+        description: Availability/typing status for EP_LIMENG.
+        data_tests: [not_null]
+      - name: ep_noveh_raw
+        data_type: varchar
+        description: Raw EP_NOVEH percentage token.
+      - name: ep_noveh
+        data_type: decimal(18, 10)
+        description: >-
+          Households with no vehicle on the source 0-to-100 scale; denominator
+          is households represented by DP04_0058PE.
+      - name: ep_noveh_status
+        data_type: varchar
+        description: Availability/typing status for EP_NOVEH.
+        data_tests: [not_null]
+
+      - name: source_id
+        data_type: varchar
+        description: Logical source ID from the verified manifest.
+        data_tests: [not_null]
+      - name: source_manifest_run_id
+        data_type: varchar
+        description: Pipeline run ID from the verified manifest.
+        data_tests: [not_null]
+      - name: source_snapshot_sha256
+        data_type: varchar
+        description: SHA-256 identity of the ordered exact-page set.
+        data_tests: [not_null]
+      - name: source_retrieved_at_utc
+        data_type: varchar
+        description: UTC retrieval timestamp from the verified manifest.
+        data_tests: [not_null]
+      - name: source_modified_at
+        data_type: varchar
+        description: ArcGIS layer edit timestamp from the verified manifest.
+      - name: source_page_index
+        data_type: bigint
+        description: Zero-based exact-page index for row lineage.
+        data_tests: [not_null]
+      - name: source_page_offset
+        data_type: bigint
+        description: Requested ArcGIS result offset for row lineage.
+        data_tests: [not_null]
+      - name: source_page_sha256
+        data_type: varchar
+        description: SHA-256 identity of the exact JSON page bytes.
+        data_tests: [not_null]
+
+unit_tests:
+  - name: svi_sentinel_null_zero_and_boundaries_remain_distinct
+    description: >-
+      The stage retains zero and 0.75, distinguishes -999 from JSON null, and
+      carries exact raw token text and source vintage.
+    model: stg_cdc_svi_county_2022
+    given:
+      - input: source('raw', 'cdc_svi_county_2022')
+        rows:
+          - {ST: '01', STATE: Synthetic Alabama, ST_ABBR: AL, STCNTY: '01001', COUNTY: Synthetic County A, RPL_THEMES: '0', RPL_THEME1: '0.75', RPL_THEME2: '1', RPL_THEME3: '0.25', RPL_THEME4: '0.5', EP_POV150: '0', EP_UNINSUR: '12.3', EP_AGE65: '20.1', EP_DISABL: '15.2', EP_LIMENG: '0', EP_NOVEH: '5.4', GRASP_ID: '1', source_id: cdc_svi_county_2022, source_manifest_run_id: fixture, source_snapshot_sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, source_retrieved_at_utc: '2026-08-14T20:00:00Z', source_modified_at: '2024-12-18T21:12:51Z', source_page_index: 0, source_page_offset: 0, source_page_sha256: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb}
+          - {ST: '11', STATE: District of Columbia, ST_ABBR: DC, STCNTY: '11001', COUNTY: Synthetic District of Columbia, RPL_THEMES: '0.75', RPL_THEME1: '-999', RPL_THEME2: '0', RPL_THEME3: '1', RPL_THEME4: '0.5', EP_POV150: '18.2', EP_UNINSUR: '0', EP_AGE65: '14.3', EP_DISABL: '9.1', EP_LIMENG: '-999', EP_NOVEH: '0', GRASP_ID: '2', source_id: cdc_svi_county_2022, source_manifest_run_id: fixture, source_snapshot_sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, source_retrieved_at_utc: '2026-08-14T20:00:00Z', source_modified_at: '2024-12-18T21:12:51Z', source_page_index: 0, source_page_offset: 0, source_page_sha256: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb}
+          - {ST: '02', STATE: Synthetic Alaska, ST_ABBR: AK, STCNTY: '02013', COUNTY: Synthetic County B, RPL_THEMES: '1', RPL_THEME1: '0.5', RPL_THEME2: '0.25', RPL_THEME3: '0.75', RPL_THEME4: '-999', EP_POV150: '7.8', EP_UNINSUR: '6.5', EP_AGE65: null, EP_DISABL: '11.4', EP_LIMENG: '2.3', EP_NOVEH: '-999', GRASP_ID: '3', source_id: cdc_svi_county_2022, source_manifest_run_id: fixture, source_snapshot_sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, source_retrieved_at_utc: '2026-08-14T20:00:00Z', source_modified_at: '2024-12-18T21:12:51Z', source_page_index: 1, source_page_offset: 2, source_page_sha256: cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc}
+    expect:
+      rows:
+        - {county_fips: '01001', rpl_themes_raw: '0', rpl_themes: 0, rpl_themes_status: reported, rpl_theme1_raw: '0.75', rpl_theme1: 0.75, rpl_theme1_status: reported, ep_pov150_raw: '0', ep_pov150: 0, ep_pov150_status: reported, ep_age65_raw: '20.1', ep_age65: 20.1, ep_age65_status: reported, svi_vintage: 2022, acs_period_start: 2018, acs_period_end: 2022}
+        - {county_fips: '11001', rpl_themes_raw: '0.75', rpl_themes: 0.75, rpl_themes_status: reported, rpl_theme1_raw: '-999', rpl_theme1: null, rpl_theme1_status: unavailable_sentinel, ep_pov150_raw: '18.2', ep_pov150: 18.2, ep_pov150_status: reported, ep_age65_raw: '14.3', ep_age65: 14.3, ep_age65_status: reported, svi_vintage: 2022, acs_period_start: 2018, acs_period_end: 2022}
+        - {county_fips: '02013', rpl_themes_raw: '1', rpl_themes: 1, rpl_themes_status: reported, rpl_theme1_raw: '0.5', rpl_theme1: 0.5, rpl_theme1_status: reported, ep_pov150_raw: '7.8', ep_pov150: 7.8, ep_pov150_status: reported, ep_age65_raw: null, ep_age65: null, ep_age65_status: unavailable_null, svi_vintage: 2022, acs_period_start: 2018, acs_period_end: 2022}

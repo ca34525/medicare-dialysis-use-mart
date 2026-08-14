@@ -166,6 +166,7 @@ def stream_download(
     url: str,
     destination: Path,
     *,
+    accept: str = "text/csv,application/octet-stream;q=0.9",
     opener: ResponseOpener = _default_opener,
     sleep: Sleep = time.sleep,
     jitter: Jitter = random.random,
@@ -186,7 +187,7 @@ def stream_download(
         raise FileExistsError(f"staging destination already exists: {destination}")
     destination.parent.mkdir(parents=True, exist_ok=True)
 
-    request = _request(url, accept="text/csv,application/octet-stream;q=0.9")
+    request = _request(url, accept=accept)
     for attempt in range(1, retry_policy.max_attempts + 1):
         try:
             with opener(request, timeout_seconds) as response:

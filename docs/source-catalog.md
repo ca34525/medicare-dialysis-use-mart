@@ -134,9 +134,10 @@ The bounded current sample confirms `BENE_GEO_CD=""` for the National row. CMS a
 
 ## `cdc_svi_county_2022` - CDC/ATSDR SVI 2022 U.S. county data
 
-**Contract status:** Verified 2026-08-14 against the official CDC/ATSDR
-documentation, complete ArcGIS county-layer metadata, a count-only query, tiny
-samples, and a bounded key-only grain scan.
+**Contract status:** Source-to-fact path verified 2026-08-14 against the
+official CDC/ATSDR documentation and county layer, including complete ordered
+pagination, immutable exact-page publication, manifest-driven loading, and
+typed county models.
 
 | Attribute | Contract |
 |---|---|
@@ -149,7 +150,7 @@ samples, and a bounded key-only grain scan.
 | Geographic scope | The 50 states and District of Columbia; District of Columbia is `11001`; territory prefixes `60`, `66`, `69`, `72`, and `78` are excluded from the MVP |
 | Ranking denominator | `RPL_THEMES` and `RPL_THEME1` through `RPL_THEME4` are U.S.-based county percentile ranks on `[0,1]` when available |
 | Access | Public ArcGIS REST metadata and queries without authentication |
-| Lineage | Official documentation -> pinned PDF and hash; official service item -> layer metadata, count, and reduced attribute-only evidence -> normalized schema hash |
+| Lineage | Official documentation -> pinned PDF and hash; official service item -> layer metadata and count -> exact ordered attribute pages and canonical manifest -> raw relation -> typed stage -> county dimension and SVI fact |
 
 The live metadata exposes 161 fields: 77 doubles, 55 integers, 21 small
 integers, seven strings, and one object ID. The executable contract requires 17
@@ -178,7 +179,78 @@ quadrant, or interpreted as clinical or causal evidence. `RPL_THEMES` is the
 transparent social-vulnerability component for a later screening model; this
 contract does not classify its `0.75` boundary.
 
-### Dated source evidence and deferred processing
+### Paginated extraction and immutable lineage
+
+Run the explicit live operation from the repository root; it is separate from
+pytest and default pull-request checks:
+
+```powershell
+uv run python -m kidney_care_mart.extract.cdc_svi_county_2022 `
+  --run-id cdc-svi-2022-live-<UTC timestamp> `
+  --output-root data/raw
+```
+
+The extractor first validates the exact official layer metadata and a
+count-only query. It then requests only the 17 required fields, disables
+geometry, orders by `GRASP_ID ASC`, and uses deterministic offsets no larger
+than the verified 2,000-row limit. Exact JSON response bytes are stored at
+`data/raw/blobs/sha256/<page-sha256>.json`; one canonical manifest is published
+at `data/raw/manifests/cdc_svi_county_2022/<run-id>.json` only after every page,
+global ID/FIPS ordering, count, and path invariant reconciles.
+
+Each page entry records its offset, requested limit, rows, bytes, hash, and
+relative blob path. The manifest also records the official source/layer and
+schema identities, field projection, source vintage and modification time,
+count result, aggregate row/key checks, ordered page hashes, and
+`snapshot_sha256`. Publication is atomic and no-overwrite. A verified page can
+be reused by content hash, a new run of the unchanged source records a content
+no-op, and conflicting or corrupt existing artifacts block progress.
+
+### SVI raw-to-stage and county models
+
+Load an already downloaded manifest without network access:
+
+```powershell
+uv run python -m kidney_care_mart.stage.cdc_svi_county_2022 `
+  --manifest data/raw/manifests/cdc_svi_county_2022/<run-id>.json `
+  --raw-root data/raw `
+  --database data/staging/<run-id>.duckdb
+```
+
+The loader independently verifies canonical manifest bytes, all page bytes and
+hashes, page envelopes, global counts, ordering, FIPS, and snapshot identity.
+It writes the 17 required attributes as raw text to
+`raw.cdc_svi_county_2022`, retaining JSON numeric-token spelling and nulls,
+plus manifest, snapshot, and page lineage. Its audit relation records the
+reconciled load. Database publication is atomic, an identical load is a no-op,
+and conflicting lineage cannot overwrite an existing path.
+
+Build the typed stage and its downstream county models with the local profile:
+
+```powershell
+Copy-Item analytics/profiles.example.yml analytics/profiles.yml
+$env:KIDNEY_CARE_DUCKDB_PATH = (Resolve-Path `
+  "data/staging/<run-id>.duckdb").Path
+uv run dbt build --project-dir analytics --profiles-dir analytics `
+  --select stg_cdc_svi_county_2022+
+```
+
+`stg_cdc_svi_county_2022` has one row per five-character county FIPS for SVI
+vintage 2022. Every selected rank and percentage retains its raw token, a
+fixed-point typed value, and a status: `reported`, `unavailable_sentinel`,
+`unavailable_null`, or build-blocking `invalid_numeric`. The sentinel `-999`
+and JSON null become typed nulls with distinct statuses; numeric zero remains
+reported zero. Ranks must be null or `[0,1]`, and percentages must be null or
+`[0,100]`.
+
+`dim_county` has one row per county FIPS with the SVI geography labels and
+source provenance. `fct_svi_county` has one row per county FIPS x SVI vintage
+and preserves the five ranks, six contextual percentages, status fields,
+source-defined denominator labels, and manifest/snapshot lineage. These models
+provide contextual facts only; facility characteristics, future Medicare facts,
+and screening decisions do not alter this fact.
+
+### Dated live source-to-fact evidence and deferred cross-source work
 
 On 2026-08-14, the layer advertised a maximum of 2,000 records per response and
 support for pagination and ordered queries. A count-only query returned 3,144
@@ -198,9 +270,23 @@ provenance, and canonical schema hash are recorded in
 `docs/source-schemas/cdc_svi_county_2022.schema.json`.
 
 The official `-999` value means that data were unavailable or could not be
-calculated because source Census data were unavailable. This raw contract
-preserves that sentinel distinctly from numeric zero. Production pagination,
-immutable raw publication, typing, `-999`-to-null normalization with an
-explicit unavailable status, `[0,1]` rank validation, dbt models, and the
-CMS-to-SVI reconciliation remain deferred. No full source rows or geometry are
-committed.
+calculated because source Census data were unavailable. The source-to-fact
+path preserves the raw sentinel distinctly from numeric zero, then represents
+it as a typed null with `unavailable_sentinel` status.
+
+On 2026-08-14, the production extractor saved two complete pages: 2,000 rows
+and 635,389 bytes, then 1,144 rows and 365,449 bytes. Their hashes were
+`06b724e33bb61b4d3cd5996ce3b12a122e3de38807e84b3c7fe5a58541d377eb`
+and
+`62376e01a8197cc1772e78f2eda9b47b40ec4ac0f78ccd86b7525d6cd669ccf5`;
+the ordered snapshot hash was
+`51c2fbc79ddf9eb5a2f71480bde151f5b4e4e2d0494c2e780baa557e7014a2ee`.
+A separately loaded database and SVI dbt selection produced 3,144 rows in the
+raw relation, stage, dimension, and fact with 73 passing results. A second run
+reused both pages and recorded a content no-op. These are dated observations,
+not timeless constants. No full source rows, geometry, manifest, or generated
+database are committed.
+
+Pinned CMS-to-SVI geography reconciliation T-014, CMS final fact/benchmark
+models, and the `RPL_THEMES >= 0.75` screening component remain deferred. This
+source fact does not itself classify, rank, or recommend counties.

@@ -143,7 +143,10 @@ def test_fixture_build_types_filters_and_rebuilds_deterministically(
     monkeypatch.setenv("KIDNEY_CARE_DUCKDB_PATH", str(database_path))
     profile_dir = profiles_dir(tmp_path)
 
-    first_build = invoke_dbt("build", profile_dir)
+    first_build = invoke_dbt(
+        ("build", "--select", "stg_cms_om_gv_county_year"),
+        profile_dir,
+    )
 
     assert first_build.success, first_build.exception
     docs_result = invoke_dbt(("docs", "generate"), profile_dir)
@@ -196,7 +199,10 @@ def test_fixture_build_types_filters_and_rebuilds_deterministically(
     assert rows["01009"][0] == " 42 "
     assert rows["01009"][1] == 42
 
-    second_build = invoke_dbt("build", profile_dir)
+    second_build = invoke_dbt(
+        ("build", "--select", "stg_cms_om_gv_county_year"),
+        profile_dir,
+    )
 
     assert second_build.success, second_build.exception
     with duckdb.connect(str(database_path)) as connection:
@@ -246,7 +252,10 @@ def test_quality_failures_block_dbt_build_with_named_evidence(
     load_cms_om_gv_snapshot(manifest_path, raw_root, database_path)
     monkeypatch.setenv("KIDNEY_CARE_DUCKDB_PATH", str(database_path))
 
-    result = invoke_dbt("build", profiles_dir(tmp_path))
+    result = invoke_dbt(
+        ("build", "--select", "stg_cms_om_gv_county_year"),
+        profiles_dir(tmp_path),
+    )
 
     assert not result.success
     assert expected_failure in result_failures(result)

@@ -24,6 +24,28 @@ under its SHA-256 identity. A run manifest is published only after its blob is
 verified. Existing blobs and manifests are never overwritten; identical source
 content is reused and recorded as a content no-op.
 
+The CDC/ATSDR SVI extractor uses the same generated-data boundary but retains
+each exact ArcGIS response page separately:
+
+```text
+data/raw/
+|-- blobs/
+|   `-- sha256/
+|       `-- <page-sha256>.json
+|-- manifests/
+|   `-- cdc_svi_county_2022/
+|       `-- <pipeline-run-id>.json
+`-- .tmp/
+    `-- <pipeline-run-id>/
+```
+
+Its canonical manifest records the ordered offset, requested limit, exact byte
+count, row count, page SHA-256, and relative path for every page. It also
+records the count response, required projection, layer/schema identity, global
+key checks, and an ordered `snapshot_sha256`. No manifest is published until
+all pages reconcile. Verified identical pages are reused; a later run with the
+same ordered snapshot records a content no-op without overwriting a blob.
+
 The Plan 003 network-free loader writes one run-scoped DuckDB file only after a
 manifest and its referenced blob reconcile:
 
@@ -37,6 +59,15 @@ text, and `raw.cms_om_gv_load_audit`, with the manifest lineage and reconciled
 row count. An identical load is a no-op. A different manifest cannot overwrite
 an existing database path. dbt adds the typed
 `staging.stg_cms_om_gv_county_year` model to that same run-scoped database.
+
+The SVI loader uses the same run-scoped database boundary and creates
+`raw.cdc_svi_county_2022` plus `raw.cdc_svi_county_2022_load_audit`. Every page
+is independently rehashed and reparsed before loading. Required ArcGIS
+attributes remain text, including numeric JSON tokens and the raw `-999`
+sentinel, and each row carries manifest, snapshot, and page lineage. dbt then
+adds `staging.stg_cdc_svi_county_2022`, `main.dim_county`, and
+`main.fct_svi_county`. The stage converts `-999` and JSON null to typed nulls
+with distinct statuses while reported numeric zero remains zero.
 
 Do not commit downloaded source files, generated manifests, DuckDB databases,
 Parquet outputs, credentials, or patient information. Tests use only the small

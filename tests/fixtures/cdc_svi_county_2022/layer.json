@@ -1,0 +1,34 @@
+{
+  "currentVersion": 12,
+  "id": 1,
+  "name": "SVI2022 US county",
+  "objectIdField": "GRASP_ID",
+  "maxRecordCount": 2000,
+  "advancedQueryCapabilities": {
+    "supportsPagination": true,
+    "supportsOrderBy": true
+  },
+  "editingInfo": {
+    "lastEditDate": 1734556371000
+  },
+  "fields": [
+    {"name": "ST", "type": "esriFieldTypeString", "alias": "State FIPS", "length": 2, "nullable": true, "editable": true},
+    {"name": "STATE", "type": "esriFieldTypeString", "alias": "State", "length": 20, "nullable": true, "editable": true},
+    {"name": "ST_ABBR", "type": "esriFieldTypeString", "alias": "State abbreviation", "length": 2, "nullable": true, "editable": true},
+    {"name": "STCNTY", "type": "esriFieldTypeString", "alias": "County FIPS", "length": 5, "nullable": true, "editable": true},
+    {"name": "COUNTY", "type": "esriFieldTypeString", "alias": "County", "length": 60, "nullable": true, "editable": true},
+    {"name": "RPL_THEMES", "type": "esriFieldTypeDouble", "alias": "Overall rank", "nullable": true, "editable": true},
+    {"name": "RPL_THEME1", "type": "esriFieldTypeDouble", "alias": "Theme 1 rank", "nullable": true, "editable": true},
+    {"name": "RPL_THEME2", "type": "esriFieldTypeDouble", "alias": "Theme 2 rank", "nullable": true, "editable": true},
+    {"name": "RPL_THEME3", "type": "esriFieldTypeDouble", "alias": "Theme 3 rank", "nullable": true, "editable": true},
+    {"name": "RPL_THEME4", "type": "esriFieldTypeDouble", "alias": "Theme 4 rank", "nullable": true, "editable": true},
+    {"name": "EP_POV150", "type": "esriFieldTypeDouble", "alias": "Poverty percentage", "nullable": true, "editable": true},
+    {"name": "EP_UNINSUR", "type": "esriFieldTypeDouble", "alias": "Uninsured percentage", "nullable": true, "editable": true},
+    {"name": "EP_AGE65", "type": "esriFieldTypeDouble", "alias": "Age 65+ percentage", "nullable": true, "editable": true},
+    {"name": "EP_DISABL", "type": "esriFieldTypeDouble", "alias": "Disability percentage", "nullable": true, "editable": true},
+    {"name": "EP_LIMENG", "type": "esriFieldTypeDouble", "alias": "Limited English percentage", "nullable": true, "editable": true},
+    {"name": "EP_NOVEH", "type": "esriFieldTypeDouble", "alias": "No vehicle percentage", "nullable": true, "editable": true},
+    {"name": "GRASP_ID", "type": "esriFieldTypeOID", "alias": "GRASP_ID", "nullable": false, "editable": false},
+    {"name": "ADDITIVE_FIELD", "type": "esriFieldTypeString", "alias": "Compatible addition", "length": 20, "nullable": true, "editable": true}
+  ]
+}

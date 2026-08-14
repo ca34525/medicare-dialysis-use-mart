@@ -6,7 +6,7 @@ It is not a clinical tool, prevalence estimate, opaque opportunity score, or fin
 
 ## Current status
 
-The locked Python 3.12 development environment and offline quality checks are verified on the initial implementation machine. The CMS Original Medicare Geographic Variation source contract, full-file extractor, immutable raw snapshot/manifest path, and manifest-driven DuckDB/dbt county-year stage are implemented. The CDC/ATSDR SVI 2022 U.S. county source contract is also implemented, with pinned official documentation, normalized ArcGIS schema evidence, deterministic county-grain tests, and a dated read-only live check. The CMS stage preserves raw strings, types governed metrics with explicit missingness status, retains five-character county FIPS, and applies the County + All source-selection rule with deterministic fixture tests. SVI pagination, SVI staging, final facts, remaining sources, the screening mart, Airflow DAG, and Power BI report have not yet been established; remaining source and environment checks are recorded in [`docs/preflight.md`](docs/preflight.md).
+The locked Python 3.12 development environment and offline quality checks are verified on the initial implementation machine. The CMS Original Medicare Geographic Variation source contract, full-file extractor, immutable raw snapshot/manifest path, and manifest-driven DuckDB/dbt county-year stage are implemented. The CDC/ATSDR SVI 2022 U.S. county path now runs from exact, immutable ArcGIS pages through a reconciled manifest and raw-string DuckDB load to a typed county stage, `dim_county`, and `fct_svi_county`. Both source paths preserve five-character county FIPS, raw missingness evidence, declared grain, vintage, and lineage with deterministic fixture tests. The facility source, CMS final facts and benchmarks, pinned CMS/SVI reconciliation, screening mart, Airflow DAG, and Power BI report remain deferred; current source and environment evidence is recorded in [`docs/preflight.md`](docs/preflight.md).
 
 ## Human guides
 
@@ -14,6 +14,7 @@ The locked Python 3.12 development environment and offline quality checks are ve
 - [Plan 002 — What is an ingestion manifest?](docs/guides/002-cms-ingestion-manifest-explained.html) explains raw downloads, bytes, blobs, hashes, manifests, atomic publication, and safe reruns at the same introductory level.
 - [Plan 003 — How does raw CMS data become a typed county stage?](docs/guides/003-cms-staging-explained.html) explains manifest verification, raw-string loading, suppression and unavailability, county filtering, dbt tests, and deterministic reruns.
 - [Plan 004 — How does the SVI county source contract protect the mart?](docs/guides/004-svi-source-contract-explained.html) explains the official layer identity, required fields, county grain, source-defined denominators, unavailable sentinel, dated live evidence, and safety boundaries.
+- [Plan 005 — How do paginated SVI responses become trusted county facts?](docs/guides/005-svi-source-to-fact-explained.html) explains exact API pages, immutable hashes and manifests, raw-token typing, the county dimension, the SVI fact, and the boundaries that keep this context out of screening decisions for now.
 
 Open any downloaded HTML file in a web browser. The numbering follows the matching files in [`plans/`](plans/); the authoring and review convention is in [`docs/guides/README.md`](docs/guides/README.md).
 
@@ -49,6 +50,45 @@ uv run dbt build --project-dir analytics --profiles-dir analytics
 These commands do not contact CMS. The copied profile, DuckDB database, dbt
 logs, and dbt targets are ignored. This stage does not update a published-mart
 pointer.
+
+## SVI source-to-fact quick start
+
+The committed fixtures exercise pagination, exact-page reconciliation,
+manifest-driven loading, SVI typing, `dim_county`, and `fct_svi_county` without
+network access:
+
+```powershell
+uv run pytest tests/unit/extract/test_cdc_svi_county_2022.py
+uv run pytest tests/unit/stage/test_cdc_svi_county_2022_stage.py
+uv run pytest tests/integration/test_cdc_svi_county_2022_dbt.py
+```
+
+Run the separate live extractor only when current-source validation is
+intended:
+
+```powershell
+uv run python -m kidney_care_mart.extract.cdc_svi_county_2022 `
+  --run-id cdc-svi-2022-live-<UTC timestamp> `
+  --output-root data/raw
+```
+
+Load a verified local manifest and build only the SVI path:
+
+```powershell
+uv run python -m kidney_care_mart.stage.cdc_svi_county_2022 `
+  --manifest data/raw/manifests/cdc_svi_county_2022/<run-id>.json `
+  --raw-root data/raw `
+  --database data/staging/<run-id>.duckdb
+Copy-Item analytics/profiles.example.yml analytics/profiles.yml
+$env:KIDNEY_CARE_DUCKDB_PATH = (Resolve-Path `
+  "data/staging/<run-id>.duckdb").Path
+uv run dbt build --project-dir analytics --profiles-dir analytics `
+  --select stg_cdc_svi_county_2022+
+```
+
+Generated pages, manifests, DuckDB files, profiles, dbt logs, and dbt targets
+are ignored. These models provide static 2022 social vulnerability context;
+they do not calculate a screening quadrant or recommendation.
 
 ## Bootstrap quick start
 

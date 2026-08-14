@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A beginner-friendly explanation of Plan 005: deterministic SVI pagination, immutable raw pages, typed county models, and their safety checks.">
+  <title>Plan 005 — From SVI pages to trusted county facts</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --page: #f4f7f2; --surface: #fff; --surface-2: #e8f0ea;
+      --ink: #18251e; --muted: #4d6155; --line: #b7c8bc;
+      --accent: #0d6b50; --accent-ink: #fff; --warm: #f6e6c8;
+      --danger: #8a2d32; --code: #edf2ee; --blue: #d4e8f1;
+      --violet: #e3def4; --shadow: 0 .8rem 2rem rgb(20 50 34 / 10%);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --page: #111914; --surface: #18231d; --surface-2: #223229;
+        --ink: #edf6f0; --muted: #b8c9be; --line: #40584a;
+        --accent: #75d5af; --accent-ink: #102118; --warm: #4a3b22;
+        --danger: #ff9ca0; --code: #0f1712; --blue: #263f4a;
+        --violet: #393750; --shadow: 0 .8rem 2rem rgb(0 0 0 / 28%);
+      }
+    }
+    body:has(#theme-preview:checked) {
+      --page: #111914; --surface: #18231d; --surface-2: #223229;
+      --ink: #edf6f0; --muted: #b8c9be; --line: #40584a;
+      --accent: #75d5af; --accent-ink: #102118; --warm: #4a3b22;
+      --danger: #ff9ca0; --code: #0f1712; --blue: #263f4a;
+      --violet: #393750; --shadow: 0 .8rem 2rem rgb(0 0 0 / 28%);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--page); color: var(--ink); line-height: 1.65; }
+    a { color: var(--accent); text-underline-offset: .2em; }
+    a:hover { text-decoration-thickness: .16em; }
+    a:focus-visible, summary:focus-visible, input:focus-visible {
+      outline: .2rem solid var(--accent); outline-offset: .2rem; border-radius: .15rem;
+    }
+    code {
+      padding: .1em .3em; border-radius: .25rem; background: var(--code);
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      overflow-wrap: anywhere;
+    }
+    .skip-link {
+      position: fixed; z-index: 10; top: .5rem; left: .5rem; padding: .65rem .9rem;
+      background: var(--accent); color: var(--accent-ink); transform: translateY(-180%);
+    }
+    .skip-link:focus { transform: translateY(0); }
+    header { padding: clamp(2.8rem, 8vw, 6rem) 1rem 2.5rem; }
+    .hero, main, footer { width: min(72rem, calc(100% - 2rem)); margin-inline: auto; }
+    .eyebrow {
+      margin: 0 0 .5rem; color: var(--accent); font-weight: 800;
+      letter-spacing: .1em; text-transform: uppercase; font-size: .78rem;
+    }
+    h1 { max-width: 15ch; margin: 0; font-size: clamp(2.35rem, 7vw, 5.2rem); line-height: .98; }
+    .lede { max-width: 46rem; margin: 1.35rem 0 0; font-size: clamp(1.05rem, 2vw, 1.3rem); }
+    .status {
+      display: inline-flex; gap: .55rem; align-items: center; margin-top: 1.35rem;
+      padding: .45rem .75rem; border: 1px solid var(--line); border-radius: 999px;
+      background: var(--surface);
+    }
+    .status::before { content: ""; width: .65rem; height: .65rem; border-radius: 50%; background: var(--accent); }
+    .theme-toggle {
+      display: flex; width: fit-content; gap: .55rem; align-items: center; margin-top: .85rem;
+      color: var(--muted); font-weight: 700; cursor: pointer;
+    }
+    .theme-toggle input { inline-size: 1.1rem; block-size: 1.1rem; accent-color: var(--accent); }
+    nav {
+      position: sticky; top: 0; z-index: 3; border-block: 1px solid var(--line);
+      background: color-mix(in srgb, var(--page) 92%, transparent); backdrop-filter: blur(.7rem);
+    }
+    nav ul {
+      width: min(72rem, calc(100% - 2rem)); margin: 0 auto; padding: .7rem 0;
+      display: flex; gap: .55rem 1rem; flex-wrap: wrap; list-style: none;
+    }
+    nav a { font-weight: 700; text-decoration: none; }
+    main { padding-block: 2rem 5rem; }
+    section {
+      margin-block: 1.25rem; padding: clamp(1.25rem, 3vw, 2.3rem);
+      border: 1px solid var(--line); border-radius: 1rem; background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+    h2 { margin-top: 0; line-height: 1.15; font-size: clamp(1.55rem, 4vw, 2.35rem); }
+    h3 { margin-bottom: .35rem; line-height: 1.25; }
+    .prose { max-width: 38rem; }
+    .analogy {
+      display: grid; grid-template-columns: auto 1fr; gap: 1rem; align-items: start;
+      padding: 1rem; border-left: .35rem solid var(--accent); background: var(--surface-2);
+    }
+    .analogy .mark { font-size: 1.8rem; line-height: 1; }
+    .flow {
+      display: grid; grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: .65rem; margin-top: 1.25rem; counter-reset: flow;
+    }
+    .flow article {
+      position: relative; min-height: 11rem; padding: 1rem; border: 1px solid var(--line);
+      border-radius: .75rem; background: var(--surface-2); counter-increment: flow;
+    }
+    .flow article::before {
+      content: counter(flow); display: grid; place-items: center; width: 1.8rem; height: 1.8rem;
+      border-radius: 50%; background: var(--accent); color: var(--accent-ink); font-weight: 900;
+    }
+    .flow h3 { font-size: 1rem; }
+    .metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .75rem; }
+    .metric { padding: 1rem; border: 1px solid var(--line); border-radius: .75rem; background: var(--surface-2); }
+    .metric strong { display: block; color: var(--accent); font-size: 1.8rem; line-height: 1; }
+    .page-spread { display: grid; grid-template-columns: 2fr 1.144fr; gap: .75rem; margin-block: 1rem; }
+    .page {
+      min-height: 8rem; padding: 1rem; border: 2px solid var(--accent);
+      border-radius: .75rem; background: var(--blue);
+    }
+    .page:last-child { background: var(--violet); }
+    .page strong { display: block; font-size: 1.6rem; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .94rem; }
+    th, td { padding: .75rem; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { background: var(--surface-2); }
+    .callout { padding: 1rem; border: 1px solid var(--line); border-radius: .75rem; background: var(--warm); }
+    .failure { border-left: .35rem solid var(--danger); }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .check-list, .boundary-list { padding-left: 1.35rem; }
+    .check-list li, .boundary-list li { margin-block: .55rem; }
+    details { margin-top: 1rem; border: 1px solid var(--line); border-radius: .75rem; padding: .85rem 1rem; }
+    summary { cursor: pointer; font-weight: 800; }
+    dl { display: grid; grid-template-columns: minmax(8rem, .35fr) 1fr; gap: .7rem 1rem; }
+    dt { font-weight: 800; }
+    dd { margin: 0; }
+    footer { padding: 1.5rem 0 3rem; color: var(--muted); }
+    @media (max-width: 64rem) {
+      .flow { grid-template-columns: repeat(3, 1fr); }
+      .metrics { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 38rem) {
+      .flow, .metrics, .page-spread, .two-col { grid-template-columns: 1fr; }
+      section { padding: 1.1rem; }
+      dl { grid-template-columns: 1fr; gap: .15rem; }
+      dd { margin-bottom: .8rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
+    }
+    @media print {
+      :root { color-scheme: light; --page: #fff; --surface: #fff; --ink: #000; --muted: #333; --line: #777; --accent: #074b38; --accent-ink: #fff; --warm: #f3ead8; --code: #eee; --blue: #eee; --violet: #eee; --shadow: none; }
+      nav, .skip-link, .theme-toggle { display: none; }
+      header, main, footer { width: 100%; }
+      header { padding-top: 0; }
+      section { break-inside: avoid; box-shadow: none; }
+      a { color: inherit; }
+      a::after { content: " (" attr(href) ")"; font-size: .8em; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to the guide</a>
+  <header>
+    <div class="hero">
+      <p class="eyebrow">Kidney Care Analytics Mart · Plan 005</p>
+      <h1>Two API pages become one trusted county fact.</h1>
+      <p class="lede">Plan 005 follows every SVI county row from the official ArcGIS service through immutable raw evidence, exact missingness rules, a canonical county dimension, and a tested contextual fact.</p>
+      <p class="status"><strong>Completed:</strong> pagination, manifest, staging, county dimension, and SVI fact</p>
+      <label class="theme-toggle"><input id="theme-preview" type="checkbox"> Preview the dark palette</label>
+    </div>
+  </header>
+
+  <nav aria-label="Guide sections">
+    <ul>
+      <li><a href="#idea">The idea</a></li>
+      <li><a href="#flow">The flow</a></li>
+      <li><a href="#pages">Pages</a></li>
+      <li><a href="#typing">Typing</a></li>
+      <li><a href="#models">Models</a></li>
+      <li><a href="#evidence">Evidence</a></li>
+      <li><a href="#boundaries">Boundaries</a></li>
+      <li><a href="#links">Links</a></li>
+    </ul>
+  </nav>
+
+  <main id="main-content">
+    <section id="idea" aria-labelledby="idea-title">
+      <h2 id="idea-title">What changed in Plan 005?</h2>
+      <div class="prose">
+        <p>Plan 004 proved that the official layer had the right identity, fields, types, and county grain. Plan 005 does the larger operational job: it retrieves every required county attribute in complete ordered pages, proves that the saved bytes match a manifest, then turns raw tokens into governed dbt models.</p>
+        <div class="analogy">
+          <div class="mark" aria-hidden="true">📚</div>
+          <div><strong>Think of a numbered ledger delivered in two sealed volumes.</strong> The receiver checks the volume numbers, page order, seals, and total entries before filing the ledger. Later, an analyst copies values into a clean register—but keeps the sealed volumes and receipt so every entry can be traced back.</div>
+        </div>
+        <p>The result is still contextual data, not a clinical conclusion. SVI does not estimate kidney disease prevalence and does not decide where an intervention, facility, partnership, or contract should go.</p>
+      </div>
+    </section>
+
+    <section id="flow" aria-labelledby="flow-title">
+      <h2 id="flow-title">The complete source-to-model flow</h2>
+      <div class="flow" aria-label="Six-step SVI source-to-fact flow">
+        <article><h3>Check metadata</h3><p>Require layer 1, the 17 fields, pagination, ordering, and <code>GRASP_ID</code>.</p></article>
+        <article><h3>Count first</h3><p>Ask the same layer and filter how many rows must arrive.</p></article>
+        <article><h3>Fetch pages</h3><p>Request attributes only, ordered by <code>GRASP_ID ASC</code>, at most 2,000 rows.</p></article>
+        <article><h3>Seal evidence</h3><p>Hash exact JSON bytes, reconcile every key, and publish one canonical manifest.</p></article>
+        <article><h3>Type carefully</h3><p>Load raw token text, then distinguish <code>-999</code>, null, zero, and invalid text.</p></article>
+        <article><h3>Build models</h3><p>Create <code>dim_county</code> and <code>fct_svi_county</code> with tested grains and lineage.</p></article>
+      </div>
+      <p class="callout"><strong>Publication rule:</strong> the manifest is the successful-snapshot receipt. A short page, duplicate FIPS, reordered object ID, hash mismatch, invalid path, or changed required field prevents that receipt—and prevents a final staging database.</p>
+    </section>
+
+    <section id="pages" aria-labelledby="pages-title">
+      <h2 id="pages-title">Why two pages need more than “download twice”</h2>
+      <p class="prose">The official layer returned 3,144 counties on 2026-08-14, while one response may contain no more than 2,000. The live split was <strong>2,000 + 1,144</strong>. The extractor plans offsets from the count and proves that the ordered results cover the total without gaps or overlap.</p>
+      <div class="page-spread" aria-label="The live source split into two ordered pages">
+        <div class="page"><strong>Page 1 · 2,000</strong><span>Offset 0 · 635,389 exact bytes</span><p>Starts with object ID 1 and county FIPS <code>01001</code>.</p></div>
+        <div class="page"><strong>Page 2 · 1,144</strong><span>Offset 2,000 · 365,449 exact bytes</span><p>Ends with object ID 3,144 and county FIPS <code>56045</code>.</p></div>
+      </div>
+      <div class="metrics">
+        <div class="metric"><strong>3,144</strong><span>rows expected and received</span></div>
+        <div class="metric"><strong>3,144</strong><span>distinct five-character FIPS</span></div>
+        <div class="metric"><strong>3,144</strong><span>distinct object IDs</span></div>
+        <div class="metric"><strong>0</strong><span>territory or prefix-mismatch rows</span></div>
+      </div>
+      <details>
+        <summary>What exactly is hashed?</summary>
+        <p>Each response is stored byte-for-byte beneath its SHA-256 filename. The manifest then hashes the ordered page identities—page index, offset, row count, byte count, and page hash—to create snapshot SHA-256 <code>51c2fbc79ddf9eb5a2f71480bde151f5b4e4e2d0494c2e780baa557e7014a2ee</code>. It does not pretend that reserialized JSON is the original response.</p>
+      </details>
+    </section>
+
+    <section id="typing" aria-labelledby="typing-title">
+      <h2 id="typing-title">Raw text first, meaning second</h2>
+      <p class="prose">ArcGIS sends numeric JSON tokens, but the loader parses those tokens as strings before DuckDB loading. That avoids a floating-point round trip and keeps <code>0</code>, <code>0.75</code>, <code>-999</code>, and JSON null distinguishable.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th scope="col">Raw representation</th><th scope="col">Typed value</th><th scope="col">Status</th><th scope="col">Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>-999</code></td><td>null</td><td><code>unavailable_sentinel</code></td><td>CDC/ATSDR says source data were unavailable or a derived value could not be calculated.</td></tr>
+            <tr><td>JSON null</td><td>null</td><td><code>unavailable_null</code></td><td>The response supplied no token; it remains distinct from the documented sentinel.</td></tr>
+            <tr><td><code>0</code></td><td>0</td><td><code>reported</code></td><td>A real reported zero stays zero.</td></tr>
+            <tr><td>Valid number</td><td>exact decimal</td><td><code>reported</code></td><td>Ranks retain a 0-to-1 scale; selected percentages retain a 0-to-100 scale.</td></tr>
+            <tr><td>Other text</td><td>null</td><td><code>invalid_numeric</code></td><td>The dbt build fails. Invalid text is never quietly relabeled as unavailable.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="callout"><strong>The boundary value stays neutral here:</strong> <code>0.75</code> remains exactly <code>0.75</code>, but Plan 005 does not label it “high.” That classification belongs in the later screening mart beside the separately governed Medicare threshold.</p>
+    </section>
+
+    <section id="models" aria-labelledby="models-title">
+      <h2 id="models-title">Three tables, three declared grains</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th scope="col">Model</th><th scope="col">Grain</th><th scope="col">Responsibility</th></tr></thead>
+          <tbody>
+            <tr><td><code>stg_cdc_svi_county_2022</code></td><td>One row per county FIPS</td><td>Retain source labels, raw/value/status triplets, SVI/ACS vintage, exact page lineage, and validated ranges.</td></tr>
+            <tr><td><code>dim_county</code></td><td>One row per canonical county FIPS</td><td>Provide five-character county identity, source labels, in-scope status, and geography provenance for future joins.</td></tr>
+            <tr><td><code>fct_svi_county</code></td><td>County FIPS × SVI vintage</td><td>Carry the five ranks and six contextual percentages with statuses, denominators, vintage, and snapshot lineage.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="two-col">
+        <div>
+          <h3>Rank denominator</h3>
+          <p>The five <code>RPL_*</code> values are U.S.-based county percentile ranks. Reported values must be between 0 and 1.</p>
+        </div>
+        <div>
+          <h3>Percentage denominators</h3>
+          <p>The six <code>EP_*</code> values keep their different official population or household denominators. They are not averaged into a score.</p>
+        </div>
+      </div>
+      <p>Every SVI fact county must resolve to exactly one dimension row. This is the SVI portion of T-009; it is not yet the CMS-to-SVI full reconciliation.</p>
+    </section>
+
+    <section id="evidence" aria-labelledby="evidence-title">
+      <h2 id="evidence-title">What the checks proved</h2>
+      <ul class="check-list">
+        <li><strong>T-003:</strong> deterministic pagination covers the count with no page gap, overlap, duplicate, or order reversal.</li>
+        <li><strong>T-004:</strong> exact page hashes, byte counts, row counts, schema identity, and the ordered snapshot hash reconcile before loading.</li>
+        <li><strong>T-005 and T-006:</strong> leading-zero county FIPS survive, while <code>-999</code>, null, and reported zero stay distinct.</li>
+        <li><strong>T-008 and the SVI portion of T-009:</strong> stage, dimension, and fact grains are unique and fact county keys resolve.</li>
+        <li><strong>T-010:</strong> reported ranks stay within <code>[0,1]</code> and selected percentages within <code>[0,100]</code>.</li>
+        <li>Failure injection proves truncated pages, duplicate keys, malformed FIPS, invalid numeric text, and out-of-range values block progress.</li>
+        <li>The 2026-08-14 live dbt selection completed 73 model/unit/data results with zero errors and produced 3,144 rows in the raw relation, stage, dimension, and fact.</li>
+        <li>A second live run found the same page and snapshot hashes, reused both immutable page blobs, and recorded <code>content_noop: true</code>.</li>
+      </ul>
+      <p class="callout"><strong>Network boundary:</strong> live extraction is an explicit command. The default pytest and dbt fixture suite uses only small synthetic files and makes no external request.</p>
+    </section>
+
+    <section id="boundaries" aria-labelledby="boundaries-title">
+      <h2 id="boundaries-title">What still waits</h2>
+      <div class="two-col">
+        <div>
+          <h3>Completed here</h3>
+          <ul class="boundary-list">
+            <li>Exact attribute-only ArcGIS pages.</li>
+            <li>Immutable page blobs and canonical manifest.</li>
+            <li>Raw-token DuckDB loading and page lineage.</li>
+            <li>Typed SVI stage, county dimension, and SVI fact.</li>
+          </ul>
+        </div>
+        <div class="callout failure">
+          <h3>Explicitly deferred</h3>
+          <ul class="boundary-list">
+            <li>The pinned 3,144/3,144 CMS-to-SVI T-014 reconciliation.</li>
+            <li>The Medicare P75 calculation and four screening quadrants.</li>
+            <li>Facility data, geography assignment, and quality context.</li>
+            <li>Parquet publication, Airflow, Power BI, hosting, and AWS.</li>
+          </ul>
+        </div>
+      </div>
+      <p>When those later models discuss the primary measure, the required phrase is <strong>observed outpatient dialysis use among Original Medicare beneficiaries</strong>. SVI context cannot turn that measure into disease prevalence, unmet need, causal evidence, or a final recommendation.</p>
+    </section>
+
+    <section id="links" aria-labelledby="links-title">
+      <h2 id="links-title">Follow the evidence in the repository</h2>
+      <ul class="check-list">
+        <li><a href="../../specs.md">Authoritative product and engineering specification</a></li>
+        <li><a href="../../plans/005-cdc-svi-source-to-fact.md">Plan 005 implementation record</a></li>
+        <li><a href="../../src/kidney_care_mart/extract/cdc_svi_county_2022.py">SVI extractor and multi-page manifest</a></li>
+        <li><a href="../../src/kidney_care_mart/stage/cdc_svi_county_2022.py">Manifest-driven DuckDB loader</a></li>
+        <li><a href="../../analytics/models/staging/cdc_svi_county_2022/stg_cdc_svi_county_2022.sql">Typed SVI staging SQL</a></li>
+        <li><a href="../../analytics/models/marts/core/dim_county.sql">County dimension</a> and <a href="../../analytics/models/marts/core/fct_svi_county.sql">SVI fact</a></li>
+        <li><a href="../../tests/unit/extract/test_cdc_svi_county_2022.py">Pagination tests</a>, <a href="../../tests/unit/stage/test_cdc_svi_county_2022_stage.py">loader tests</a>, and <a href="../../tests/integration/test_cdc_svi_county_2022_dbt.py">dbt integration tests</a></li>
+        <li><a href="../../tests/fixtures/cdc_svi_county_2022/pages/page-000000.json">Synthetic first-page fixture</a> and <a href="../../tests/fixtures/cdc_svi_county_2022/pages/page-000002.json">synthetic final-page fixture</a></li>
+        <li><a href="../source-catalog.md">Source catalog</a>, <a href="../preflight.md">dated live evidence</a>, and <a href="../../data/README.md">generated-data layout</a></li>
+        <li><a href="../../README.md">Repository README</a></li>
+      </ul>
+      <details open>
+        <summary>Short glossary</summary>
+        <dl>
+          <dt>Page</dt><dd>One bounded subset of a larger API result.</dd>
+          <dt>Manifest</dt><dd>A canonical receipt recording source, query, hashes, counts, pages, and lineage for one run.</dd>
+          <dt>Content-addressed</dt><dd>Stored under a filename derived from the bytes' SHA-256, so identical bytes share one identity.</dd>
+          <dt>Grain</dt><dd>What one row represents and therefore which key must be unique.</dd>
+          <dt>Dimension</dt><dd>A table that describes a stable identity, here one canonical county FIPS.</dd>
+          <dt>Fact</dt><dd>A table of governed observations at a declared grain, here county FIPS × SVI vintage.</dd>
+          <dt>Lineage</dt><dd>The recorded path from a model row back to the manifest and exact source page.</dd>
+        </dl>
+      </details>
+    </section>
+  </main>
+
+  <footer>
+    <p>Plan 005 guide · Verified 2026-08-14 · Static, network-free, and useful without JavaScript.</p>
+  </footer>
+</body>
+</html>

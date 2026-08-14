@@ -1,0 +1,206 @@
+version: 2
+
+models:
+  - name: dim_county
+    description: >-
+      One canonical in-scope U.S. county or county-equivalent per
+      five-character FIPS, using the complete verified SVI 2022 county
+      geography with explicit source provenance. This geography role does not
+      make SVI a clinical authority.
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: county_fips
+        data_type: varchar
+        description: Canonical five-character county FIPS.
+        data_tests: [not_null, unique]
+      - name: state_fips
+        data_type: varchar
+        description: Two-character state FIPS.
+        data_tests: [not_null]
+      - name: state_name
+        data_type: varchar
+        description: CDC/ATSDR source state label.
+        data_tests: [not_null]
+      - name: state_abbreviation
+        data_type: varchar
+        description: CDC/ATSDR state abbreviation.
+        data_tests: [not_null]
+      - name: county_name
+        data_type: varchar
+        description: CDC/ATSDR source county label.
+        data_tests: [not_null]
+      - name: geography_status
+        data_type: varchar
+        description: Explicit valid_in_scope geography status.
+        data_tests: [not_null]
+      - name: svi_geography_vintage
+        data_type: integer
+        description: SVI county geography release used for this dimension.
+        data_tests: [not_null]
+      - name: geography_source_id
+        data_type: varchar
+        description: Logical source providing the county identity row.
+        data_tests: [not_null]
+      - name: geography_source_manifest_run_id
+        data_type: varchar
+        description: Verified manifest run providing the county identity row.
+        data_tests: [not_null]
+      - name: geography_source_snapshot_sha256
+        data_type: varchar
+        description: Ordered SVI page-set identity providing the county row.
+        data_tests: [not_null]
+
+  - name: fct_svi_county
+    description: >-
+      One row per county FIPS and SVI vintage. The five U.S.-based county ranks
+      and six selected source percentages retain explicit availability status,
+      ACS period, exact source-defined units and denominators, and manifest
+      lineage. This contextual fact does not classify screening quadrants.
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: county_fips
+        data_type: varchar
+        description: Five-character county FIPS foreign key to dim_county.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_county')
+                field: county_fips
+      - name: svi_vintage
+        data_type: integer
+        description: Static SVI release year, 2022.
+        data_tests: [not_null]
+      - name: acs_period_start
+        data_type: integer
+        description: First year of the ACS period, 2018.
+        data_tests: [not_null]
+      - name: acs_period_end
+        data_type: integer
+        description: Last year of the ACS period, 2022.
+        data_tests: [not_null]
+      - name: rpl_themes
+        data_type: decimal(18, 10)
+        description: Overall U.S. county percentile rank, 0 to 1.
+      - name: rpl_themes_status
+        data_type: varchar
+        description: Availability/typing status for the overall rank.
+        data_tests: [not_null]
+      - name: rpl_theme1
+        data_type: decimal(18, 10)
+        description: Socioeconomic Status U.S. county rank, 0 to 1.
+      - name: rpl_theme1_status
+        data_type: varchar
+        description: Availability/typing status for theme 1.
+        data_tests: [not_null]
+      - name: rpl_theme2
+        data_type: decimal(18, 10)
+        description: Household Characteristics U.S. county rank, 0 to 1.
+      - name: rpl_theme2_status
+        data_type: varchar
+        description: Availability/typing status for theme 2.
+        data_tests: [not_null]
+      - name: rpl_theme3
+        data_type: decimal(18, 10)
+        description: Minority Status U.S. county rank, 0 to 1.
+      - name: rpl_theme3_status
+        data_type: varchar
+        description: Availability/typing status for theme 3.
+        data_tests: [not_null]
+      - name: rpl_theme4
+        data_type: decimal(18, 10)
+        description: Housing/Transportation U.S. county rank, 0 to 1.
+      - name: rpl_theme4_status
+        data_type: varchar
+        description: Availability/typing status for theme 4.
+        data_tests: [not_null]
+      - name: ep_pov150
+        data_type: decimal(18, 10)
+        description: >-
+          Persons below 150% poverty, 0 to 100; denominator S1701_C01_001E.
+      - name: ep_pov150_status
+        data_type: varchar
+        description: Availability/typing status for EP_POV150.
+        data_tests: [not_null]
+      - name: ep_uninsur
+        data_type: decimal(18, 10)
+        description: >-
+          Uninsured share, 0 to 100; denominator is the civilian
+          noninstitutionalized population in S2701_C05_001E.
+      - name: ep_uninsur_status
+        data_type: varchar
+        description: Availability/typing status for EP_UNINSUR.
+        data_tests: [not_null]
+      - name: ep_age65
+        data_type: decimal(18, 10)
+        description: >-
+          Age 65+ share, 0 to 100; denominator is total population represented
+          by S0101_C02_030E.
+      - name: ep_age65_status
+        data_type: varchar
+        description: Availability/typing status for EP_AGE65.
+        data_tests: [not_null]
+      - name: ep_disabl
+        data_type: decimal(18, 10)
+        description: >-
+          Disability share, 0 to 100; denominator is the civilian
+          noninstitutionalized population represented by DP02_0072PE.
+      - name: ep_disabl_status
+        data_type: varchar
+        description: Availability/typing status for EP_DISABL.
+        data_tests: [not_null]
+      - name: ep_limeng
+        data_type: decimal(18, 10)
+        description: >-
+          Speaks English less than well, 0 to 100; denominator is persons age
+          5+ represented by B16005_001E.
+      - name: ep_limeng_status
+        data_type: varchar
+        description: Availability/typing status for EP_LIMENG.
+        data_tests: [not_null]
+      - name: ep_noveh
+        data_type: decimal(18, 10)
+        description: >-
+          No-vehicle household share, 0 to 100; denominator is households
+          represented by DP04_0058PE.
+      - name: ep_noveh_status
+        data_type: varchar
+        description: Availability/typing status for EP_NOVEH.
+        data_tests: [not_null]
+      - name: source_id
+        data_type: varchar
+        description: Logical source ID from the verified manifest.
+        data_tests: [not_null]
+      - name: source_manifest_run_id
+        data_type: varchar
+        description: Pipeline run ID from the verified manifest.
+        data_tests: [not_null]
+      - name: source_snapshot_sha256
+        data_type: varchar
+        description: SHA-256 identity of the ordered exact-page set.
+        data_tests: [not_null]
+      - name: source_retrieved_at_utc
+        data_type: varchar
+        description: UTC retrieval timestamp from the verified manifest.
+        data_tests: [not_null]
+      - name: source_modified_at
+        data_type: varchar
+        description: ArcGIS layer edit timestamp from the manifest.
+
+unit_tests:
+  - name: county_dimension_retains_text_identity_and_provenance
+    description: Leading-zero FIPS and DC remain exact with source provenance.
+    model: dim_county
+    given:
+      - input: ref('stg_cdc_svi_county_2022')
+        rows:
+          - {county_fips: '01001', state_fips: '01', state_name: Synthetic Alabama, state_abbreviation: AL, county_name: Synthetic County A, svi_vintage: 2022, source_id: cdc_svi_county_2022, source_manifest_run_id: fixture, source_snapshot_sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}
+          - {county_fips: '11001', state_fips: '11', state_name: District of Columbia, state_abbreviation: DC, county_name: Synthetic District of Columbia, svi_vintage: 2022, source_id: cdc_svi_county_2022, source_manifest_run_id: fixture, source_snapshot_sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}
+    expect:
+      rows:
+        - {county_fips: '01001', state_fips: '01', geography_status: valid_in_scope, svi_geography_vintage: 2022, geography_source_id: cdc_svi_county_2022}
+        - {county_fips: '11001', state_fips: '11', geography_status: valid_in_scope, svi_geography_vintage: 2022, geography_source_id: cdc_svi_county_2022}

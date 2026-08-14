@@ -1,7 +1,7 @@
 # Environment and source preflight
 
 **Record date:** 2026-08-14
-**Status:** Gate 0 in progress; local bootstrap plus CMS and SVI source contracts verified
+**Status:** Gate 0 in progress; local bootstrap, CMS ingestion/stage, and SVI source-to-fact path verified
 
 This record distinguishes facts observed in the initial workspace from checks that still need to run on the implementation machine. A specification or configuration file is not evidence that its corresponding tool or integration works.
 
@@ -36,7 +36,7 @@ The specification's research review found these public services feasible, but ea
 |---|---:|---|---|
 | CMS Original Medicare Geographic Variation | Yes | Verified 2026-08-13 | A read-only request to `data.cms.gov/data.json` resolved exactly one intended dataset, stable ID `6219697b-8f6c-4164-bed4-cd9317c58ebc`, modified 2026-05-15. The stable data-viewer endpoint with `size=1&offset=0` reported 36,994 rows and 246 columns (242 `NUMERIC`, four `TEXT`) without authentication. Bounded filtered `data` requests returned the 2024 National All row and the 2024 County All row for raw code `01001`, preserving the leading zero; a bounded `UNKNOWN` query confirmed pseudo-county code `01000`. The National code is an empty raw string, with the contract exception documented in the source catalog. The 14-page official 2014-2024 dictionary downloaded successfully as a 563,924-byte PDF and is pinned at SHA-256 `75a8d4bef07d1900a50732c78a2aec688ba3ca132dad1dc6cab1a9243d55109f`. Exact labels, types, definitions, schema provenance, and the bounded-sample limitation are recorded in `docs/source-schemas/cms_om_gv.schema.json`; no full CSV or response dump was retained. |
 | CMS Dialysis Facility Listing | Yes | Pending | Official metadata resolves and a paginated sample or full CSV succeeds without an API key; pagination is complete and CCNs reconcile. |
-| CDC/ATSDR SVI 2022 U.S. county data | Yes | Verified 2026-08-14 | The public ArcGIS service resolved item `f2af3fd35858443293b75d5f73c7d4d3`, county layer 1 `SVI2022 US county`, and object ID `GRASP_ID` without authentication. Metadata exposed 161 fields, a 2,000-record page limit, pagination and ordering support, and a count-only query returned 3,144 rows. Bounded two-row samples on both sides of the page limit preserved `01001`, `01003`, `38017`, and `38019`. A separate attribute-only key scan returned pages of 2,000 and 1,144 rows: all 3,144 `STCNTY` values and object IDs were distinct, IDs increased strictly, `11001` was present, and no prefix mismatch or territory row appeared. The official 17-page documentation is pinned at 542,647 bytes and SHA-256 `5636ae52e13ec201b90f4a31b55d12959d55784469e8c11662b64c03f09424fc`. No geometry, full metric rows, response dump, credentials, or patient data were retained. Production pagination and immutable publication remain pending. |
+| CDC/ATSDR SVI 2022 U.S. county data | Yes | Verified 2026-08-14 | The public ArcGIS service resolved item `f2af3fd35858443293b75d5f73c7d4d3`, county layer 1 `SVI2022 US county`, and object ID `GRASP_ID` without authentication. The production extractor saved two exact attribute-only pages with 2,000 and 1,144 rows, reconciled 3,144 unique county FIPS and object IDs, preserved DC `11001`, excluded territories, and published immutable page and snapshot hashes. A manifest-driven local load and SVI dbt selection produced 3,144 rows in the raw relation, typed stage, county dimension, and SVI fact with 73 passing model/test results. A second run reused both verified pages and recorded a content no-op. The official documentation remains pinned at 542,647 bytes and SHA-256 `5636ae52e13ec201b90f4a31b55d12959d55784469e8c11662b64c03f09424fc`. Generated pages, manifests, and databases are ignored. |
 | Census Geocoder | Conditional | Pending | A sample or batch request succeeds for unresolved public facility business addresses. |
 
 ## CDC/ATSDR SVI county source-contract check
@@ -56,8 +56,8 @@ with geometry disabled and deterministic object-ID ordering. It reconciled
 3,144 records, 3,144 distinct FIPS, and 3,144 distinct object IDs; found
 District of Columbia `11001`; and found no state-prefix mismatch or territory
 row. This dated result supports the pinned 2022 snapshot expectation but is not
-a timeless row-count assertion or the production paginator required by the
-next plan.
+a timeless row-count assertion. The production source-to-fact check below
+supersedes the earlier implementation deferral.
 
 The official documentation was retrieved from the CDC/ATSDR documentation
 page and visually checked for the five U.S.-based county percentile ranks, the
@@ -67,6 +67,35 @@ committed PDF, normalized schema, exact official locators, hashes, retrieval
 time, layer edit time, and reduced live evidence are recorded under
 `docs/source-dictionaries/` and `docs/source-schemas/`. Default tests remain
 network-free.
+
+## CDC/ATSDR SVI source-to-fact live check
+
+On 2026-08-14, after the offline extractor, loader, dbt, and failure-injection
+tests passed, the explicit live extractor requested the 17 required attributes
+with geometry disabled and `GRASP_ID ASC`. It saved two exact response bodies:
+2,000 rows and 635,389 bytes at offset 0, followed by 1,144 rows and 365,449
+bytes at offset 2,000. Their SHA-256 values were
+`06b724e33bb61b4d3cd5996ce3b12a122e3de38807e84b3c7fe5a58541d377eb`
+and
+`62376e01a8197cc1772e78f2eda9b47b40ec4ac0f78ccd86b7525d6cd669ccf5`.
+The canonical ordered snapshot SHA-256 was
+`51c2fbc79ddf9eb5a2f71480bde151f5b4e4e2d0494c2e780baa557e7014a2ee`.
+
+Independent disk reconciliation rehashed and reparsed the manifest and both
+pages before a fresh DuckDB load. The result contained 3,144 records, 3,144
+distinct county FIPS, 3,144 distinct object IDs, DC `11001`, and no territory
+rows. The SVI dbt selection completed 73 model, unit-test, and data-test results
+with zero errors and produced 3,144 rows in each of the raw relation,
+`stg_cdc_svi_county_2022`, `dim_county`, and `fct_svi_county`. A second live run
+under a new run ID produced the same page and snapshot hashes, reused both
+verified page blobs, needed no retry, and recorded `content_noop: true`.
+
+These are dated observations about the examined static 2022 snapshot, not
+timeless row-count guarantees. The generated responses, manifests, and
+database remain under ignored paths. CMS-to-SVI reconciliation T-014 and all
+screening thresholds, quadrants, rankings, and recommendations remain
+deferred. The final locked offline handoff completed `uv sync --locked`, clean
+Ruff format and lint checks, and 252 passing pytest tests.
 
 ## CMS Geographic Variation full-file ingestion check
 

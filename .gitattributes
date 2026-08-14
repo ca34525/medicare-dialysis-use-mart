@@ -1,0 +1,46 @@
+# Normalize text files to LF for stable cross-platform diffs.
+* text=auto
+
+*.py text eol=lf
+*.pyi text eol=lf
+*.md text eol=lf
+*.rst text eol=lf
+*.txt text eol=lf
+*.toml text eol=lf
+*.lock text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.sql text eol=lf
+*.csv text eol=lf
+*.tsv text eol=lf
+*.sh text eol=lf
+*.ps1 text eol=lf
+*.tf text eol=lf
+*.tfvars.example text eol=lf
+*.pbip text eol=lf
+*.pbir text eol=lf
+*.tmdl text eol=lf
+Makefile text eol=lf
+
+# Windows command scripts require CRLF.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary and generated analytical artifacts must never be line-normalized.
+*.duckdb binary
+*.db binary
+*.sqlite binary
+*.sqlite3 binary
+*.parquet binary
+*.pbix binary
+*.pbit binary
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.zip binary
+*.gz binary
+

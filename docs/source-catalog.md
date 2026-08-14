@@ -70,9 +70,59 @@ The `header_sha256` separately hashes canonical JSON for the ordered raw header
 labels because a CSV header does not encode declared types. Both hashes exclude
 the manifest's final presentation newline.
 
+### CMS Geographic Variation raw-to-stage
+
+Plan 003 adds a strictly local transformation boundary. It accepts one
+canonical manifest path, resolves its content-addressed blob only beneath the
+configured raw root, and independently reconciles the manifest format, source
+and contract identity, content SHA-256, bytes, logical CSV rows, schema hash,
+header hash, additive columns, and raw contract before creating a DuckDB file.
+It performs no HTTP requests and never modifies the manifest or blob.
+
+Run a local snapshot load from the repository root:
+
+```powershell
+uv run python -m kidney_care_mart.stage.cms_om_gv `
+  --manifest data/raw/manifests/cms_om_gv/<run-id>.json `
+  --raw-root data/raw `
+  --database data/staging/<run-id>.duckdb
+```
+
+The database contains required source columns as text in `raw.cms_om_gv` and
+one lineage record in `raw.cms_om_gv_load_audit`. Publication uses a temporary
+database on the same volume and a no-overwrite hard link. Repeating the same
+manifest/database pair is an idempotent no-op; different lineage at the same
+database path is a blocking conflict.
+
+Copy the credential-free profile example, point it at that run-scoped database,
+and build the typed stage:
+
+```powershell
+Copy-Item analytics/profiles.example.yml analytics/profiles.yml
+$env:KIDNEY_CARE_DUCKDB_PATH = (Resolve-Path `
+  "data/staging/<run-id>.duckdb").Path
+uv run dbt build --project-dir analytics --profiles-dir analytics
+```
+
+`analytics/profiles.yml`, generated dbt targets/logs, and DuckDB files are
+ignored. The deterministic fixture path requires no local snapshot:
+
+```powershell
+uv run pytest tests/integration/test_cms_om_gv_dbt.py
+```
+
+The typed stage grain is one five-character county FIPS by CMS calendar year.
+It selects exact County + All rows, excludes the anchored `UNKNOWN` source
+representation and territory prefixes, preserves leading-zero FIPS, and
+requires District of Columbia to be `11001`. Each required metric retains its
+raw string, fixed-point typed value, and one status: `reported`, `suppressed`,
+`unavailable_blank`, `unavailable_na`, or the build-blocking
+`invalid_numeric`. Rates and percentages retain their source scale and are not
+aggregated in staging.
+
 ### Raw geography-code exception
 
-The bounded current sample confirms `BENE_GEO_CD=""` for the National row. CMS also emits the same empty code for distinct State pseudo-rows `Territory` and `ZZ`. The raw transport grain therefore includes `BENE_GEO_DESC`, and the contract accepts an empty geography code only in those source contexts. This correction was confirmed during the 2026-08-14 full-file live check after the narrower key correctly blocked as duplicated; duplicate complete raw grains still block publication. County and ordinary State rows require a nonblank code. County FIPS typing, scope filtering, District of Columbia handling, and removal of `UNKNOWN` pseudo-counties remain later transformation responsibilities.
+The bounded current sample confirms `BENE_GEO_CD=""` for the National row. CMS also emits the same empty code for distinct State pseudo-rows `Territory` and `ZZ`. The raw transport grain therefore includes `BENE_GEO_DESC`, and the contract accepts an empty geography code only in those source contexts. This correction was confirmed during the 2026-08-14 full-file live check after the narrower key correctly blocked as duplicated; duplicate complete raw grains still block publication. County and ordinary State rows require a nonblank code. Plan 003 now applies county FIPS typing, County + All scope, District of Columbia validation, territory exclusion, and anchored `UNKNOWN` removal in the typed stage; state and national benchmark modeling remains deferred.
 
 ### Missingness, denominator, and interpretation
 

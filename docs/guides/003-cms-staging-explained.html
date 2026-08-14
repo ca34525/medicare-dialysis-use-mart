@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A beginner-friendly explanation of the verified CMS raw-to-stage transformation in the Kidney Care Analytics Mart.">
+  <title>Plan 003 explained: from verified CMS strings to a county-year stage</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --page: #f4f7f2; --surface: #fff; --surface-2: #e8f0ea;
+      --ink: #18251e; --muted: #4d6155; --line: #b7c8bc;
+      --accent: #0d6b50; --accent-ink: #fff; --warm: #f6e6c8;
+      --danger: #8a2d32; --code: #edf2ee;
+      --shadow: 0 .8rem 2rem rgb(20 50 34 / 10%);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --page: #111914; --surface: #18231d; --surface-2: #223229;
+        --ink: #edf6f0; --muted: #b8c9be; --line: #40584a;
+        --accent: #75d5af; --accent-ink: #102118; --warm: #4a3b22;
+        --danger: #ff9ca0; --code: #0f1712;
+        --shadow: 0 .8rem 2rem rgb(0 0 0 / 28%);
+      }
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--page); color: var(--ink); line-height: 1.65; }
+    a { color: var(--accent); text-underline-offset: .2em; }
+    a:hover { text-decoration-thickness: .16em; }
+    a:focus-visible, summary:focus-visible {
+      outline: .2rem solid var(--accent); outline-offset: .2rem; border-radius: .15rem;
+    }
+    code {
+      padding: .1em .3em; border-radius: .25rem; background: var(--code);
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      overflow-wrap: anywhere;
+    }
+    .skip-link {
+      position: absolute; top: .6rem; left: -100rem; z-index: 10;
+      padding: .7rem 1rem; background: var(--accent); color: var(--accent-ink);
+      font-weight: 700;
+    }
+    .skip-link:focus { left: .6rem; }
+    header {
+      border-bottom: 1px solid var(--line);
+      background: radial-gradient(circle at 86% 18%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 25rem), var(--surface);
+    }
+    .hero, main, footer { width: min(72rem, calc(100% - 2rem)); margin-inline: auto; }
+    .hero { padding: clamp(2.4rem, 8vw, 6rem) 0 3.2rem; }
+    .eyebrow {
+      margin: 0 0 .8rem; color: var(--accent); font-weight: 800;
+      letter-spacing: .08em; text-transform: uppercase;
+    }
+    h1, h2, h3 { line-height: 1.15; text-wrap: balance; }
+    h1 { max-width: 16ch; margin: 0; font-size: clamp(2.3rem, 8vw, 5rem); }
+    h2 { margin-top: 0; font-size: clamp(1.65rem, 4vw, 2.5rem); }
+    h3 { font-size: 1.22rem; }
+    .lede { max-width: 64ch; font-size: clamp(1.1rem, 2vw, 1.35rem); color: var(--muted); }
+    .hero-links { display: flex; flex-wrap: wrap; gap: .7rem 1.2rem; margin-top: 1.5rem; }
+    nav {
+      position: sticky; top: 0; z-index: 5; border-bottom: 1px solid var(--line);
+      background: color-mix(in srgb, var(--page) 92%, transparent); backdrop-filter: blur(.7rem);
+    }
+    nav ul {
+      display: flex; width: min(72rem, calc(100% - 2rem)); margin: 0 auto;
+      padding: .65rem 0; gap: .5rem 1.2rem; overflow-x: auto; list-style: none;
+    }
+    nav a { white-space: nowrap; font-weight: 700; }
+    main { padding-block: 2.2rem 4rem; }
+    section { scroll-margin-top: 5rem; margin-top: 4rem; }
+    .card, .callout, .flow-step, details {
+      border: 1px solid var(--line); border-radius: .8rem;
+      background: var(--surface); box-shadow: var(--shadow);
+    }
+    .card, .callout, details { padding: 1.2rem; }
+    .callout { border-left: .35rem solid var(--accent); }
+    .warning { border-left-color: var(--danger); }
+    .two-column, .three-column { display: grid; gap: 1rem; }
+    .two-column { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .three-column { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .flow {
+      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1.7rem; margin-block: 1.5rem; padding: 0; list-style: none;
+    }
+    .flow-step { position: relative; padding: 1rem; }
+    .flow-step:not(:last-child)::after {
+      content: "→"; position: absolute; right: -1.35rem; top: 50%;
+      color: var(--accent); font-size: 1.5rem; font-weight: 900;
+      transform: translateY(-50%);
+    }
+    .step-number {
+      display: inline-grid; width: 2rem; height: 2rem; place-items: center;
+      border-radius: 50%; background: var(--accent); color: var(--accent-ink); font-weight: 900;
+    }
+    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: .7rem; }
+    table { width: 100%; border-collapse: collapse; background: var(--surface); }
+    th, td { padding: .75rem; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { background: var(--surface-2); }
+    tr:last-child td { border-bottom: 0; }
+    .status {
+      display: inline-block; padding: .12rem .45rem; border: 1px solid var(--line);
+      border-radius: 99rem; font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: .9rem; font-weight: 700;
+    }
+    .grain {
+      padding: 1rem; border-radius: .65rem; background: var(--warm);
+      font-size: 1.12rem; font-weight: 800; text-align: center;
+    }
+    summary { cursor: pointer; font-weight: 800; }
+    details + details { margin-top: .7rem; }
+    footer { padding: 2rem 0 4rem; border-top: 1px solid var(--line); color: var(--muted); }
+    @media (max-width: 52rem) {
+      .three-column { grid-template-columns: 1fr; }
+      .flow { grid-template-columns: 1fr 1fr; }
+      .flow-step:nth-child(2)::after { content: "↓"; right: 50%; top: auto; bottom: -1.55rem; transform: translateX(50%); }
+    }
+    @media (max-width: 38rem) {
+      .two-column, .flow { grid-template-columns: 1fr; }
+      .flow-step:not(:last-child)::after { content: "↓"; right: 50%; top: auto; bottom: -1.55rem; transform: translateX(50%); }
+      nav { position: static; } th, td { padding: .55rem; }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+    @media print {
+      nav, .skip-link { display: none; }
+      body { background: #fff; color: #000; font-size: 10pt; }
+      header, .card, .callout, .flow-step, details, table { background: #fff; box-shadow: none; }
+      a { color: #000; text-decoration: underline; }
+      section { break-inside: avoid; margin-top: 2rem; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to the guide</a>
+  <header>
+    <div class="hero">
+      <p class="eyebrow">Plan 003 · completed transformation boundary</p>
+      <h1>From protected evidence to usable county rows</h1>
+      <p class="lede">The raw CMS file is deliberately kept unchanged. This step verifies that evidence again, copies required values into DuckDB as strings, and lets dbt create a typed county-year stage without confusing suppression, unavailability, and zero.</p>
+      <div class="hero-links">
+        <a href="../../plans/003-cms-om-gv-raw-to-stage.md">Read the engineering plan</a>
+        <a href="../../specs.md">Read the authoritative specification</a>
+        <a href="../../README.md">Return to the project overview</a>
+      </div>
+    </div>
+  </header>
+  <nav aria-label="Guide sections">
+    <ul>
+      <li><a href="#idea">Main idea</a></li><li><a href="#flow">Flow</a></li>
+      <li><a href="#missingness">Missingness</a></li><li><a href="#geography">Geography</a></li>
+      <li><a href="#tests">Safety checks</a></li><li><a href="#limits">Limits</a></li>
+      <li><a href="#glossary">Glossary</a></li>
+    </ul>
+  </nav>
+  <main id="main-content">
+    <section id="idea" aria-labelledby="idea-heading">
+      <h2 id="idea-heading">The main idea: unpack a sealed shipment</h2>
+      <div class="two-column">
+        <article class="card"><h3>The sealed shipment</h3><p>Plan 002 stored the exact CMS bytes as an immutable, content-addressed blob. Its manifest acts like a receiving record: it says which file arrived, how large it was, which columns it had, and which cryptographic hash identifies it.</p><p>Plan 003 checks that receiving record again before it opens anything. The raw blob and manifest remain unchanged.</p></article>
+        <article class="card"><h3>The labeled workbench</h3><p>DuckDB receives only required columns as raw text. dbt then selects the intended county rows, types metrics, assigns explicit missingness statuses, checks the declared grain, and attaches source lineage to every result.</p><p>The result is easier to query, but it can still be traced to the sealed shipment.</p></article>
+      </div>
+      <p class="grain">County-stage grain: one five-character county FIPS × one CMS calendar year</p>
+      <div class="callout"><strong>Denominator and meaning:</strong> metrics remain on their CMS-defined scales and Original Medicare denominators. <strong>Observed outpatient dialysis use among Original Medicare beneficiaries</strong> is not relabeled as kidney disease prevalence, unmet need, disease burden, or an intervention opportunity.</div>
+    </section>
+
+    <section id="flow" aria-labelledby="flow-heading">
+      <h2 id="flow-heading">What happens from input to output</h2>
+      <ol class="flow">
+        <li class="flow-step"><span class="step-number">1</span><h3>Verify</h3><p>Read canonical manifest JSON and recheck the blob path, SHA-256, bytes, rows, schema hash, header hash, and raw contract.</p></li>
+        <li class="flow-step"><span class="step-number">2</span><h3>Load strings</h3><p>Copy required CSV values into a run-scoped DuckDB table as text. Leading zeros and missingness tokens remain visible.</p></li>
+        <li class="flow-step"><span class="step-number">3</span><h3>Type and scope</h3><p>dbt keeps exact County + All rows, excludes documented pseudo-geographies, and creates fixed-point values plus statuses.</p></li>
+        <li class="flow-step"><span class="step-number">4</span><h3>Block or pass</h3><p>Unit, contract, data, and reconciliation tests must pass. Invalid FIPS, invalid numbers, or duplicate county-years stop the build.</p></li>
+      </ol>
+      <div class="three-column">
+        <article class="card"><h3>Input lineage</h3><p>Manifest run ID, content SHA-256, retrieval timestamp, source modified date, and source year.</p></article>
+        <article class="card"><h3>Output structure</h3><p>Raw string, typed value, and interpretation status for each governed numeric metric.</p></article>
+        <article class="card"><h3>Safe rerun</h3><p>An identical load is a no-op. A different manifest cannot overwrite a DuckDB file that already represents other lineage.</p></article>
+      </div>
+    </section>
+
+    <section id="missingness" aria-labelledby="missingness-heading">
+      <h2 id="missingness-heading">Why one metric becomes three columns</h2>
+      <p>A typed value alone cannot explain why it is missing. For example, <code>benes_op_dlys_pct_raw</code>, <code>benes_op_dlys_pct</code>, and <code>benes_op_dlys_pct_status</code> travel together.</p>
+      <div class="table-wrap" role="region" aria-label="CMS missingness conversion table" tabindex="0">
+        <table>
+          <thead><tr><th scope="col">Raw source string</th><th scope="col">Typed value</th><th scope="col">Status</th><th scope="col">Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>*</code></td><td>null</td><td><span class="status">suppressed</span></td><td>CMS deliberately withheld the value under its suppression rule.</td></tr>
+            <tr><td>blank</td><td>null</td><td><span class="status">unavailable_blank</span></td><td>The source supplied no value in the CSV field.</td></tr>
+            <tr><td><code>NA</code></td><td>null</td><td><span class="status">unavailable_na</span></td><td>The source explicitly marked the value unavailable.</td></tr>
+            <tr><td><code>0</code></td><td>0</td><td><span class="status">reported</span></td><td>Zero is an actual reported number and is never treated as missing.</td></tr>
+            <tr><td>other invalid text</td><td>null</td><td><span class="status">invalid_numeric</span></td><td>This is a quality failure. The dbt build stops instead of silently accepting it.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Outer whitespace and letter case may be ignored while classifying or parsing, but the raw string remains unchanged for audit. Fixed-point decimals avoid binary floating-point approximation.</p>
+    </section>
+
+    <section id="geography" aria-labelledby="geography-heading">
+      <h2 id="geography-heading">The county gate is narrow and auditable</h2>
+      <div class="two-column">
+        <article class="card"><h3>Rows that enter</h3><ul><li><code>BENE_GEO_LVL = County</code></li><li><code>BENE_AGE_LVL = All</code></li><li>Five ASCII digits in <code>BENE_GEO_CD</code></li><li>District of Columbia as <code>11001</code></li></ul></article>
+        <article class="card"><h3>Rows that do not enter</h3><ul><li>Age subgroups, state rows, and national rows</li><li>Anchored source <code>UNKNOWN</code> pseudo-counties</li><li>Territory FIPS prefixes outside the MVP</li><li>Malformed or duplicate county-year keys</li></ul></article>
+      </div>
+      <div class="callout warning"><strong>No fuzzy geography:</strong> the transformation does not use ZIP codes, name similarity, or a guessed District of Columbia mapping. A selected county that violates the explicit FIPS contract blocks the build.</div>
+    </section>
+
+    <section id="tests" aria-labelledby="tests-heading">
+      <h2 id="tests-heading">Checks are part of the transformation</h2>
+      <p>The committed fixture is synthetic and network-free. It contains a leading-zero county, District of Columbia, suppression, blank, <code>NA</code>, zero, whitespace, state/national/age rows, an <code>UNKNOWN</code> row, and a territory row. Separate failure injections add malformed FIPS, invalid numeric text, and a duplicate county-year.</p>
+      <div class="three-column">
+        <article class="card"><h3>Python loader tests</h3><p>Prove manifest support, canonical JSON, path containment, reconciliation, text preservation, lineage, atomic output, idempotency, and conflict blocking.</p></article>
+        <article class="card"><h3>dbt unit and data tests</h3><p>Prove County + All selection, missingness, model contracts, lineage, county FIPS, unique grain, numeric validity, and row reconciliation.</p></article>
+        <article class="card"><h3>Fixture integration</h3><p>Loads DuckDB, runs <code>dbt build</code>, inspects every required metric, and proves a repeat build has the same ordered semantic checksum.</p></article>
+      </div>
+      <details><summary>What does “blocking” mean here?</summary><p>A failed integrity check creates no final DuckDB file. A dbt quality failure returns a failed build and cannot update any published mart or latest-successful pointer—neither exists in this stage. Raw evidence is never rewritten.</p></details>
+      <details><summary>Does the fixture prove current national row counts?</summary><p>No. The fixture proves transformation rules deterministically. Live-source counts are separate, dated evidence and are not fetched by the default test path.</p></details>
+    </section>
+
+    <section id="limits" aria-labelledby="limits-heading">
+      <h2 id="limits-heading">What remains outside this plan</h2>
+      <ul>
+        <li>The SVI-specific <code>-999</code> rule and paginated SVI ingestion.</li>
+        <li>State and national benchmark facts; they are not mixed into county staging.</li>
+        <li>Dimensions, final facts, CMS-to-SVI joins, percentiles, and screening quadrants.</li>
+        <li>Facility geography and context, publication, Airflow, Power BI, hosting, and cloud work.</li>
+        <li>Patient-level data, clinical inference, causal claims, opaque scores, automated decisions, or final site-selection recommendations.</li>
+      </ul>
+      <p>The next dependency is the 2022 CDC/ATSDR SVI county contract and paginated ingestion path. That work will complete the SVI missingness rule before any screening join.</p>
+    </section>
+
+    <section id="files" aria-labelledby="files-heading">
+      <h2 id="files-heading">Where to inspect the evidence</h2>
+      <div class="two-column">
+        <article class="card"><h3>Implementation</h3><ul><li><a href="../../src/kidney_care_mart/stage/cms_om_gv.py">Manifest-driven DuckDB loader</a></li><li><a href="../../analytics/models/staging/cms_om_gv/stg_cms_om_gv_county_year.sql">dbt staging SQL</a></li><li><a href="../../analytics/models/staging/cms_om_gv/_cms_om_gv_models.yml">Model contract and dbt unit tests</a></li><li><a href="../../analytics/tests/assert_cms_numeric_values_valid.sql">Blocking numeric-quality test</a></li></ul></article>
+        <article class="card"><h3>Tests and documentation</h3><ul><li><a href="../../tests/fixtures/cms_om_gv/staging.csv">Synthetic staging fixture</a></li><li><a href="../../tests/unit/stage/test_cms_om_gv_stage.py">Loader unit tests</a></li><li><a href="../../tests/integration/test_cms_om_gv_dbt.py">Fixture dbt integration tests</a></li><li><a href="../source-catalog.md#cms-geographic-variation-raw-to-stage">Source catalog commands</a></li></ul></article>
+      </div>
+    </section>
+
+    <section id="glossary" aria-labelledby="glossary-heading">
+      <h2 id="glossary-heading">Short glossary</h2>
+      <dl>
+        <dt><strong>Blob</strong></dt><dd>The exact immutable source bytes, named by their content hash.</dd>
+        <dt><strong>Manifest</strong></dt><dd>A canonical JSON record identifying a snapshot and its validation evidence.</dd>
+        <dt><strong>DuckDB</strong></dt><dd>A local analytical database holding run-scoped raw strings and staging output.</dd>
+        <dt><strong>dbt</strong></dt><dd>A tool that builds documented SQL models and runs unit, contract, and data tests.</dd>
+        <dt><strong>Grain</strong></dt><dd>What one row represents: one county FIPS in one CMS year here.</dd>
+        <dt><strong>FIPS</strong></dt><dd>A five-character county identifier stored as text because leading zeros matter.</dd>
+        <dt><strong>Lineage</strong></dt><dd>Fields tracing an output row to its manifest, blob, retrieval, and source vintage.</dd>
+        <dt><strong>Semantic checksum</strong></dt><dd>A hash of ordered query results, comparing meaning rather than physical database bytes.</dd>
+      </dl>
+    </section>
+  </main>
+  <footer><p><strong>Plan 003 guide.</strong> Deterministic fixture evidence verified on 2026-08-14. This guide makes no live-source claim and contains no full-source data, secrets, patient information, or external network dependency.</p></footer>
+</body>
+</html>

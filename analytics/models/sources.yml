@@ -1,0 +1,53 @@
+version: 2
+
+sources:
+  - name: raw
+    description: >-
+      Run-scoped raw strings loaded only after a Plan 002 manifest and its
+      immutable CMS blob reconcile. This source has the full CMS transport
+      grain and no analytical interpretation.
+    schema: raw
+    tables:
+      - name: cms_om_gv
+        description: >-
+          Required CMS Original Medicare Geographic Variation fields preserved
+          as source strings, plus repeated snapshot lineage.
+        columns:
+          - name: YEAR
+            description: Raw source calendar-year string.
+          - name: BENE_GEO_LVL
+            description: Raw source geography level.
+          - name: BENE_GEO_DESC
+            description: Raw source geography description.
+          - name: BENE_GEO_CD
+            description: Raw source geography code; leading zeros are material.
+          - name: BENE_AGE_LVL
+            description: Raw source age aggregation.
+          - name: BENES_OM_CNT
+            description: Raw Original Medicare beneficiary-count string.
+          - name: MA_PRTCPTN_RATE
+            description: Raw Medicare Advantage participation-rate string.
+          - name: BENE_DUAL_PCT
+            description: Raw dual-eligible-share string.
+          - name: BENES_OP_DLYS_PCT
+            description: >-
+              Raw observed outpatient dialysis beneficiary-share string among
+              Original Medicare beneficiaries.
+          - name: OP_DLYS_VISITS_PER_1000_BENES
+            description: Raw outpatient dialysis visits-per-1,000 string.
+          - name: OP_DLYS_MDCR_STDZD_PYMT_PC
+            description: Raw standardized outpatient dialysis payment string.
+          - name: ACUTE_HOSP_READMSN_PCT
+            description: Raw acute hospital readmission-share string.
+          - name: ER_VISITS_PER_1000_BENES
+            description: Raw emergency-room visits-per-1,000 string.
+          - name: source_id
+            description: Logical source identifier from the verified manifest.
+          - name: source_manifest_run_id
+            description: Pipeline run identifier from the verified manifest.
+          - name: source_content_sha256
+            description: SHA-256 identity of the immutable raw blob.
+          - name: source_retrieved_at_utc
+            description: UTC retrieval timestamp from the manifest.
+          - name: source_modified_at
+            description: Upstream source modified date from the manifest.

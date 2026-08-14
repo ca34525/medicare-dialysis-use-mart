@@ -24,6 +24,20 @@ under its SHA-256 identity. A run manifest is published only after its blob is
 verified. Existing blobs and manifests are never overwritten; identical source
 content is reused and recorded as a content no-op.
 
+The Plan 003 network-free loader writes one run-scoped DuckDB file only after a
+manifest and its referenced blob reconcile:
+
+```text
+data/staging/
+`-- <pipeline-run-id>.duckdb
+```
+
+The database contains `raw.cms_om_gv`, with required source values preserved as
+text, and `raw.cms_om_gv_load_audit`, with the manifest lineage and reconciled
+row count. An identical load is a no-op. A different manifest cannot overwrite
+an existing database path. dbt adds the typed
+`staging.stg_cms_om_gv_county_year` model to that same run-scoped database.
+
 Do not commit downloaded source files, generated manifests, DuckDB databases,
 Parquet outputs, credentials, or patient information. Tests use only the small
 representative fixtures under `tests/fixtures/`.

@@ -1,0 +1,11 @@
+config:
+  send_anonymous_usage_stats: false
+
+kidney_care_mart:
+  target: local
+  outputs:
+    local:
+      type: duckdb
+      path: "{{ env_var('KIDNEY_CARE_DUCKDB_PATH') }}"
+      schema: staging
+      threads: 1

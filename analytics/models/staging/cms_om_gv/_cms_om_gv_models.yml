@@ -1,0 +1,216 @@
+version: 2
+
+models:
+  - name: stg_cms_om_gv_county_year
+    description: >-
+      One typed row per five-character county FIPS and CMS calendar year,
+      selected only from County + All source rows. Raw strings and explicit
+      missingness statuses remain beside every governed metric. The model is
+      source-aligned staging, not the final Medicare county fact.
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: county_fips
+        data_type: varchar
+        description: Canonical five-character county FIPS retained as text.
+        data_tests: [not_null]
+      - name: year
+        data_type: integer
+        description: CMS calendar year; the model grain includes this field.
+        data_tests: [not_null]
+      - name: source_geography_level
+        data_type: varchar
+        description: Raw geography level; always County in this model.
+        data_tests: [not_null]
+      - name: source_geography_description
+        data_type: varchar
+        description: Raw CMS county description retained for lineage.
+        data_tests: [not_null]
+      - name: source_geography_code
+        data_type: varchar
+        description: Raw CMS geography code retained without numeric coercion.
+        data_tests: [not_null]
+      - name: source_age_level
+        data_type: varchar
+        description: Raw age aggregation; always All in this model.
+        data_tests: [not_null]
+
+      - name: benes_om_cnt_raw
+        data_type: varchar
+        description: Raw Original Medicare beneficiary-count string.
+        data_tests: [not_null]
+      - name: benes_om_cnt
+        data_type: decimal(38, 0)
+        description: >-
+          Original Medicare beneficiary count, or null when suppressed or
+          unavailable. This is the denominator for source county metrics where
+          the CMS dictionary defines it as such.
+      - name: benes_om_cnt_status
+        data_type: varchar
+        description: Explicit interpretation status for benes_om_cnt_raw.
+        data_tests: [not_null]
+
+      - name: ma_prtcptn_rate_raw
+        data_type: varchar
+        description: Raw Medicare Advantage participation-rate string.
+        data_tests: [not_null]
+      - name: ma_prtcptn_rate
+        data_type: decimal(38, 10)
+        description: >-
+          Medicare Advantage participation rate on the source decimal scale;
+          context for the Original Medicare denominator.
+      - name: ma_prtcptn_rate_status
+        data_type: varchar
+        description: Explicit interpretation status for ma_prtcptn_rate_raw.
+        data_tests: [not_null]
+
+      - name: bene_dual_pct_raw
+        data_type: varchar
+        description: Raw dual-eligible-share string.
+        data_tests: [not_null]
+      - name: bene_dual_pct
+        data_type: decimal(38, 10)
+        description: Dual-eligible share on the source decimal scale.
+      - name: bene_dual_pct_status
+        data_type: varchar
+        description: Explicit interpretation status for bene_dual_pct_raw.
+        data_tests: [not_null]
+
+      - name: benes_op_dlys_pct_raw
+        data_type: varchar
+        description: >-
+          Raw observed outpatient dialysis beneficiary-share string among
+          Original Medicare beneficiaries.
+        data_tests: [not_null]
+      - name: benes_op_dlys_pct
+        data_type: decimal(38, 10)
+        description: >-
+          Observed outpatient dialysis use among Original Medicare
+          beneficiaries, retained on the source decimal scale. This is not a
+          kidney disease prevalence estimate.
+      - name: benes_op_dlys_pct_status
+        data_type: varchar
+        description: Explicit interpretation status for benes_op_dlys_pct_raw.
+        data_tests: [not_null]
+
+      - name: op_dlys_visits_per_1000_benes_raw
+        data_type: varchar
+        description: Raw outpatient dialysis visits-per-1,000 string.
+        data_tests: [not_null]
+      - name: op_dlys_visits_per_1000_benes
+        data_type: decimal(38, 10)
+        description: >-
+          Outpatient dialysis visits per 1,000 Original Medicare beneficiaries;
+          a rate that must never be summed across counties.
+      - name: op_dlys_visits_per_1000_benes_status
+        data_type: varchar
+        description: >-
+          Explicit interpretation status for
+          op_dlys_visits_per_1000_benes_raw.
+        data_tests: [not_null]
+
+      - name: op_dlys_mdcr_stdzd_pymt_pc_raw
+        data_type: varchar
+        description: Raw standardized outpatient dialysis payment string.
+        data_tests: [not_null]
+      - name: op_dlys_mdcr_stdzd_pymt_pc
+        data_type: decimal(38, 10)
+        description: >-
+          Standardized outpatient dialysis Medicare payment per Original
+          Medicare beneficiary. Payment geography is standardized; health
+          status is not.
+      - name: op_dlys_mdcr_stdzd_pymt_pc_status
+        data_type: varchar
+        description: >-
+          Explicit interpretation status for
+          op_dlys_mdcr_stdzd_pymt_pc_raw.
+        data_tests: [not_null]
+
+      - name: acute_hosp_readmsn_pct_raw
+        data_type: varchar
+        description: Raw acute hospital readmission-share string.
+        data_tests: [not_null]
+      - name: acute_hosp_readmsn_pct
+        data_type: decimal(38, 10)
+        description: Acute hospital readmission share on the source scale.
+      - name: acute_hosp_readmsn_pct_status
+        data_type: varchar
+        description: >-
+          Explicit interpretation status for acute_hosp_readmsn_pct_raw.
+        data_tests: [not_null]
+
+      - name: er_visits_per_1000_benes_raw
+        data_type: varchar
+        description: Raw emergency-room visits-per-1,000 string.
+        data_tests: [not_null]
+      - name: er_visits_per_1000_benes
+        data_type: decimal(38, 10)
+        description: >-
+          Emergency-room visits per 1,000 Original Medicare beneficiaries; a
+          rate that must never be summed across counties.
+      - name: er_visits_per_1000_benes_status
+        data_type: varchar
+        description: >-
+          Explicit interpretation status for er_visits_per_1000_benes_raw.
+        data_tests: [not_null]
+
+      - name: source_id
+        data_type: varchar
+        description: Logical source ID from the verified manifest.
+        data_tests: [not_null]
+      - name: source_manifest_run_id
+        data_type: varchar
+        description: Pipeline run ID from the verified manifest.
+        data_tests: [not_null]
+      - name: source_content_sha256
+        data_type: varchar
+        description: SHA-256 identity of the immutable raw blob.
+        data_tests: [not_null]
+      - name: source_retrieved_at_utc
+        data_type: varchar
+        description: UTC retrieval timestamp from the verified manifest.
+        data_tests: [not_null]
+      - name: source_modified_at
+        data_type: varchar
+        description: Upstream modified date from the verified manifest.
+
+unit_tests:
+  - name: cms_county_all_scope_and_fips_are_explicit
+    description: >-
+      County + All rows survive; age, state, national, UNKNOWN, and territory
+      rows do not. Leading-zero FIPS and District of Columbia remain text.
+    model: stg_cms_om_gv_county_year
+    given:
+      - input: source('raw', 'cms_om_gv')
+        rows:
+          - {YEAR: '2024', BENE_GEO_LVL: County, BENE_GEO_DESC: AL-Synthetic Autauga, BENE_GEO_CD: '01001', BENE_AGE_LVL: All, BENES_OM_CNT: '1000', MA_PRTCPTN_RATE: '0.5', BENE_DUAL_PCT: '0.1', BENES_OP_DLYS_PCT: '0.02', OP_DLYS_VISITS_PER_1000_BENES: '1500', OP_DLYS_MDCR_STDZD_PYMT_PC: '200', ACUTE_HOSP_READMSN_PCT: '0.15', ER_VISITS_PER_1000_BENES: '500', source_id: cms_om_gv, source_manifest_run_id: fixture, source_content_sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, source_retrieved_at_utc: '2026-08-14T12:00:00Z', source_modified_at: '2026-05-15'}
+          - {YEAR: '2024', BENE_GEO_LVL: County, BENE_GEO_DESC: AL-Synthetic Autauga, BENE_GEO_CD: '01001', BENE_AGE_LVL: '<65', BENES_OM_CNT: '250', MA_PRTCPTN_RATE: '0.6', BENE_DUAL_PCT: '0.2', BENES_OP_DLYS_PCT: '*', OP_DLYS_VISITS_PER_1000_BENES: '', OP_DLYS_MDCR_STDZD_PYMT_PC: NA, ACUTE_HOSP_READMSN_PCT: '0', ER_VISITS_PER_1000_BENES: '650', source_id: cms_om_gv, source_manifest_run_id: fixture, source_content_sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, source_retrieved_at_utc: '2026-08-14T12:00:00Z', source_modified_at: '2026-05-15'}
+          - {YEAR: '2024', BENE_GEO_LVL: State, BENE_GEO_DESC: AL, BENE_GEO_CD: '01', BENE_AGE_LVL: All, BENES_OM_CNT: '750000', MA_PRTCPTN_RATE: '0.5', BENE_DUAL_PCT: '0.1', BENES_OP_DLYS_PCT: '0.02', OP_DLYS_VISITS_PER_1000_BENES: '1500', OP_DLYS_MDCR_STDZD_PYMT_PC: '200', ACUTE_HOSP_READMSN_PCT: '0.15', ER_VISITS_PER_1000_BENES: '500', source_id: cms_om_gv, source_manifest_run_id: fixture, source_content_sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, source_retrieved_at_utc: '2026-08-14T12:00:00Z', source_modified_at: '2026-05-15'}
+          - {YEAR: '2024', BENE_GEO_LVL: National, BENE_GEO_DESC: National, BENE_GEO_CD: '', BENE_AGE_LVL: All, BENES_OM_CNT: '27000000', MA_PRTCPTN_RATE: '0.5', BENE_DUAL_PCT: '0.1', BENES_OP_DLYS_PCT: '0.02', OP_DLYS_VISITS_PER_1000_BENES: '1500', OP_DLYS_MDCR_STDZD_PYMT_PC: '200', ACUTE_HOSP_READMSN_PCT: '0.15', ER_VISITS_PER_1000_BENES: '500', source_id: cms_om_gv, source_manifest_run_id: fixture, source_content_sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, source_retrieved_at_utc: '2026-08-14T12:00:00Z', source_modified_at: '2026-05-15'}
+          - {YEAR: '2024', BENE_GEO_LVL: County, BENE_GEO_DESC: AL-UNKNOWN, BENE_GEO_CD: '01000', BENE_AGE_LVL: All, BENES_OM_CNT: '15', MA_PRTCPTN_RATE: '0.1', BENE_DUAL_PCT: '0.3', BENES_OP_DLYS_PCT: '*', OP_DLYS_VISITS_PER_1000_BENES: NA, OP_DLYS_MDCR_STDZD_PYMT_PC: '', ACUTE_HOSP_READMSN_PCT: '*', ER_VISITS_PER_1000_BENES: '0', source_id: cms_om_gv, source_manifest_run_id: fixture, source_content_sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, source_retrieved_at_utc: '2026-08-14T12:00:00Z', source_modified_at: '2026-05-15'}
+          - {YEAR: '2024', BENE_GEO_LVL: County, BENE_GEO_DESC: PR-Synthetic Adjuntas, BENE_GEO_CD: '72001', BENE_AGE_LVL: All, BENES_OM_CNT: '100', MA_PRTCPTN_RATE: '0.2', BENE_DUAL_PCT: '0.3', BENES_OP_DLYS_PCT: '0.04', OP_DLYS_VISITS_PER_1000_BENES: '100', OP_DLYS_MDCR_STDZD_PYMT_PC: '50', ACUTE_HOSP_READMSN_PCT: '0.1', ER_VISITS_PER_1000_BENES: '200', source_id: cms_om_gv, source_manifest_run_id: fixture, source_content_sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, source_retrieved_at_utc: '2026-08-14T12:00:00Z', source_modified_at: '2026-05-15'}
+          - {YEAR: '2024', BENE_GEO_LVL: County, BENE_GEO_DESC: DC-Synthetic District of Columbia, BENE_GEO_CD: '11001', BENE_AGE_LVL: All, BENES_OM_CNT: '0', MA_PRTCPTN_RATE: '0', BENE_DUAL_PCT: '0', BENES_OP_DLYS_PCT: '0', OP_DLYS_VISITS_PER_1000_BENES: '0', OP_DLYS_MDCR_STDZD_PYMT_PC: '0', ACUTE_HOSP_READMSN_PCT: '0', ER_VISITS_PER_1000_BENES: '0', source_id: cms_om_gv, source_manifest_run_id: fixture, source_content_sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, source_retrieved_at_utc: '2026-08-14T12:00:00Z', source_modified_at: '2026-05-15'}
+    expect:
+      rows:
+        - {county_fips: '01001', year: 2024}
+        - {county_fips: '11001', year: 2024}
+
+  - name: cms_missingness_tokens_are_distinct_from_zero
+    description: >-
+      Every required numeric field distinguishes suppression, blank, NA, and a
+      reported zero while retaining its raw source string.
+    model: stg_cms_om_gv_county_year
+    given:
+      - input: source('raw', 'cms_om_gv')
+        rows:
+          - {YEAR: '2024', BENE_GEO_LVL: County, BENE_GEO_DESC: AL-Synthetic Suppressed, BENE_GEO_CD: '01001', BENE_AGE_LVL: All, BENES_OM_CNT: '*', MA_PRTCPTN_RATE: '*', BENE_DUAL_PCT: '*', BENES_OP_DLYS_PCT: '*', OP_DLYS_VISITS_PER_1000_BENES: '*', OP_DLYS_MDCR_STDZD_PYMT_PC: '*', ACUTE_HOSP_READMSN_PCT: '*', ER_VISITS_PER_1000_BENES: '*', source_id: cms_om_gv, source_manifest_run_id: fixture, source_content_sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, source_retrieved_at_utc: '2026-08-14T12:00:00Z', source_modified_at: '2026-05-15'}
+          - {YEAR: '2024', BENE_GEO_LVL: County, BENE_GEO_DESC: AL-Synthetic Blank, BENE_GEO_CD: '01003', BENE_AGE_LVL: All, BENES_OM_CNT: '', MA_PRTCPTN_RATE: '', BENE_DUAL_PCT: '', BENES_OP_DLYS_PCT: '', OP_DLYS_VISITS_PER_1000_BENES: '', OP_DLYS_MDCR_STDZD_PYMT_PC: '', ACUTE_HOSP_READMSN_PCT: '', ER_VISITS_PER_1000_BENES: '', source_id: cms_om_gv, source_manifest_run_id: fixture, source_content_sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, source_retrieved_at_utc: '2026-08-14T12:00:00Z', source_modified_at: '2026-05-15'}
+          - {YEAR: '2024', BENE_GEO_LVL: County, BENE_GEO_DESC: AL-Synthetic NA, BENE_GEO_CD: '01005', BENE_AGE_LVL: All, BENES_OM_CNT: NA, MA_PRTCPTN_RATE: na, BENE_DUAL_PCT: ' NA ', BENES_OP_DLYS_PCT: NA, OP_DLYS_VISITS_PER_1000_BENES: na, OP_DLYS_MDCR_STDZD_PYMT_PC: ' NA ', ACUTE_HOSP_READMSN_PCT: NA, ER_VISITS_PER_1000_BENES: na, source_id: cms_om_gv, source_manifest_run_id: fixture, source_content_sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, source_retrieved_at_utc: '2026-08-14T12:00:00Z', source_modified_at: '2026-05-15'}
+          - {YEAR: '2024', BENE_GEO_LVL: County, BENE_GEO_DESC: AL-Synthetic Zero, BENE_GEO_CD: '01007', BENE_AGE_LVL: All, BENES_OM_CNT: '0', MA_PRTCPTN_RATE: '0', BENE_DUAL_PCT: '0', BENES_OP_DLYS_PCT: '0', OP_DLYS_VISITS_PER_1000_BENES: '0', OP_DLYS_MDCR_STDZD_PYMT_PC: '0', ACUTE_HOSP_READMSN_PCT: '0', ER_VISITS_PER_1000_BENES: '0', source_id: cms_om_gv, source_manifest_run_id: fixture, source_content_sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, source_retrieved_at_utc: '2026-08-14T12:00:00Z', source_modified_at: '2026-05-15'}
+    expect:
+      rows:
+        - {county_fips: '01001', benes_om_cnt_raw: '*', benes_om_cnt: null, benes_om_cnt_status: suppressed, ma_prtcptn_rate_status: suppressed, bene_dual_pct_status: suppressed, benes_op_dlys_pct_status: suppressed, op_dlys_visits_per_1000_benes_status: suppressed, op_dlys_mdcr_stdzd_pymt_pc_status: suppressed, acute_hosp_readmsn_pct_status: suppressed, er_visits_per_1000_benes_status: suppressed}
+        - {county_fips: '01003', benes_om_cnt_raw: '', benes_om_cnt: null, benes_om_cnt_status: unavailable_blank, ma_prtcptn_rate_status: unavailable_blank, bene_dual_pct_status: unavailable_blank, benes_op_dlys_pct_status: unavailable_blank, op_dlys_visits_per_1000_benes_status: unavailable_blank, op_dlys_mdcr_stdzd_pymt_pc_status: unavailable_blank, acute_hosp_readmsn_pct_status: unavailable_blank, er_visits_per_1000_benes_status: unavailable_blank}
+        - {county_fips: '01005', benes_om_cnt_raw: NA, benes_om_cnt: null, benes_om_cnt_status: unavailable_na, ma_prtcptn_rate_status: unavailable_na, bene_dual_pct_status: unavailable_na, benes_op_dlys_pct_status: unavailable_na, op_dlys_visits_per_1000_benes_status: unavailable_na, op_dlys_mdcr_stdzd_pymt_pc_status: unavailable_na, acute_hosp_readmsn_pct_status: unavailable_na, er_visits_per_1000_benes_status: unavailable_na}
+        - {county_fips: '01007', benes_om_cnt_raw: '0', benes_om_cnt: 0, benes_om_cnt_status: reported, ma_prtcptn_rate_status: reported, bene_dual_pct_status: reported, benes_op_dlys_pct_status: reported, op_dlys_visits_per_1000_benes_status: reported, op_dlys_mdcr_stdzd_pymt_pc_status: reported, acute_hosp_readmsn_pct_status: reported, er_visits_per_1000_benes_status: reported}

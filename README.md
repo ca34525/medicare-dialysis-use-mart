@@ -6,14 +6,48 @@ It is not a clinical tool, prevalence estimate, opaque opportunity score, or fin
 
 ## Current status
 
-The locked Python 3.12 development environment and offline quality checks are verified on the initial implementation machine. The CMS Original Medicare Geographic Variation source contract and full-file extractor are implemented with pinned schema/dictionary evidence, immutable content-addressed raw snapshots, canonical run manifests, and network-free T-001 through T-004 coverage for this one-response source. Raw-to-stage transformations, the dbt mart, Airflow DAG, and Power BI report have not yet been established; remaining source and environment checks are recorded in [`docs/preflight.md`](docs/preflight.md).
+The locked Python 3.12 development environment and offline quality checks are verified on the initial implementation machine. The CMS Original Medicare Geographic Variation source contract, full-file extractor, immutable raw snapshot/manifest path, and manifest-driven DuckDB/dbt county-year stage are implemented. The stage preserves raw strings, types governed metrics with explicit missingness status, retains five-character county FIPS, and applies the County + All source-selection rule with deterministic fixture tests. Final facts, remaining sources, the screening mart, Airflow DAG, and Power BI report have not yet been established; remaining source and environment checks are recorded in [`docs/preflight.md`](docs/preflight.md).
 
 ## Human guides
 
 - [Plan 001 — What is the CMS source contract?](docs/guides/001-cms-source-contract-explained.html) explains the first contract visually for readers who are new to data engineering.
 - [Plan 002 — What is an ingestion manifest?](docs/guides/002-cms-ingestion-manifest-explained.html) explains raw downloads, bytes, blobs, hashes, manifests, atomic publication, and safe reruns at the same introductory level.
+- [Plan 003 — How does raw CMS data become a typed county stage?](docs/guides/003-cms-staging-explained.html) explains manifest verification, raw-string loading, suppression and unavailability, county filtering, dbt tests, and deterministic reruns.
 
-Open either downloaded HTML file in a web browser for its interactive examples. The numbering follows the matching files in [`plans/`](plans/); the authoring and review convention is in [`docs/guides/README.md`](docs/guides/README.md).
+Open any downloaded HTML file in a web browser. The numbering follows the matching files in [`plans/`](plans/); the authoring and review convention is in [`docs/guides/README.md`](docs/guides/README.md).
+
+## CMS staging quick start
+
+The committed fixture exercises the complete local manifest → DuckDB → dbt
+path without network access or generated Git artifacts:
+
+```powershell
+uv run pytest tests/integration/test_cms_om_gv_dbt.py
+```
+
+To stage an already downloaded local snapshot, first load its verified manifest
+and immutable blob:
+
+```powershell
+uv run python -m kidney_care_mart.stage.cms_om_gv `
+  --manifest data/raw/manifests/cms_om_gv/<run-id>.json `
+  --raw-root data/raw `
+  --database data/staging/<run-id>.duckdb
+```
+
+Then use the credential-free local dbt profile:
+
+```powershell
+Copy-Item analytics/profiles.example.yml analytics/profiles.yml
+$env:KIDNEY_CARE_DUCKDB_PATH = (Resolve-Path `
+  "data/staging/<run-id>.duckdb").Path
+uv run dbt parse --project-dir analytics --profiles-dir analytics
+uv run dbt build --project-dir analytics --profiles-dir analytics
+```
+
+These commands do not contact CMS. The copied profile, DuckDB database, dbt
+logs, and dbt targets are ignored. This stage does not update a published-mart
+pointer.
 
 ## Bootstrap quick start
 

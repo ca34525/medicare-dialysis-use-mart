@@ -1,7 +1,7 @@
 # Environment and source preflight
 
-**Record date:** 2026-08-13  
-**Status:** Gate 0 in progress; local bootstrap and first CMS source contract verified
+**Record date:** 2026-08-14
+**Status:** Gate 0 in progress; local bootstrap plus CMS and SVI source contracts verified
 
 This record distinguishes facts observed in the initial workspace from checks that still need to run on the implementation machine. A specification or configuration file is not evidence that its corresponding tool or integration works.
 
@@ -36,8 +36,37 @@ The specification's research review found these public services feasible, but ea
 |---|---:|---|---|
 | CMS Original Medicare Geographic Variation | Yes | Verified 2026-08-13 | A read-only request to `data.cms.gov/data.json` resolved exactly one intended dataset, stable ID `6219697b-8f6c-4164-bed4-cd9317c58ebc`, modified 2026-05-15. The stable data-viewer endpoint with `size=1&offset=0` reported 36,994 rows and 246 columns (242 `NUMERIC`, four `TEXT`) without authentication. Bounded filtered `data` requests returned the 2024 National All row and the 2024 County All row for raw code `01001`, preserving the leading zero; a bounded `UNKNOWN` query confirmed pseudo-county code `01000`. The National code is an empty raw string, with the contract exception documented in the source catalog. The 14-page official 2014-2024 dictionary downloaded successfully as a 563,924-byte PDF and is pinned at SHA-256 `75a8d4bef07d1900a50732c78a2aec688ba3ca132dad1dc6cab1a9243d55109f`. Exact labels, types, definitions, schema provenance, and the bounded-sample limitation are recorded in `docs/source-schemas/cms_om_gv.schema.json`; no full CSV or response dump was retained. |
 | CMS Dialysis Facility Listing | Yes | Pending | Official metadata resolves and a paginated sample or full CSV succeeds without an API key; pagination is complete and CCNs reconcile. |
-| CDC/ATSDR SVI 2022 U.S. county data | Yes | Pending | Official CSV or deterministic REST pagination returns the pinned 3,144-row county snapshot, with distinct FIPS. |
+| CDC/ATSDR SVI 2022 U.S. county data | Yes | Verified 2026-08-14 | The public ArcGIS service resolved item `f2af3fd35858443293b75d5f73c7d4d3`, county layer 1 `SVI2022 US county`, and object ID `GRASP_ID` without authentication. Metadata exposed 161 fields, a 2,000-record page limit, pagination and ordering support, and a count-only query returned 3,144 rows. Bounded two-row samples on both sides of the page limit preserved `01001`, `01003`, `38017`, and `38019`. A separate attribute-only key scan returned pages of 2,000 and 1,144 rows: all 3,144 `STCNTY` values and object IDs were distinct, IDs increased strictly, `11001` was present, and no prefix mismatch or territory row appeared. The official 17-page documentation is pinned at 542,647 bytes and SHA-256 `5636ae52e13ec201b90f4a31b55d12959d55784469e8c11662b64c03f09424fc`. No geometry, full metric rows, response dump, credentials, or patient data were retained. Production pagination and immutable publication remain pending. |
 | Census Geocoder | Conditional | Pending | A sample or batch request succeeds for unresolved public facility business addresses. |
+
+## CDC/ATSDR SVI county source-contract check
+
+On 2026-08-14, a read-only live check resolved the official 2022 U.S. county
+ArcGIS layer and compared its complete field metadata with the executable raw
+contract. The layer advertised service version 12, maximum record count 2,000,
+pagination and ordered-query support, 161 fields, and `GRASP_ID` as its object
+ID. The field metadata comprised 77 doubles, 55 integers, 21 small integers,
+seven strings, and one object ID. All 17 required fields matched their expected
+type families; the other 144 fields were recorded as compatible additions.
+
+The count-only response reported 3,144 county rows. Tiny attribute-only samples
+at offsets 0 and 2,000 retained five-character FIPS, including leading-zero
+values. A bounded two-page scan requested only `GRASP_ID`, `ST`, and `STCNTY`
+with geometry disabled and deterministic object-ID ordering. It reconciled
+3,144 records, 3,144 distinct FIPS, and 3,144 distinct object IDs; found
+District of Columbia `11001`; and found no state-prefix mismatch or territory
+row. This dated result supports the pinned 2022 snapshot expectation but is not
+a timeless row-count assertion or the production paginator required by the
+next plan.
+
+The official documentation was retrieved from the CDC/ATSDR documentation
+page and visually checked for the five U.S.-based county percentile ranks, the
+six selected contextual percentage definitions and their distinct
+denominators, the 2018-2022 ACS period, and the `-999` unavailable meaning. The
+committed PDF, normalized schema, exact official locators, hashes, retrieval
+time, layer edit time, and reduced live evidence are recorded under
+`docs/source-dictionaries/` and `docs/source-schemas/`. Default tests remain
+network-free.
 
 ## CMS Geographic Variation full-file ingestion check
 

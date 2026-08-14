@@ -1,0 +1,4 @@
+ST,STATE,ST_ABBR,STCNTY,COUNTY,RPL_THEMES,RPL_THEME1,RPL_THEME2,RPL_THEME3,RPL_THEME4,EP_POV150,EP_UNINSUR,EP_AGE65,EP_DISABL,EP_LIMENG,EP_NOVEH,GRASP_ID,ADDITIVE_NOTE
+01,Synthetic Alabama,AL,01001,Synthetic County A,0,0.75,1,0.25,0.5,0,12.3,20.1,15.2,0,5.4,1,rank boundaries and zero
+11,District of Columbia,DC,11001,Synthetic District of Columbia,0.75,-999,0,1,0.5,18.2,0,14.3,9.1,-999,0,2,unavailable sentinel and DC
+02,Synthetic Alaska,AK,02013,Synthetic County B,1.25,1,0,0.75,-999,7.8,6.5,0,11.4,2.3,-999,3,out of range reserved for staging

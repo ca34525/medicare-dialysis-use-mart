@@ -23,6 +23,8 @@ Current guides:
   `plans/002-cms-om-gv-ingestion-manifest.md`.
 - `003-cms-staging-explained.html` corresponds to
   `plans/003-cms-om-gv-raw-to-stage.md`.
+- `004-svi-source-contract-explained.html` corresponds to
+  `plans/004-cdc-svi-county-source-contract.md`.
 
 ## Required content
 

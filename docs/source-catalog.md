@@ -131,3 +131,76 @@ The bounded current sample confirms `BENE_GEO_CD=""` for the National row. CMS a
 - Percentage-labelled fields are represented as decimal proportions in the current sample; preserve that source scale until governed typing occurs.
 - `OP_DLYS_MDCR_STDZD_PYMT_PC` adjusts for geographic payment-rate differences, not beneficiary health status.
 - This source describes observed outpatient dialysis use among Original Medicare beneficiaries. It does not establish kidney disease prevalence, unmet need, disease burden, or an intervention or site-selection recommendation.
+
+## `cdc_svi_county_2022` - CDC/ATSDR SVI 2022 U.S. county data
+
+**Contract status:** Verified 2026-08-14 against the official CDC/ATSDR
+documentation, complete ArcGIS county-layer metadata, a count-only query, tiny
+samples, and a bounded key-only grain scan.
+
+| Attribute | Contract |
+|---|---|
+| Durable identity | ArcGIS service item `f2af3fd35858443293b75d5f73c7d4d3`, layer 1 |
+| Official documentation | `https://www.atsdr.cdc.gov/place-health/php/svi/svi-data-documentation-download.html` |
+| Official service | `https://services3.arcgis.com/ZvidGQkLaDJxRSJ2/ArcGIS/rest/services/CDC_ATSDR_Social_Vulnerability_Index_2022_USA/FeatureServer` |
+| County layer | `SVI2022 US county`; object ID `GRASP_ID` |
+| Source vintage | SVI 2022, based on 2018-2022 ACS data; static context rather than a 2024 or 2026 observation |
+| Source grain | One row per five-character `STCNTY` county FIPS; `GRASP_ID` is a transport ordering key, not the analytical key |
+| Geographic scope | The 50 states and District of Columbia; District of Columbia is `11001`; territory prefixes `60`, `66`, `69`, `72`, and `78` are excluded from the MVP |
+| Ranking denominator | `RPL_THEMES` and `RPL_THEME1` through `RPL_THEME4` are U.S.-based county percentile ranks on `[0,1]` when available |
+| Access | Public ArcGIS REST metadata and queries without authentication |
+| Lineage | Official documentation -> pinned PDF and hash; official service item -> layer metadata, count, and reduced attribute-only evidence -> normalized schema hash |
+
+The live metadata exposes 161 fields: 77 doubles, 55 integers, 21 small
+integers, seven strings, and one object ID. The executable contract requires 17
+fields and treats the other 144 observed fields as compatible additions that
+must be reported. The required fields are the geography/audit fields `ST`,
+`STATE`, `ST_ABBR`, `STCNTY`, `COUNTY`, and `GRASP_ID`; the overall and four
+theme ranks `RPL_THEMES` and `RPL_THEME1` through `RPL_THEME4`; and six
+plain-language context fields `EP_POV150`, `EP_UNINSUR`, `EP_AGE65`,
+`EP_DISABL`, `EP_LIMENG`, and `EP_NOVEH`.
+
+The selected percentage fields deliberately retain separate source-defined
+denominators:
+
+| Field | Unit | Source-defined denominator or source field |
+|---|---|---|
+| `EP_POV150` | Percent | Population represented by `S1701_C01_001E` |
+| `EP_UNINSUR` | Percent | Total civilian noninstitutionalized population |
+| `EP_AGE65` | Percent | Total population in the source `S0101` percentage |
+| `EP_DISABL` | Percent | Civilian noninstitutionalized population |
+| `EP_LIMENG` | Percent | Persons age 5 and older represented by `B16005_001E` |
+| `EP_NOVEH` | Percent | Households in the source `DP04` percentage |
+
+These percentages are contextual measures with different denominators. They
+must not be summed, averaged into a new score, used to alter the screening
+quadrant, or interpreted as clinical or causal evidence. `RPL_THEMES` is the
+transparent social-vulnerability component for a later screening model; this
+contract does not classify its `0.75` boundary.
+
+### Dated source evidence and deferred processing
+
+On 2026-08-14, the layer advertised a maximum of 2,000 records per response and
+support for pagination and ordered queries. A count-only query returned 3,144
+rows. Tiny two-row, geometry-free samples at offsets 0 and 2,000 preserved FIPS
+`01001`, `01003`, `38017`, and `38019`. A separate reduced scan requested only
+`GRASP_ID`, `ST`, and `STCNTY` in ascending object-ID order. Its two pages held
+2,000 and 1,144 records; all 3,144 FIPS and object IDs were distinct; object IDs
+ran strictly from 1 through 3,144; District of Columbia `11001` was present;
+and no state-prefix mismatch or territory row appeared. These observations are
+dated evidence for the examined static snapshot, not timeless constants.
+
+The pinned 17-page official PDF is 542,647 bytes with SHA-256
+`5636ae52e13ec201b90f4a31b55d12959d55784469e8c11662b64c03f09424fc`.
+The complete ordered field labels and types, 17-field semantic mapping, 144
+additions, exact locators, retrieval timestamp, layer edit timestamp, document
+provenance, and canonical schema hash are recorded in
+`docs/source-schemas/cdc_svi_county_2022.schema.json`.
+
+The official `-999` value means that data were unavailable or could not be
+calculated because source Census data were unavailable. This raw contract
+preserves that sentinel distinctly from numeric zero. Production pagination,
+immutable raw publication, typing, `-999`-to-null normalization with an
+explicit unavailable status, `[0,1]` rank validation, dbt models, and the
+CMS-to-SVI reconciliation remain deferred. No full source rows or geometry are
+committed.

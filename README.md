@@ -6,7 +6,11 @@ It is not a clinical tool, prevalence estimate, opaque opportunity score, or fin
 
 ## Current status
 
-Bootstrap only. The locked Python 3.12 development environment and offline quality checks are verified on the initial implementation machine. A working ingestion pipeline, dbt mart, Airflow DAG, and Power BI report have not yet been established, and external-source access remains pending as recorded in [`docs/preflight.md`](docs/preflight.md).
+The locked Python 3.12 development environment and offline quality checks are verified on the initial implementation machine. The first executable source contract, for CMS Original Medicare Geographic Variation, is implemented with pinned schema/dictionary evidence and network-free T-001/T-002 tests. A working extractor, dbt mart, Airflow DAG, and Power BI report have not yet been established; remaining source and environment checks are recorded in [`docs/preflight.md`](docs/preflight.md).
+
+## Human guides
+
+- [What is the CMS source contract?](docs/guides/cms-source-contract-explained.html) explains the first contract visually for readers who are new to data engineering. Open the downloaded file in a web browser for the interactive examples.
 
 ## Bootstrap quick start
 

@@ -1,7 +1,7 @@
 # Environment and source preflight
 
 **Record date:** 2026-08-13  
-**Status:** Gate 0 in progress; local bootstrap verified
+**Status:** Gate 0 in progress; local bootstrap and first CMS source contract verified
 
 This record distinguishes facts observed in the initial workspace from checks that still need to run on the implementation machine. A specification or configuration file is not evidence that its corresponding tool or integration works.
 
@@ -34,7 +34,7 @@ The specification's research review found these public services feasible, but ea
 
 | Source | Required? | Status | Pass evidence to record |
 |---|---:|---|---|
-| CMS Original Medicare Geographic Variation | Yes | Pending | Official metadata resolves and a sample or full download succeeds without authentication; exact current labels and types are captured. |
+| CMS Original Medicare Geographic Variation | Yes | Verified 2026-08-13 | A read-only request to `data.cms.gov/data.json` resolved exactly one intended dataset, stable ID `6219697b-8f6c-4164-bed4-cd9317c58ebc`, modified 2026-05-15. The stable data-viewer endpoint with `size=1&offset=0` reported 36,994 rows and 246 columns (242 `NUMERIC`, four `TEXT`) without authentication. Bounded filtered `data` requests returned the 2024 National All row and the 2024 County All row for raw code `01001`, preserving the leading zero; a bounded `UNKNOWN` query confirmed pseudo-county code `01000`. The National code is an empty raw string, with the contract exception documented in the source catalog. The 14-page official 2014-2024 dictionary downloaded successfully as a 563,924-byte PDF and is pinned at SHA-256 `75a8d4bef07d1900a50732c78a2aec688ba3ca132dad1dc6cab1a9243d55109f`. Exact labels, types, definitions, schema provenance, and the bounded-sample limitation are recorded in `docs/source-schemas/cms_om_gv.schema.json`; no full CSV or response dump was retained. |
 | CMS Dialysis Facility Listing | Yes | Pending | Official metadata resolves and a paginated sample or full CSV succeeds without an API key; pagination is complete and CCNs reconcile. |
 | CDC/ATSDR SVI 2022 U.S. county data | Yes | Pending | Official CSV or deterministic REST pagination returns the pinned 3,144-row county snapshot, with distinct FIPS. |
 | Census Geocoder | Conditional | Pending | A sample or batch request succeeds for unresolved public facility business addresses. |

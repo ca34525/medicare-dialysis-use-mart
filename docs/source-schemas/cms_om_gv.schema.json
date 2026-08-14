@@ -1,0 +1,190 @@
+{
+  "logical_source_id": "cms_om_gv",
+  "stable_dataset_id": "6219697b-8f6c-4164-bed4-cd9317c58ebc",
+  "official_locators": {
+    "catalog_url": "https://data.cms.gov/data.json",
+    "landing_url": "https://data.cms.gov/summary-statistics-on-use-and-payments/medicare-geographic-comparisons/medicare-geographic-variation-by-national-state-county",
+    "stable_api_url": "https://data.cms.gov/data-api/v1/dataset/6219697b-8f6c-4164-bed4-cd9317c58ebc/data",
+    "dictionary_url": "https://data.cms.gov/sites/default/files/2026-05/267755af-8e26-4bcd-a3ea-fef41c96b7fc/2014-2024%20Original%20Medicare%20Geographic%20Variation%20Data%20Dictionary.pdf"
+  },
+  "retrieval": {
+    "retrieved_at_utc": "2026-08-14T03:33:27Z",
+    "catalog_modified_date": "2026-05-15",
+    "source_release": "2014-2024",
+    "data_file_name": "2014-2024 Original Medicare Geographic Variation Public Use File.csv",
+    "resolved_csv_url": "https://data.cms.gov/sites/default/files/2026-04/cc600d1e-d475-4b0e-80dc-1f64c01ca68c/2014-2024%20Original%20Medicare%20Geographic%20Variation%20Public%20Use%20File.csv",
+    "resolved_version_api_id": "1e426446-7192-4c40-bb9c-c9d801bdf671",
+    "observed_row_count": 36994,
+    "observed_column_count": 246,
+    "source_file_byte_count": 57865948,
+    "source_file_sha1_from_cms": "1a2f1c28ba592c543eaf43bf2d07785d1d49b536",
+    "cms_table_schema_hash": "f655ba14bfcb2f72e302b2e4e7590a81c7afab7c"
+  },
+  "dictionary": {
+    "local_path": "docs/source-dictionaries/cms_om_gv-2014-2024.pdf",
+    "byte_count": 563924,
+    "sha256": "75a8d4bef07d1900a50732c78a2aec688ba3ca132dad1dc6cab1a9243d55109f",
+    "pdf_title": "2014-2024 Original Medicare Geographic Variation by National, State & County Data Dictionary",
+    "pdf_modified_date": "2026-05-05"
+  },
+  "grain": {
+    "keys": [
+      "YEAR",
+      "BENE_GEO_LVL",
+      "BENE_GEO_CD",
+      "BENE_AGE_LVL"
+    ],
+    "description": "One raw row per year, geography level, geography code representation, and age level.",
+    "raw_code_exception": "CMS represents the National code, plus State pseudo-rows Territory and ZZ, as an empty raw string. Empty county and ordinary-state codes are invalid."
+  },
+  "required_semantic_mapping": [
+    {
+      "semantic_concept": "year",
+      "source_label": "YEAR",
+      "official_term": "Year",
+      "declared_type": "NUMERIC",
+      "compatible_type_family": "numeric",
+      "unit_or_scale": "integer calendar year",
+      "definition": "Calendar year represented by the row."
+    },
+    {
+      "semantic_concept": "geography level",
+      "source_label": "BENE_GEO_LVL",
+      "official_term": "Geographic Level",
+      "declared_type": "TEXT",
+      "compatible_type_family": "text",
+      "unit_or_scale": "National, State, or County category",
+      "definition": "Aggregation level of the beneficiary geography."
+    },
+    {
+      "semantic_concept": "geography description",
+      "source_label": "BENE_GEO_DESC",
+      "official_term": "State or County",
+      "declared_type": "TEXT",
+      "compatible_type_family": "text",
+      "unit_or_scale": "source label",
+      "definition": "CMS state or county description retained for lineage."
+    },
+    {
+      "semantic_concept": "geography code",
+      "source_label": "BENE_GEO_CD",
+      "official_term": "State and County FIPS Code",
+      "declared_type": "TEXT",
+      "compatible_type_family": "text",
+      "unit_or_scale": "raw state/county FIPS text",
+      "definition": "CMS state or county FIPS representation; leading zeros must be preserved."
+    },
+    {
+      "semantic_concept": "age level",
+      "source_label": "BENE_AGE_LVL",
+      "official_term": "Age Level",
+      "declared_type": "TEXT",
+      "compatible_type_family": "text",
+      "unit_or_scale": "All, under 65, or 65 and older category",
+      "definition": "Beneficiary age aggregation represented by the row."
+    },
+    {
+      "semantic_concept": "Original Medicare beneficiary count",
+      "source_label": "BENES_OM_CNT",
+      "official_term": "Original Medicare (OM) Beneficiaries",
+      "declared_type": "NUMERIC",
+      "compatible_type_family": "numeric",
+      "unit_or_scale": "beneficiary count",
+      "definition": "Beneficiaries continuously enrolled in Parts A and B and Original Medicare for their entitled months in the year, including qualifying new enrollees and decedents."
+    },
+    {
+      "semantic_concept": "Medicare Advantage participation rate",
+      "source_label": "MA_PRTCPTN_RATE",
+      "official_term": "MA Participation Rate",
+      "declared_type": "NUMERIC",
+      "compatible_type_family": "numeric",
+      "unit_or_scale": "decimal proportion in current source values",
+      "definition": "Share of beneficiaries enrolled in Medicare Advantage throughout the year, including qualifying new enrollees and decedents."
+    },
+    {
+      "semantic_concept": "dual-eligible percentage",
+      "source_label": "BENE_DUAL_PCT",
+      "official_term": "Percent Eligible for Medicaid",
+      "declared_type": "NUMERIC",
+      "compatible_type_family": "numeric",
+      "unit_or_scale": "decimal proportion in current source values",
+      "definition": "Share of Original Medicare beneficiaries eligible for Medicaid for at least one month in the year."
+    },
+    {
+      "semantic_concept": "outpatient dialysis beneficiary share",
+      "source_label": "BENES_OP_DLYS_PCT",
+      "official_term": "% of Beneficiaries Using Outpatient Dialysis Facility",
+      "declared_type": "NUMERIC",
+      "compatible_type_family": "numeric",
+      "unit_or_scale": "decimal proportion in current source values",
+      "definition": "Share of Original Medicare beneficiaries using outpatient dialysis facility services."
+    },
+    {
+      "semantic_concept": "outpatient dialysis visits per 1,000 beneficiaries",
+      "source_label": "OP_DLYS_VISITS_PER_1000_BENES",
+      "official_term": "Outpatient Dialysis Facility Visits Per 1,000 Beneficiaries",
+      "declared_type": "NUMERIC",
+      "compatible_type_family": "numeric",
+      "unit_or_scale": "visits per 1,000 Original Medicare beneficiaries",
+      "definition": "Outpatient dialysis facility visits per 1,000 Original Medicare beneficiaries."
+    },
+    {
+      "semantic_concept": "standardized outpatient dialysis payment per capita",
+      "source_label": "OP_DLYS_MDCR_STDZD_PYMT_PC",
+      "official_term": "Outpatient Dialysis Facility Per Capita Standardized Medicare Payment",
+      "declared_type": "NUMERIC",
+      "compatible_type_family": "numeric",
+      "unit_or_scale": "standardized Medicare payment per Original Medicare beneficiary",
+      "definition": "Per-capita outpatient dialysis facility Medicare payment adjusted for geographic payment-rate differences, not health status."
+    },
+    {
+      "semantic_concept": "acute hospital readmission percentage",
+      "source_label": "ACUTE_HOSP_READMSN_PCT",
+      "official_term": "All-Cause Hospital 30-Day Readmission Rate",
+      "declared_type": "NUMERIC",
+      "compatible_type_family": "numeric",
+      "unit_or_scale": "decimal proportion in current source values",
+      "definition": "Share of readmissions within 30 days of an acute hospital stay in the reference period, whether planned or unplanned."
+    },
+    {
+      "semantic_concept": "emergency-room visits per 1,000 beneficiaries",
+      "source_label": "ER_VISITS_PER_1000_BENES",
+      "official_term": "Emergency Room (ER) Visits per 1,000 Beneficiaries",
+      "declared_type": "NUMERIC",
+      "compatible_type_family": "numeric",
+      "unit_or_scale": "visits per 1,000 Original Medicare beneficiaries",
+      "definition": "Inpatient or hospital-outpatient emergency-room visits per 1,000 Original Medicare beneficiaries."
+    }
+  ],
+  "suppression_and_missingness": {
+    "raw_tokens": [
+      "*",
+      "",
+      "NA"
+    ],
+    "suppression_token": "*",
+    "suppression_rule": "CMS suppresses variables when beneficiary or user counts are below 11.",
+    "blank_evidence": "CMS table-schema metadata declares the empty string as missing; geography-code exceptions are separately documented.",
+    "na_evidence": "NA was observed in the bounded API sample.",
+    "zero_rule": "A raw numeric zero is distinct from suppression and unavailability."
+  },
+  "observed_schema": {
+    "column_count": 246,
+    "declared_type_encoding": {
+      "default": "NUMERIC",
+      "overrides": {
+        "BENE_GEO_LVL": "TEXT",
+        "BENE_GEO_DESC": "TEXT",
+        "BENE_GEO_CD": "TEXT",
+        "BENE_AGE_LVL": "TEXT"
+      },
+      "counts": {
+        "NUMERIC": 242,
+        "TEXT": 4
+      }
+    },
+    "columns_in_source_order": ["YEAR","BENE_GEO_LVL","BENE_GEO_DESC","BENE_GEO_CD","BENE_AGE_LVL","BENES_TOTAL_CNT","BENES_WTH_PTAPTB_CNT","BENES_OM_CNT","BENES_MA_CNT","MA_PRTCPTN_RATE","BENE_AVG_AGE","BENE_FEML_PCT","BENE_MALE_PCT","BENE_RACE_WHT_PCT","BENE_RACE_BLACK_PCT","BENE_RACE_HSPNC_PCT","BENE_RACE_OTHR_PCT","BENE_DUAL_PCT","TOT_MDCR_PYMT_AMT","TOT_MDCR_STDZD_PYMT_AMT","TOT_MDCR_PYMT_PC","TOT_MDCR_STDZD_PYMT_PC","IP_MDCR_PYMT_AMT","IP_MDCR_PYMT_PCT","IP_MDCR_PYMT_PC","IP_MDCR_PYMT_PER_USER","IP_MDCR_STDZD_PYMT_AMT","IP_MDCR_STDZD_PYMT_PCT","IP_MDCR_STDZD_PYMT_PC","IP_MDCR_STDZD_PYMT_PER_USER","BENES_IP_CVRD_STAY_CNT","BENES_IP_PCT","IP_CVRD_STAYS_PER_1000_BENES","IP_CVRD_DAYS_PER_1000_BENES","ACUTE_HOSP_READMSN_CNT","ACUTE_HOSP_READMSN_PCT","BENES_ER_VISITS_CNT","ER_VISITS_PER_1000_BENES","BENES_ER_VISITS_PCT","OP_MDCR_PYMT_AMT","OP_MDCR_PYMT_PCT","OP_MDCR_PYMT_PC","OP_MDCR_PYMT_PER_USER","OP_MDCR_STDZD_PYMT_AMT","OP_MDCR_STDZD_PYMT_PCT","OP_MDCR_STDZD_PYMT_PC","OP_MDCR_STDZD_PYMT_PER_USER","BENES_OP_CNT","BENES_OP_PCT","OP_VISITS_PER_1000_BENES","ASC_MDCR_PYMT_AMT","ASC_MDCR_PYMT_PCT","ASC_MDCR_PYMT_PC","ASC_MDCR_PYMT_PER_USER","ASC_MDCR_STDZD_PYMT_AMT","ASC_MDCR_STDZD_PYMT_PCT","ASC_MDCR_STDZD_PYMT_PC","ASC_MDCR_STDZD_PYMT_PER_USER","BENES_ASC_CNT","BENES_ASC_PCT","ASC_EVNTS_PER_1000_BENES","SNF_MDCR_PYMT_AMT","SNF_MDCR_PYMT_PCT","SNF_MDCR_PYMT_PC","SNF_MDCR_PYMT_PER_USER","SNF_MDCR_STDZD_PYMT_AMT","SNF_MDCR_STDZD_PYMT_PCT","SNF_MDCR_STDZD_PYMT_PC","SNF_MDCR_STDZD_PYMT_PER_USER","BENES_SNF_CNT","BENES_SNF_PCT","SNF_CVRD_STAYS_PER_1000_BENES","SNF_CVRD_DAYS_PER_1000_BENES","IRF_MDCR_PYMT_AMT","IRF_MDCR_PYMT_PCT","IRF_MDCR_PYMT_PC","IRF_MDCR_PYMT_PER_USER","IRF_MDCR_STDZD_PYMT_AMT","IRF_MDCR_STDZD_PYMT_PCT","IRF_MDCR_STDZD_PYMT_PC","IRF_MDCR_STDZD_PYMT_PER_USER","BENES_IRF_CNT","BENES_IRF_PCT","IRF_CVRD_STAYS_PER_1000_BENES","IRF_CVRD_DAYS_PER_1000_BENES","LTCH_MDCR_PYMT_AMT","LTCH_MDCR_PYMT_PCT","LTCH_MDCR_PYMT_PC","LTCH_MDCR_PYMT_PER_USER","LTCH_MDCR_STDZD_PYMT_AMT","LTCH_MDCR_STDZD_PYMT_PCT","LTCH_MDCR_STDZD_PYMT_PC","LTCH_MDCR_STDZD_PYMT_PER_USER","BENES_LTCH_CNT","BENES_LTCH_PCT","LTCH_CVRD_STAYS_PER_1000_BENES","LTCH_CVRD_DAYS_PER_1000_BENES","HH_MDCR_PYMT_AMT","HH_MDCR_PYMT_PCT","HH_MDCR_PYMT_PC","HH_MDCR_PYMT_PER_USER","HH_MDCR_STDZD_PYMT_AMT","HH_MDCR_STDZD_PYMT_PCT","HH_MDCR_STDZD_PYMT_PC","HH_MDCR_STDZD_PYMT_PER_USER","BENES_HH_CNT","BENES_HH_PCT","HH_EPISODES_PER_1000_BENES","HH_VISITS_PER_1000_BENES","HOSPC_MDCR_PYMT_AMT","HOSPC_MDCR_PYMT_PCT","HOSPC_MDCR_PYMT_PC","HOSPC_MDCR_PYMT_PER_USER","HOSPC_MDCR_STDZD_PYMT_AMT","HOSPC_MDCR_STDZD_PYMT_PCT","HOSPC_MDCR_STDZD_PYMT_PC","HOSPC_MDCR_STDZD_PYMT_PER_USER","BENES_HOSPC_CNT","BENES_HOSPC_PCT","HOSPC_CVRD_STAYS_PER_1000_BENES","HOSPC_CVRD_DAYS_PER_1000_BENES","EM_MDCR_PYMT_AMT","EM_MDCR_PYMT_PCT","EM_MDCR_PYMT_PC","EM_MDCR_PYMT_PER_USER","EM_MDCR_STDZD_PYMT_AMT","EM_MDCR_STDZD_PYMT_PCT","EM_MDCR_STDZD_PYMT_PC","EM_MDCR_STDZD_PYMT_PER_USER","BENES_EM_CNT","BENES_EM_PCT","EM_EVNTS_PER_1000_BENES","PRCDRS_MDCR_PYMT_AMT","PRCDRS_MDCR_PYMT_PCT","PRCDRS_MDCR_PYMT_PC","PRCDRS_MDCR_PYMT_PER_USER","PRCDRS_MDCR_STDZD_PYMT_AMT","PRCDRS_MDCR_STDZD_PYMT_PCT","PRCDRS_MDCR_STDZD_PYMT_PC","PRCDRS_MDCR_STDZD_PYMT_PER_USER","BENES_PRCDRS_CNT","BENES_PRCDRS_PCT","PRCDR_EVNTS_PER_1000_BENES","TESTS_MDCR_PYMT_AMT","TESTS_MDCR_PYMT_PCT","TESTS_MDCR_PYMT_PC","TESTS_MDCR_PYMT_PER_USER","TESTS_MDCR_STDZD_PYMT_AMT","TESTS_MDCR_STDZD_PYMT_PCT","TESTS_MDCR_STDZD_PYMT_PC","TESTS_MDCR_STDZD_PYMT_PER_USER","BENES_TESTS_CNT","BENES_TESTS_PCT","TESTS_EVNTS_PER_1000_BENES","IMGNG_MDCR_PYMT_AMT","IMGNG_MDCR_PYMT_PCT","IMGNG_MDCR_PYMT_PC","IMGNG_MDCR_PYMT_PER_USER","IMGNG_MDCR_STDZD_PYMT_AMT","IMGNG_MDCR_STDZD_PYMT_PCT","IMGNG_MDCR_STDZD_PYMT_PC","IMGNG_MDCR_STDZD_PYMT_PER_USER","BENES_IMGNG_CNT","BENES_IMGNG_PCT","IMGNG_EVNTS_PER_1000_BENES","DME_MDCR_PYMT_AMT","DME_MDCR_PYMT_PCT","DME_MDCR_PYMT_PC","DME_MDCR_PYMT_PER_USER","DME_MDCR_STDZD_PYMT_AMT","DME_MDCR_STDZD_PYMT_PCT","DME_MDCR_STDZD_PYMT_PC","DME_MDCR_STDZD_PYMT_PER_USER","BENES_DME_CNT","BENES_DME_PCT","DME_EVNTS_PER_1000_BENES","OP_DLYS_MDCR_PYMT_AMT","OP_DLYS_MDCR_PYMT_PCT","OP_DLYS_MDCR_PYMT_PC","OP_DLYS_MDCR_PYMT_PER_USER","OP_DLYS_MDCR_STDZD_PYMT_AMT","OP_DLYS_MDCR_STDZD_PYMT_PCT","OP_DLYS_MDCR_STDZD_PYMT_PC","OP_DLYS_MDCR_STDZD_PYMT_PER_USER","BENES_OP_DLYS_CNT","BENES_OP_DLYS_PCT","OP_DLYS_VISITS_PER_1000_BENES","FQHC_RHC_MDCR_PYMT_AMT","FQHC_RHC_MDCR_PYMT_PCT","FQHC_RHC_MDCR_PYMT_PC","FQHC_RHC_MDCR_PYMT_PER_USER","FQHC_RHC_MDCR_STDZD_PYMT_AMT","FQHC_RHC_MDCR_STDZD_PYMT_PCT","FQHC_RHC_MDCR_STDZD_PYMT_PC","FQHC_RHC_MDCR_STDZD_PYMT_PU","BENES_FQHC_RHC_CNT","BENES_FQHC_RHC_PCT","FQHC_RHC_VISITS_PER_1000_BENES","AMBLNC_MDCR_PYMT_AMT","AMBLNC_MDCR_PYMT_PCT","AMBLNC_MDCR_PYMT_PC","AMBLNC_MDCR_PYMT_PER_USER","AMBLNC_MDCR_STDZD_PYMT_AMT","AMBLNC_MDCR_STDZD_PYMT_PCT","AMBLNC_MDCR_STDZD_PYMT_PC","AMBLNC_MDCR_STDZD_PYMT_PER_USER","BENES_AMBLNC_CNT","BENES_AMBLNC_PCT","AMBLNC_EVNTS_PER_1000_BENES","TRTMNTS_MDCR_PYMT_AMT","TRTMNTS_MDCR_PYMT_PCT","TRTMNTS_MDCR_PYMT_PC","TRTMNTS_MDCR_PYMT_PER_USER","TRTMNTS_MDCR_STDZD_PYMT_AMT","TRTMNTS_MDCR_STDZD_PYMT_PCT","TRTMNTS_MDCR_STDZD_PYMT_PC","TRTMNTS_MDCR_STDZD_PYMT_PER_USER","BENES_TRTMNTS_CNT","BENES_TRTMNTS_PCT","TRTMNTS_EVNTS_PER_1000_BENES","PTB_OTHR_SRVCS_MDCR_PYMT_AMT","PTB_OTHR_SRVCS_MDCR_STDZD_PYMT","TOT_PBPMT_RDCTN_AMT","TOT_PBPMT_RDCTN_PCC","PQI03_DBTS_AGE_LT_65","PQI03_DBTS_AGE_65_74","PQI03_DBTS_AGE_GE_75","PQI05_COPD_ASTHMA_AGE_40_64","PQI05_COPD_ASTHMA_AGE_65_74","PQI05_COPD_ASTHMA_AGE_GE_75","PQI07_HYPRTNSN_AGE_LT_65","PQI07_HYPRTNSN_AGE_65_74","PQI07_HYPRTNSN_AGE_GE_75","PQI08_CHF_AGE_LT_65","PQI08_CHF_AGE_65_74","PQI08_CHF_AGE_GE_75","PQI11_BCTRL_PNA_AGE_LT_65","PQI11_BCTRL_PNA_AGE_65_74","PQI11_BCTRL_PNA_AGE_GE_75","PQI12_UTI_AGE_LT_65","PQI12_UTI_AGE_65_74","PQI12_UTI_AGE_GE_75","PQI15_ASTHMA_AGE_LT_40","PQI16_LWRXTRMTY_AMPUTN_AGE_LT_65","PQI16_LWRXTRMTY_AMPUTN_AGE_65_74","PQI16_LWRXTRMTY_AMPUTN_AGE_GE_75"]
+  },
+  "additive_columns": ["BENES_TOTAL_CNT","BENES_WTH_PTAPTB_CNT","BENES_MA_CNT","BENE_AVG_AGE","BENE_FEML_PCT","BENE_MALE_PCT","BENE_RACE_WHT_PCT","BENE_RACE_BLACK_PCT","BENE_RACE_HSPNC_PCT","BENE_RACE_OTHR_PCT","TOT_MDCR_PYMT_AMT","TOT_MDCR_STDZD_PYMT_AMT","TOT_MDCR_PYMT_PC","TOT_MDCR_STDZD_PYMT_PC","IP_MDCR_PYMT_AMT","IP_MDCR_PYMT_PCT","IP_MDCR_PYMT_PC","IP_MDCR_PYMT_PER_USER","IP_MDCR_STDZD_PYMT_AMT","IP_MDCR_STDZD_PYMT_PCT","IP_MDCR_STDZD_PYMT_PC","IP_MDCR_STDZD_PYMT_PER_USER","BENES_IP_CVRD_STAY_CNT","BENES_IP_PCT","IP_CVRD_STAYS_PER_1000_BENES","IP_CVRD_DAYS_PER_1000_BENES","ACUTE_HOSP_READMSN_CNT","BENES_ER_VISITS_CNT","BENES_ER_VISITS_PCT","OP_MDCR_PYMT_AMT","OP_MDCR_PYMT_PCT","OP_MDCR_PYMT_PC","OP_MDCR_PYMT_PER_USER","OP_MDCR_STDZD_PYMT_AMT","OP_MDCR_STDZD_PYMT_PCT","OP_MDCR_STDZD_PYMT_PC","OP_MDCR_STDZD_PYMT_PER_USER","BENES_OP_CNT","BENES_OP_PCT","OP_VISITS_PER_1000_BENES","ASC_MDCR_PYMT_AMT","ASC_MDCR_PYMT_PCT","ASC_MDCR_PYMT_PC","ASC_MDCR_PYMT_PER_USER","ASC_MDCR_STDZD_PYMT_AMT","ASC_MDCR_STDZD_PYMT_PCT","ASC_MDCR_STDZD_PYMT_PC","ASC_MDCR_STDZD_PYMT_PER_USER","BENES_ASC_CNT","BENES_ASC_PCT","ASC_EVNTS_PER_1000_BENES","SNF_MDCR_PYMT_AMT","SNF_MDCR_PYMT_PCT","SNF_MDCR_PYMT_PC","SNF_MDCR_PYMT_PER_USER","SNF_MDCR_STDZD_PYMT_AMT","SNF_MDCR_STDZD_PYMT_PCT","SNF_MDCR_STDZD_PYMT_PC","SNF_MDCR_STDZD_PYMT_PER_USER","BENES_SNF_CNT","BENES_SNF_PCT","SNF_CVRD_STAYS_PER_1000_BENES","SNF_CVRD_DAYS_PER_1000_BENES","IRF_MDCR_PYMT_AMT","IRF_MDCR_PYMT_PCT","IRF_MDCR_PYMT_PC","IRF_MDCR_PYMT_PER_USER","IRF_MDCR_STDZD_PYMT_AMT","IRF_MDCR_STDZD_PYMT_PCT","IRF_MDCR_STDZD_PYMT_PC","IRF_MDCR_STDZD_PYMT_PER_USER","BENES_IRF_CNT","BENES_IRF_PCT","IRF_CVRD_STAYS_PER_1000_BENES","IRF_CVRD_DAYS_PER_1000_BENES","LTCH_MDCR_PYMT_AMT","LTCH_MDCR_PYMT_PCT","LTCH_MDCR_PYMT_PC","LTCH_MDCR_PYMT_PER_USER","LTCH_MDCR_STDZD_PYMT_AMT","LTCH_MDCR_STDZD_PYMT_PCT","LTCH_MDCR_STDZD_PYMT_PC","LTCH_MDCR_STDZD_PYMT_PER_USER","BENES_LTCH_CNT","BENES_LTCH_PCT","LTCH_CVRD_STAYS_PER_1000_BENES","LTCH_CVRD_DAYS_PER_1000_BENES","HH_MDCR_PYMT_AMT","HH_MDCR_PYMT_PCT","HH_MDCR_PYMT_PC","HH_MDCR_PYMT_PER_USER","HH_MDCR_STDZD_PYMT_AMT","HH_MDCR_STDZD_PYMT_PCT","HH_MDCR_STDZD_PYMT_PC","HH_MDCR_STDZD_PYMT_PER_USER","BENES_HH_CNT","BENES_HH_PCT","HH_EPISODES_PER_1000_BENES","HH_VISITS_PER_1000_BENES","HOSPC_MDCR_PYMT_AMT","HOSPC_MDCR_PYMT_PCT","HOSPC_MDCR_PYMT_PC","HOSPC_MDCR_PYMT_PER_USER","HOSPC_MDCR_STDZD_PYMT_AMT","HOSPC_MDCR_STDZD_PYMT_PCT","HOSPC_MDCR_STDZD_PYMT_PC","HOSPC_MDCR_STDZD_PYMT_PER_USER","BENES_HOSPC_CNT","BENES_HOSPC_PCT","HOSPC_CVRD_STAYS_PER_1000_BENES","HOSPC_CVRD_DAYS_PER_1000_BENES","EM_MDCR_PYMT_AMT","EM_MDCR_PYMT_PCT","EM_MDCR_PYMT_PC","EM_MDCR_PYMT_PER_USER","EM_MDCR_STDZD_PYMT_AMT","EM_MDCR_STDZD_PYMT_PCT","EM_MDCR_STDZD_PYMT_PC","EM_MDCR_STDZD_PYMT_PER_USER","BENES_EM_CNT","BENES_EM_PCT","EM_EVNTS_PER_1000_BENES","PRCDRS_MDCR_PYMT_AMT","PRCDRS_MDCR_PYMT_PCT","PRCDRS_MDCR_PYMT_PC","PRCDRS_MDCR_PYMT_PER_USER","PRCDRS_MDCR_STDZD_PYMT_AMT","PRCDRS_MDCR_STDZD_PYMT_PCT","PRCDRS_MDCR_STDZD_PYMT_PC","PRCDRS_MDCR_STDZD_PYMT_PER_USER","BENES_PRCDRS_CNT","BENES_PRCDRS_PCT","PRCDR_EVNTS_PER_1000_BENES","TESTS_MDCR_PYMT_AMT","TESTS_MDCR_PYMT_PCT","TESTS_MDCR_PYMT_PC","TESTS_MDCR_PYMT_PER_USER","TESTS_MDCR_STDZD_PYMT_AMT","TESTS_MDCR_STDZD_PYMT_PCT","TESTS_MDCR_STDZD_PYMT_PC","TESTS_MDCR_STDZD_PYMT_PER_USER","BENES_TESTS_CNT","BENES_TESTS_PCT","TESTS_EVNTS_PER_1000_BENES","IMGNG_MDCR_PYMT_AMT","IMGNG_MDCR_PYMT_PCT","IMGNG_MDCR_PYMT_PC","IMGNG_MDCR_PYMT_PER_USER","IMGNG_MDCR_STDZD_PYMT_AMT","IMGNG_MDCR_STDZD_PYMT_PCT","IMGNG_MDCR_STDZD_PYMT_PC","IMGNG_MDCR_STDZD_PYMT_PER_USER","BENES_IMGNG_CNT","BENES_IMGNG_PCT","IMGNG_EVNTS_PER_1000_BENES","DME_MDCR_PYMT_AMT","DME_MDCR_PYMT_PCT","DME_MDCR_PYMT_PC","DME_MDCR_PYMT_PER_USER","DME_MDCR_STDZD_PYMT_AMT","DME_MDCR_STDZD_PYMT_PCT","DME_MDCR_STDZD_PYMT_PC","DME_MDCR_STDZD_PYMT_PER_USER","BENES_DME_CNT","BENES_DME_PCT","DME_EVNTS_PER_1000_BENES","OP_DLYS_MDCR_PYMT_AMT","OP_DLYS_MDCR_PYMT_PCT","OP_DLYS_MDCR_PYMT_PC","OP_DLYS_MDCR_PYMT_PER_USER","OP_DLYS_MDCR_STDZD_PYMT_AMT","OP_DLYS_MDCR_STDZD_PYMT_PCT","OP_DLYS_MDCR_STDZD_PYMT_PER_USER","BENES_OP_DLYS_CNT","FQHC_RHC_MDCR_PYMT_AMT","FQHC_RHC_MDCR_PYMT_PCT","FQHC_RHC_MDCR_PYMT_PC","FQHC_RHC_MDCR_PYMT_PER_USER","FQHC_RHC_MDCR_STDZD_PYMT_AMT","FQHC_RHC_MDCR_STDZD_PYMT_PCT","FQHC_RHC_MDCR_STDZD_PYMT_PC","FQHC_RHC_MDCR_STDZD_PYMT_PU","BENES_FQHC_RHC_CNT","BENES_FQHC_RHC_PCT","FQHC_RHC_VISITS_PER_1000_BENES","AMBLNC_MDCR_PYMT_AMT","AMBLNC_MDCR_PYMT_PCT","AMBLNC_MDCR_PYMT_PC","AMBLNC_MDCR_PYMT_PER_USER","AMBLNC_MDCR_STDZD_PYMT_AMT","AMBLNC_MDCR_STDZD_PYMT_PCT","AMBLNC_MDCR_STDZD_PYMT_PC","AMBLNC_MDCR_STDZD_PYMT_PER_USER","BENES_AMBLNC_CNT","BENES_AMBLNC_PCT","AMBLNC_EVNTS_PER_1000_BENES","TRTMNTS_MDCR_PYMT_AMT","TRTMNTS_MDCR_PYMT_PCT","TRTMNTS_MDCR_PYMT_PC","TRTMNTS_MDCR_PYMT_PER_USER","TRTMNTS_MDCR_STDZD_PYMT_AMT","TRTMNTS_MDCR_STDZD_PYMT_PCT","TRTMNTS_MDCR_STDZD_PYMT_PC","TRTMNTS_MDCR_STDZD_PYMT_PER_USER","BENES_TRTMNTS_CNT","BENES_TRTMNTS_PCT","TRTMNTS_EVNTS_PER_1000_BENES","PTB_OTHR_SRVCS_MDCR_PYMT_AMT","PTB_OTHR_SRVCS_MDCR_STDZD_PYMT","TOT_PBPMT_RDCTN_AMT","TOT_PBPMT_RDCTN_PCC","PQI03_DBTS_AGE_LT_65","PQI03_DBTS_AGE_65_74","PQI03_DBTS_AGE_GE_75","PQI05_COPD_ASTHMA_AGE_40_64","PQI05_COPD_ASTHMA_AGE_65_74","PQI05_COPD_ASTHMA_AGE_GE_75","PQI07_HYPRTNSN_AGE_LT_65","PQI07_HYPRTNSN_AGE_65_74","PQI07_HYPRTNSN_AGE_GE_75","PQI08_CHF_AGE_LT_65","PQI08_CHF_AGE_65_74","PQI08_CHF_AGE_GE_75","PQI11_BCTRL_PNA_AGE_LT_65","PQI11_BCTRL_PNA_AGE_65_74","PQI11_BCTRL_PNA_AGE_GE_75","PQI12_UTI_AGE_LT_65","PQI12_UTI_AGE_65_74","PQI12_UTI_AGE_GE_75","PQI15_ASTHMA_AGE_LT_40","PQI16_LWRXTRMTY_AMPUTN_AGE_LT_65","PQI16_LWRXTRMTY_AMPUTN_AGE_65_74","PQI16_LWRXTRMTY_AMPUTN_AGE_GE_75"],
+  "schema_sha256": "597ef7baffc304e781969e40f63d03a5b9db8df6190e9a38b844642f21b4e0a7"
+}

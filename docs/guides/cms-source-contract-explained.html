@@ -1,0 +1,1585 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A visual, beginner-friendly explanation of the CMS Original Medicare Geographic Variation source contract in the Kidney Care Analytics Mart.">
+  <title>What the CMS source contract does | Kidney Care Analytics Mart</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --paper: #f4f1e8;
+      --paper-deep: #e9e2d2;
+      --surface: #fffdf7;
+      --surface-strong: #ffffff;
+      --ink: #102a43;
+      --muted: #526579;
+      --line: #c8d0d5;
+      --navy: #173f5f;
+      --teal: #177e79;
+      --teal-soft: #d8efeb;
+      --gold: #d9962f;
+      --gold-soft: #f8e7c5;
+      --green: #26734d;
+      --green-soft: #dcefe4;
+      --red: #aa3f33;
+      --red-soft: #f5dfdc;
+      --blue-soft: #e0ecf5;
+      --code: #14283a;
+      --code-ink: #edf7ff;
+      --series-ink: #ffffff;
+      --on-status: #ffffff;
+      --shadow: 0 14px 34px rgb(16 42 67 / 10%);
+      --radius: 18px;
+      --content: 1120px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --paper: #0d1823;
+        --paper-deep: #142432;
+        --surface: #152635;
+        --surface-strong: #1a2d3e;
+        --ink: #e7f0f6;
+        --muted: #b3c1ce;
+        --line: #405466;
+        --navy: #8dc5e8;
+        --teal: #70d3c7;
+        --teal-soft: #173f40;
+        --gold: #f1bf66;
+        --gold-soft: #49381c;
+        --green: #7ad0a1;
+        --green-soft: #183c2c;
+        --red: #ff9e91;
+        --red-soft: #4b2827;
+        --blue-soft: #1d3549;
+        --code: #09131c;
+        --code-ink: #e6f4ff;
+        --series-ink: #0a1b27;
+        --on-status: #102a43;
+        --shadow: 0 18px 38px rgb(0 0 0 / 28%);
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 8% 4%, color-mix(in srgb, var(--gold) 16%, transparent) 0, transparent 28rem),
+        radial-gradient(circle at 94% 18%, color-mix(in srgb, var(--teal) 14%, transparent) 0, transparent 32rem),
+        var(--paper);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+
+    a {
+      color: var(--navy);
+      text-underline-offset: 0.2em;
+    }
+
+    a:hover {
+      text-decoration-thickness: 0.14em;
+    }
+
+    a:focus-visible,
+    button:focus-visible,
+    summary:focus-visible {
+      outline: 3px solid var(--gold);
+      outline-offset: 3px;
+    }
+
+    code,
+    pre {
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+    }
+
+    .skip-link {
+      position: absolute;
+      left: 1rem;
+      top: -5rem;
+      z-index: 10;
+      background: var(--surface-strong);
+      color: var(--ink);
+      padding: 0.75rem 1rem;
+      border: 2px solid var(--navy);
+      border-radius: 0.5rem;
+    }
+
+    .skip-link:focus {
+      top: 1rem;
+    }
+
+    .shell {
+      width: min(var(--content), calc(100% - 2rem));
+      margin-inline: auto;
+    }
+
+    .site-header {
+      padding: 1.25rem 0 0;
+    }
+
+    .crumbs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      align-items: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .crumbs span[aria-hidden="true"] {
+      color: var(--line);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(18rem, 0.65fr);
+      gap: clamp(2rem, 5vw, 5rem);
+      align-items: center;
+      min-height: 36rem;
+      padding: 4rem 0 5rem;
+    }
+
+    .eyebrow {
+      margin: 0 0 0.65rem;
+      color: var(--teal);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2,
+    h3 {
+      line-height: 1.12;
+      text-wrap: balance;
+    }
+
+    h1 {
+      max-width: 14ch;
+      margin: 0;
+      font-size: clamp(2.6rem, 7vw, 5.7rem);
+      letter-spacing: -0.055em;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 3.35rem);
+      letter-spacing: -0.035em;
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 1.2rem;
+    }
+
+    .hero .lead {
+      max-width: 64ch;
+      margin: 1.5rem 0 0;
+      color: var(--muted);
+      font-size: clamp(1.05rem, 2vw, 1.3rem);
+    }
+
+    .hero-note {
+      position: relative;
+      padding: 2rem;
+      background: var(--surface-strong);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-note::before {
+      position: absolute;
+      inset: 0.75rem auto 0.75rem 0;
+      width: 0.32rem;
+      border-radius: 0 0.3rem 0.3rem 0;
+      background: var(--gold);
+      content: "";
+    }
+
+    .hero-note p {
+      margin: 0;
+    }
+
+    .hero-note .big-idea {
+      margin-top: 0.75rem;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.55rem;
+      line-height: 1.35;
+    }
+
+    .hero-note .small-note {
+      margin-top: 1rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    main > section {
+      padding: clamp(4rem, 8vw, 7rem) 0;
+    }
+
+    .section-intro {
+      display: grid;
+      grid-template-columns: minmax(14rem, 0.58fr) minmax(0, 1fr);
+      gap: clamp(2rem, 5vw, 5rem);
+      margin-bottom: 3rem;
+      align-items: start;
+    }
+
+    .section-intro p {
+      max-width: 68ch;
+      margin: 0.5rem 0 0;
+      color: var(--muted);
+      font-size: 1.08rem;
+    }
+
+    .plain-definition {
+      padding-block: 5rem;
+      border-block: 1px solid var(--line);
+    }
+
+    .analogy {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(17rem, 0.38fr);
+      gap: 2rem;
+      align-items: stretch;
+    }
+
+    .gate-figure {
+      margin: 0;
+      padding: clamp(1rem, 3vw, 2.4rem);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .gate-figure svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .gate-figure figcaption {
+      max-width: 70ch;
+      margin: 1.2rem auto 0;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .analogy-list {
+      display: grid;
+      gap: 0.8rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .analogy-list li {
+      padding: 1rem;
+      background: var(--surface);
+      border-left: 0.28rem solid var(--teal);
+      border-radius: 0.2rem var(--radius) var(--radius) 0.2rem;
+    }
+
+    .analogy-list strong,
+    .analogy-list span {
+      display: block;
+    }
+
+    .analogy-list span {
+      margin-top: 0.2rem;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .numbers-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(20rem, 0.56fr);
+      gap: 2.5rem;
+      align-items: center;
+    }
+
+    .schema-bars {
+      display: grid;
+      gap: 2rem;
+      padding: 2rem;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+
+    .bar-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 0.55rem;
+      font-weight: 700;
+    }
+
+    .bar-track {
+      display: flex;
+      height: 2.1rem;
+      overflow: hidden;
+      background: var(--paper-deep);
+      border: 1px solid var(--line);
+      border-radius: 0.65rem;
+    }
+
+    .bar-segment {
+      display: grid;
+      place-items: center;
+      min-width: 3.2rem;
+      color: var(--series-ink);
+      font-size: 0.82rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .bar-required {
+      width: 5.285%;
+      background: var(--teal);
+    }
+
+    .bar-additive {
+      width: 94.715%;
+      background: var(--navy);
+    }
+
+    .bar-numeric {
+      width: 98.374%;
+      background: var(--navy);
+    }
+
+    .bar-text {
+      width: 1.626%;
+      background: var(--gold);
+    }
+
+    .bar-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem 1.3rem;
+      margin-top: 0.7rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      gap: 0.45rem;
+      align-items: center;
+    }
+
+    .swatch {
+      width: 0.8rem;
+      height: 0.8rem;
+      border-radius: 0.2rem;
+      background: var(--teal);
+    }
+
+    .swatch.additive,
+    .swatch.numeric {
+      background: var(--navy);
+    }
+
+    .swatch.text {
+      background: var(--gold);
+    }
+
+    .numbers-copy p {
+      color: var(--muted);
+    }
+
+    .numbers-copy .callout {
+      margin-top: 1.4rem;
+      padding: 1rem 1.2rem;
+      background: var(--gold-soft);
+      border-left: 0.28rem solid var(--gold);
+      border-radius: 0.2rem 0.75rem 0.75rem 0.2rem;
+    }
+
+    .contract-lab {
+      background: var(--navy);
+      color: #f7fbff;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .contract-lab {
+        background: #0c273b;
+      }
+    }
+
+    .contract-lab .section-intro p,
+    .contract-lab .eyebrow {
+      color: #c7dde9;
+    }
+
+    .lab-grid {
+      display: grid;
+      grid-template-columns: minmax(15rem, 0.42fr) minmax(0, 1fr);
+      gap: 2rem;
+    }
+
+    .scenario-picker {
+      display: grid;
+      align-content: start;
+      gap: 0.7rem;
+    }
+
+    .scenario-picker button {
+      width: 100%;
+      padding: 0.9rem 1rem;
+      border: 1px solid rgb(255 255 255 / 34%);
+      border-radius: 0.65rem;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .scenario-picker button:hover {
+      background: rgb(255 255 255 / 8%);
+    }
+
+    .scenario-picker button[aria-pressed="true"] {
+      background: #f7fbff;
+      color: #102a43;
+      border-color: #f7fbff;
+      font-weight: 700;
+    }
+
+    .lab-output {
+      overflow: hidden;
+      background: var(--code);
+      border: 1px solid rgb(255 255 255 / 22%);
+      border-radius: var(--radius);
+    }
+
+    .lab-status {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem 1.2rem;
+      align-items: center;
+      padding: 1.1rem 1.25rem;
+      background: rgb(255 255 255 / 6%);
+      border-bottom: 1px solid rgb(255 255 255 / 18%);
+    }
+
+    .status-mark {
+      display: inline-flex;
+      gap: 0.45rem;
+      align-items: center;
+      padding: 0.28rem 0.65rem;
+      border-radius: 999px;
+      font-weight: 800;
+    }
+
+    .status-mark.pass {
+      background: #bdebcf;
+      color: #164b30;
+    }
+
+    .status-mark.fail {
+      background: #ffd5d0;
+      color: #6e2119;
+    }
+
+    .lab-status p {
+      flex: 1 1 20rem;
+      margin: 0;
+      color: #d8e9f4;
+    }
+
+    .lab-output pre {
+      min-height: 14rem;
+      margin: 0;
+      padding: 1.4rem;
+      overflow-x: auto;
+      color: var(--code-ink);
+      font-size: 0.9rem;
+      line-height: 1.75;
+      tab-size: 2;
+    }
+
+    .checkline {
+      display: grid;
+      grid-template-columns: 1.2rem minmax(0, 1fr);
+      gap: 0.65rem;
+      padding: 0.75rem 1.25rem;
+      color: #d8e9f4;
+      border-top: 1px solid rgb(255 255 255 / 12%);
+    }
+
+    .field-groups {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1.2rem;
+    }
+
+    .field-group {
+      overflow: hidden;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+
+    .field-group header {
+      padding: 1.1rem 1.25rem;
+      background: var(--blue-soft);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .field-group header p {
+      margin: 0.3rem 0 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .field-group dl {
+      margin: 0;
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: minmax(11rem, 0.52fr) minmax(0, 1fr);
+      gap: 1rem;
+      padding: 0.85rem 1.25rem;
+      border-top: 1px solid var(--line);
+    }
+
+    .field-row:first-child {
+      border-top: 0;
+    }
+
+    .field-row dt,
+    .field-row dd {
+      margin: 0;
+    }
+
+    .field-row dt code {
+      display: block;
+      overflow-wrap: anywhere;
+      color: var(--teal);
+      font-weight: 700;
+      word-break: break-word;
+    }
+
+    .field-row dd {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .tokens {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .token-card {
+      padding: 1.25rem;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+
+    .token-card .token {
+      display: inline-grid;
+      min-width: 3.4rem;
+      min-height: 3.4rem;
+      place-items: center;
+      padding: 0.4rem;
+      background: var(--code);
+      color: var(--code-ink);
+      border-radius: 0.65rem;
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: 1.25rem;
+      font-weight: 800;
+    }
+
+    .token-card h3 {
+      margin-top: 1rem;
+    }
+
+    .token-card p {
+      margin: 0.45rem 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .token-card.zero {
+      border-bottom: 0.32rem solid var(--green);
+    }
+
+    .token-card.suppressed {
+      border-bottom: 0.32rem solid var(--red);
+    }
+
+    .token-card.blank,
+    .token-card.na {
+      border-bottom: 0.32rem solid var(--gold);
+    }
+
+    .important-language {
+      margin-top: 1.4rem;
+      padding: 1.25rem 1.4rem;
+      background: var(--green-soft);
+      border-left: 0.32rem solid var(--green);
+      border-radius: 0.2rem 0.9rem 0.9rem 0.2rem;
+    }
+
+    .timeline {
+      position: relative;
+      display: grid;
+      gap: 1.2rem;
+      max-width: 62rem;
+      margin-inline: auto;
+    }
+
+    .timeline::before {
+      position: absolute;
+      left: 1.15rem;
+      top: 1.3rem;
+      bottom: 1.3rem;
+      width: 2px;
+      background: var(--line);
+      content: "";
+    }
+
+    .timeline-step {
+      position: relative;
+      display: grid;
+      grid-template-columns: 2.4rem minmax(0, 1fr);
+      gap: 1rem;
+      align-items: start;
+    }
+
+    .step-number {
+      z-index: 1;
+      display: grid;
+      width: 2.4rem;
+      height: 2.4rem;
+      place-items: center;
+      background: var(--teal);
+      color: var(--series-ink);
+      border: 0.25rem solid var(--paper);
+      border-radius: 50%;
+      font-weight: 800;
+    }
+
+    .timeline-step article {
+      padding: 0.8rem 0 1.1rem;
+    }
+
+    .timeline-step p {
+      margin: 0.4rem 0 0;
+      color: var(--muted);
+    }
+
+    .boundary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1.5rem;
+    }
+
+    .boundary-panel {
+      padding: 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+
+    .boundary-panel.does {
+      border-top: 0.35rem solid var(--green);
+    }
+
+    .boundary-panel.not-yet {
+      border-top: 0.35rem solid var(--gold);
+    }
+
+    .boundary-panel ul {
+      margin: 1rem 0 0;
+      padding-left: 1.2rem;
+    }
+
+    .boundary-panel li + li {
+      margin-top: 0.7rem;
+    }
+
+    .repo-map {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .repo-file {
+      display: grid;
+      grid-template-columns: 2.5rem minmax(0, 1fr);
+      gap: 0.8rem;
+      padding: 1rem;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 0.9rem;
+      text-decoration: none;
+    }
+
+    .repo-file:hover {
+      border-color: var(--teal);
+      box-shadow: 0 8px 22px rgb(16 42 67 / 9%);
+    }
+
+    .file-icon {
+      display: grid;
+      width: 2.5rem;
+      height: 2.5rem;
+      place-items: center;
+      background: var(--blue-soft);
+      border-radius: 0.65rem;
+      font-weight: 800;
+    }
+
+    .repo-file strong,
+    .repo-file span {
+      display: block;
+    }
+
+    .repo-file code {
+      overflow-wrap: anywhere;
+      color: var(--teal);
+      font-weight: 700;
+    }
+
+    .repo-file span {
+      margin-top: 0.2rem;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .evidence-strip {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .evidence-number {
+      padding: 1.3rem;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+
+    .evidence-number strong,
+    .evidence-number span {
+      display: block;
+    }
+
+    .evidence-number strong {
+      font-size: 2rem;
+      line-height: 1;
+    }
+
+    .evidence-number span {
+      margin-top: 0.45rem;
+      color: var(--muted);
+    }
+
+    .evidence-note {
+      color: var(--muted);
+    }
+
+    details {
+      background: var(--surface);
+      border-top: 1px solid var(--line);
+    }
+
+    details:last-child {
+      border-bottom: 1px solid var(--line);
+    }
+
+    summary {
+      padding: 1.1rem 0;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    details p {
+      max-width: 72ch;
+      margin: 0;
+      padding: 0 0 1.2rem 1.4rem;
+      color: var(--muted);
+    }
+
+    .closing {
+      padding: 4rem 0;
+      background: var(--surface-strong);
+      border-block: 1px solid var(--line);
+    }
+
+    .closing-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(16rem, 0.45fr);
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .closing p {
+      max-width: 68ch;
+      color: var(--muted);
+    }
+
+    .next-step {
+      padding: 1.2rem;
+      background: var(--teal-soft);
+      border-left: 0.3rem solid var(--teal);
+      border-radius: 0.2rem 0.8rem 0.8rem 0.2rem;
+    }
+
+    .next-step strong,
+    .next-step span {
+      display: block;
+    }
+
+    .next-step span {
+      margin-top: 0.35rem;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    footer {
+      padding: 2rem 0 3rem;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    footer .shell {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    @media (max-width: 820px) {
+      .hero,
+      .section-intro,
+      .analogy,
+      .numbers-layout,
+      .lab-grid,
+      .closing-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        min-height: auto;
+        padding-top: 3rem;
+      }
+
+      .hero-note {
+        max-width: 38rem;
+      }
+
+      .tokens {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .scenario-picker {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 620px) {
+      .shell {
+        width: min(100% - 1.2rem, var(--content));
+      }
+
+      .field-groups,
+      .boundary-grid,
+      .repo-map,
+      .evidence-strip,
+      .tokens,
+      .scenario-picker {
+        grid-template-columns: 1fr;
+      }
+
+      .field-row {
+        grid-template-columns: 1fr;
+        gap: 0.2rem;
+      }
+
+      .bar-segment {
+        min-width: 2.3rem;
+        font-size: 0.72rem;
+      }
+
+      .bar-track {
+        height: 2.6rem;
+      }
+
+      .hero-note,
+      .schema-bars {
+        padding: 1.25rem;
+      }
+    }
+
+    @media print {
+      :root {
+        --paper: #fff;
+        --surface: #fff;
+        --surface-strong: #fff;
+        --ink: #102a43;
+        --muted: #3e5062;
+        --line: #aab4bc;
+      }
+
+      body {
+        background: #fff;
+      }
+
+      .hero {
+        min-height: auto;
+      }
+
+      .contract-lab {
+        color: #102a43;
+        background: #e8f0f5;
+      }
+
+      .contract-lab .section-intro p,
+      .contract-lab .eyebrow,
+      .lab-status p,
+      .checkline {
+        color: #263f54;
+      }
+
+      .scenario-picker {
+        display: none;
+      }
+
+      .lab-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-note,
+      .gate-figure {
+        box-shadow: none;
+      }
+
+      a {
+        color: inherit;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to the guide</a>
+
+  <header class="site-header shell">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="../../README.md">Kidney Care Analytics Mart</a>
+      <span aria-hidden="true">/</span>
+      <span>Human guide</span>
+    </nav>
+
+    <div class="hero">
+      <div>
+        <p class="eyebrow">Beginner-friendly engineering guide</p>
+        <h1>What is a source contract?</h1>
+        <p class="lead">
+          Before this project trusts a CMS file, it checks that the file still speaks the language we expect. That automated agreement is the source contract.
+        </p>
+      </div>
+
+      <aside class="hero-note" aria-label="One-sentence definition">
+        <p class="eyebrow">In one sentence</p>
+        <p class="big-idea">A source contract is a gate that lets compatible data through and stops surprising data before it can quietly change an analysis.</p>
+        <p class="small-note">Here, the source is the CMS Original Medicare Geographic Variation dataset.</p>
+      </aside>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <section class="plain-definition">
+      <div class="shell">
+        <div class="section-intro">
+          <div>
+            <p class="eyebrow">Start with an analogy</p>
+            <h2>Think of it as border control for data</h2>
+          </div>
+          <p>
+            A delivery can arrive from the correct organization and still contain the wrong items. The contract inspects the delivery label, required contents, and identifying keys before downstream work begins.
+          </p>
+        </div>
+
+        <div class="analogy">
+          <figure class="gate-figure">
+            <svg viewBox="0 0 920 390" role="img" aria-labelledby="gate-title gate-desc">
+              <title id="gate-title">CMS data passing through a contract gate</title>
+              <desc id="gate-desc">Official CMS metadata and raw rows approach a validation gate. Compatible data continues to later transformations while incompatible data is stopped with a structured issue.</desc>
+              <defs>
+                <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor"></path>
+                </marker>
+                <pattern id="grid" width="18" height="18" patternUnits="userSpaceOnUse">
+                  <path d="M 18 0 L 0 0 0 18" fill="none" stroke="currentColor" stroke-opacity="0.08"></path>
+                </pattern>
+              </defs>
+
+              <rect x="20" y="42" width="250" height="300" rx="20" fill="var(--blue-soft)" stroke="var(--line)"></rect>
+              <rect x="36" y="60" width="218" height="264" rx="12" fill="url(#grid)" color="var(--navy)"></rect>
+              <text x="145" y="96" text-anchor="middle" fill="var(--ink)" font-size="23" font-weight="700">Official CMS source</text>
+              <text x="145" y="131" text-anchor="middle" fill="var(--muted)" font-size="17">metadata + raw rows</text>
+              <g transform="translate(78 165)">
+                <rect width="134" height="112" rx="10" fill="var(--surface-strong)" stroke="var(--line)"></rect>
+                <line x1="18" y1="28" x2="116" y2="28" stroke="var(--teal)" stroke-width="7"></line>
+                <line x1="18" y1="53" x2="99" y2="53" stroke="var(--line)" stroke-width="7"></line>
+                <line x1="18" y1="78" x2="108" y2="78" stroke="var(--line)" stroke-width="7"></line>
+              </g>
+
+              <path d="M 280 192 C 330 192, 335 192, 370 192" fill="none" stroke="var(--navy)" stroke-width="5" marker-end="url(#arrow)" color="var(--navy)"></path>
+
+              <g transform="translate(385 42)">
+                <rect width="170" height="300" rx="22" fill="var(--surface-strong)" stroke="var(--teal)" stroke-width="4"></rect>
+                <rect x="55" y="-13" width="60" height="27" rx="7" fill="var(--teal)"></rect>
+                <text x="85" y="58" text-anchor="middle" fill="var(--ink)" font-size="22" font-weight="700">Contract</text>
+                <g fill="var(--ink)" font-size="16">
+                  <text x="28" y="105">✓ required fields</text>
+                  <text x="28" y="143">✓ declared types</text>
+                  <text x="28" y="181">✓ grain keys</text>
+                  <text x="28" y="219">✓ extra fields noted</text>
+                </g>
+                <rect x="26" y="251" width="118" height="28" rx="14" fill="var(--teal-soft)"></rect>
+                <text x="85" y="271" text-anchor="middle" fill="var(--ink)" font-size="14" font-weight="700">deterministic check</text>
+              </g>
+
+              <path d="M 565 145 C 620 145, 620 114, 660 114" fill="none" stroke="var(--green)" stroke-width="5" marker-end="url(#arrow)" color="var(--green)"></path>
+              <path d="M 565 246 C 620 246, 620 281, 660 281" fill="none" stroke="var(--red)" stroke-width="5" marker-end="url(#arrow)" color="var(--red)"></path>
+
+              <g transform="translate(680 47)">
+                <rect width="220" height="135" rx="18" fill="var(--green-soft)" stroke="var(--green)" stroke-width="2"></rect>
+                <circle cx="40" cy="40" r="18" fill="var(--green)"></circle>
+                <path d="M 31 40 L 38 47 L 50 32" fill="none" stroke="var(--on-status)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></path>
+                <text x="70" y="46" fill="var(--ink)" font-size="22" font-weight="700">Pass</text>
+                <text x="26" y="86" fill="var(--ink)" font-size="16">Compatible raw data can</text>
+                <text x="26" y="110" fill="var(--ink)" font-size="16">continue to later stages.</text>
+              </g>
+
+              <g transform="translate(680 215)">
+                <rect width="220" height="135" rx="18" fill="var(--red-soft)" stroke="var(--red)" stroke-width="2"></rect>
+                <circle cx="40" cy="40" r="18" fill="var(--red)"></circle>
+                <path d="M 33 33 L 47 47 M 47 33 L 33 47" stroke="var(--on-status)" stroke-width="5" stroke-linecap="round"></path>
+                <text x="70" y="46" fill="var(--ink)" font-size="22" font-weight="700">Stop</text>
+                <text x="26" y="86" fill="var(--ink)" font-size="16">A precise issue explains</text>
+                <text x="26" y="110" fill="var(--ink)" font-size="16">what changed and where.</text>
+              </g>
+            </svg>
+            <figcaption>The contract checks compatibility. It does not decide whether a county is important or calculate an analytical result.</figcaption>
+          </figure>
+
+          <ul class="analogy-list">
+            <li>
+              <strong>Source</strong>
+              <span>The organization sending the data: CMS.</span>
+            </li>
+            <li>
+              <strong>Contract</strong>
+              <span>The exact conditions the delivery must satisfy.</span>
+            </li>
+            <li>
+              <strong>Validation</strong>
+              <span>The repeatable inspection that checks those conditions.</span>
+            </li>
+            <li>
+              <strong>Structured issue</strong>
+              <span>A machine-readable reason a delivery was stopped.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="shell">
+        <div class="section-intro">
+          <div>
+            <p class="eyebrow">The current CMS shape</p>
+            <h2>Required does not mean exclusive</h2>
+          </div>
+          <p>
+            CMS currently exposes 246 columns. The mart needs 13 of them for its approved scope. The other 233 are allowed to exist and are reported as additive rather than treated as failures.
+          </p>
+        </div>
+
+        <div class="numbers-layout">
+          <div class="schema-bars" aria-label="Schema composition">
+            <div>
+              <div class="bar-title"><span>Contract role</span><span>246 columns</span></div>
+              <div class="bar-track" role="img" aria-label="13 required columns and 233 additive columns">
+                <div class="bar-segment bar-required">13</div>
+                <div class="bar-segment bar-additive">233 additive</div>
+              </div>
+              <div class="bar-legend">
+                <span class="legend-item"><span class="swatch"></span>Required for this mart</span>
+                <span class="legend-item"><span class="swatch additive"></span>Allowed and reported</span>
+              </div>
+            </div>
+
+            <div>
+              <div class="bar-title"><span>CMS-declared type</span><span>246 columns</span></div>
+              <div class="bar-track" role="img" aria-label="242 numeric columns and 4 text columns">
+                <div class="bar-segment bar-numeric">242 numeric</div>
+                <div class="bar-segment bar-text">4</div>
+              </div>
+              <div class="bar-legend">
+                <span class="legend-item"><span class="swatch numeric"></span>Numeric</span>
+                <span class="legend-item"><span class="swatch text"></span>Text</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="numbers-copy">
+            <h3>Why allow extra columns?</h3>
+            <p>Public datasets evolve. A new CMS field should not break the pipeline simply because the mart does not use it yet. The contract reports additions so people can review them without blocking otherwise compatible data.</p>
+            <div class="callout">
+              <strong>But removal is different.</strong> If CMS removes or incompatibly changes one of the 13 fields the mart depends on, publication must stop.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="contract-lab" aria-labelledby="lab-title">
+      <div class="shell">
+        <div class="section-intro">
+          <div>
+            <p class="eyebrow">Try the gate</p>
+            <h2 id="lab-title">What would the contract do?</h2>
+          </div>
+          <p>Choose a source-change scenario. The result shows whether the delivery is compatible and the kind of issue a future pipeline log can record.</p>
+        </div>
+
+        <div class="lab-grid">
+          <div class="scenario-picker" role="group" aria-label="Source-change scenarios">
+            <button type="button" data-scenario="valid" aria-pressed="true">Valid county row</button>
+            <button type="button" data-scenario="additive" aria-pressed="false">CMS adds a column</button>
+            <button type="button" data-scenario="missing" aria-pressed="false">Required column disappears</button>
+            <button type="button" data-scenario="type" aria-pressed="false">Required type changes</button>
+            <button type="button" data-scenario="national" aria-pressed="false">National code is blank</button>
+          </div>
+
+          <div class="lab-output">
+            <div class="lab-status" aria-live="polite">
+              <span id="scenario-status" class="status-mark pass">✓ PASS</span>
+              <p id="scenario-reason">All required labels, types, and county grain values are compatible.</p>
+            </div>
+            <pre id="scenario-code" aria-label="Example source data"><code>YEAR:              "2024"
+BENE_GEO_LVL:      "County"
+BENE_GEO_CD:       "01001"
+BENE_AGE_LVL:      "All"
+BENES_OP_DLYS_PCT: "0.0085"</code></pre>
+            <div class="checkline"><span id="scenario-icon" aria-hidden="true">✓</span><span id="scenario-detail">Leading zero preserved; no raw value was coerced.</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="shell">
+        <div class="section-intro">
+          <div>
+            <p class="eyebrow">The 13 promises</p>
+            <h2>What must remain compatible</h2>
+          </div>
+          <p>These fields identify each row, define the Original Medicare denominator, and supply the approved dialysis and contextual measures. Exact source labels matter because code cannot safely depend on a vague description such as “the dialysis percentage column.”</p>
+        </div>
+
+        <div class="field-groups">
+          <section class="field-group" aria-labelledby="identity-fields">
+            <header>
+              <h3 id="identity-fields">1. Row identity</h3>
+              <p>Together these fields declare the source grain.</p>
+            </header>
+            <dl>
+              <div class="field-row"><dt><code>YEAR</code></dt><dd>Calendar year; must be integer-shaped.</dd></div>
+              <div class="field-row"><dt><code>BENE_GEO_LVL</code></dt><dd>National, State, or County level.</dd></div>
+              <div class="field-row"><dt><code>BENE_GEO_DESC</code></dt><dd>CMS state or county description retained for lineage.</dd></div>
+              <div class="field-row"><dt><code>BENE_GEO_CD</code></dt><dd>Raw state/county FIPS text; leading zeros matter.</dd></div>
+              <div class="field-row"><dt><code>BENE_AGE_LVL</code></dt><dd>All, under 65, or 65 and older.</dd></div>
+            </dl>
+          </section>
+
+          <section class="field-group" aria-labelledby="population-fields">
+            <header>
+              <h3 id="population-fields">2. Population context</h3>
+              <p>These fields explain who the source measures.</p>
+            </header>
+            <dl>
+              <div class="field-row"><dt><code>BENES_OM_CNT</code></dt><dd>Original Medicare beneficiary count.</dd></div>
+              <div class="field-row"><dt><code>MA_PRTCPTN_RATE</code></dt><dd>Medicare Advantage participation rate.</dd></div>
+              <div class="field-row"><dt><code>BENE_DUAL_PCT</code></dt><dd>Share eligible for Medicaid during the year.</dd></div>
+            </dl>
+          </section>
+
+          <section class="field-group" aria-labelledby="dialysis-fields">
+            <header>
+              <h3 id="dialysis-fields">3. Outpatient dialysis use</h3>
+              <p>The approved fields for the central screening topic.</p>
+            </header>
+            <dl>
+              <div class="field-row"><dt><code>BENES_OP_DLYS_PCT</code></dt><dd>Observed outpatient dialysis use among Original Medicare beneficiaries.</dd></div>
+              <div class="field-row"><dt><code>OP_DLYS_VISITS_PER_1000_BENES</code></dt><dd>Visits per 1,000 Original Medicare beneficiaries.</dd></div>
+              <div class="field-row"><dt><code>OP_DLYS_MDCR_STDZD_PYMT_PC</code></dt><dd>Per-capita payment standardized for geographic payment rates, not health status.</dd></div>
+            </dl>
+          </section>
+
+          <section class="field-group" aria-labelledby="context-fields">
+            <header>
+              <h3 id="context-fields">4. Health-service context</h3>
+              <p>Contextual utilization fields, not causal measures.</p>
+            </header>
+            <dl>
+              <div class="field-row"><dt><code>ACUTE_HOSP_READMSN_PCT</code></dt><dd>All-cause 30-day hospital readmission rate.</dd></div>
+              <div class="field-row"><dt><code>ER_VISITS_PER_1000_BENES</code></dt><dd>Emergency-room visits per 1,000 beneficiaries.</dd></div>
+            </dl>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="shell">
+        <div class="section-intro">
+          <div>
+            <p class="eyebrow">Raw means raw</p>
+            <h2>Four strings that must not collapse into one meaning</h2>
+          </div>
+          <p>The contract boundary keeps incoming values as strings. Typing and missingness normalization happen later, after the original evidence has been preserved.</p>
+        </div>
+
+        <div class="tokens">
+          <article class="token-card suppressed">
+            <span class="token">"*"</span>
+            <h3>Suppressed</h3>
+            <p>CMS withheld the value because the beneficiary or user count was below 11.</p>
+          </article>
+          <article class="token-card blank">
+            <span class="token">""</span>
+            <h3>Blank</h3>
+            <p>No value is present. Some source contexts, such as the National geography code, currently use this representation.</p>
+          </article>
+          <article class="token-card na">
+            <span class="token">"NA"</span>
+            <h3>Unavailable</h3>
+            <p>The current bounded API sample contains this explicit unavailable marker.</p>
+          </article>
+          <article class="token-card zero">
+            <span class="token">"0"</span>
+            <h3>Real zero</h3>
+            <p>Zero is a reported numeric value. It must never be silently treated as missing or suppressed.</p>
+          </article>
+        </div>
+
+        <div class="important-language">
+          <strong>Interpretation guardrail:</strong> this project says “observed outpatient dialysis use among Original Medicare beneficiaries.” These data do not establish kidney disease prevalence, unmet need, disease burden, or an intervention opportunity.
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="shell">
+        <div class="section-intro">
+          <div>
+            <p class="eyebrow">How the work happened</p>
+            <h2>Evidence first, code second</h2>
+          </div>
+          <p>The implementation followed red–green–refactor: express the rule with a small deterministic example, watch the test fail, add the minimum behavior, then document and verify it.</p>
+        </div>
+
+        <div class="timeline" aria-label="Implementation timeline">
+          <div class="timeline-step">
+            <span class="step-number">1</span>
+            <article><h3>Read the authoritative specification</h3><p>Defined the source, required concepts, grain, terminology, and stop conditions before writing code.</p></article>
+          </div>
+          <div class="timeline-step">
+            <span class="step-number">2</span>
+            <article><h3>Resolved official CMS metadata</h3><p>The durable dataset identity matched exactly one catalog entry and required no authentication.</p></article>
+          </div>
+          <div class="timeline-step">
+            <span class="step-number">3</span>
+            <article><h3>Inspected the current schema and dictionary</h3><p>Verified exact labels, CMS-declared types, definitions, source vintage, and suppression notes.</p></article>
+          </div>
+          <div class="timeline-step">
+            <span class="step-number">4</span>
+            <article><h3>Made a tiny synthetic fixture</h3><p>Captured all-ages and age-subgroup rows, State, National, DC, UNKNOWN, leading zeros, suppression, blank, NA, and zero without committing the full source.</p></article>
+          </div>
+          <div class="timeline-step">
+            <span class="step-number">5</span>
+            <article><h3>Wrote failing tests</h3><p>The first focused run failed because the contract package did not exist. That confirmed the tests were capable of detecting missing behavior.</p></article>
+          </div>
+          <div class="timeline-step">
+            <span class="step-number">6</span>
+            <article><h3>Implemented the smallest contract</h3><p>Added immutable required fields, type-family checks, raw grain validation, and structured deterministic issues.</p></article>
+          </div>
+          <div class="timeline-step">
+            <span class="step-number">7</span>
+            <article><h3>Recorded evidence and ran the full quality loop</h3><p>Pinned the dictionary, hashed the normalized schema, documented live access, and finished with all offline tests green.</p></article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="shell">
+        <div class="section-intro">
+          <div>
+            <p class="eyebrow">Scope boundary</p>
+            <h2>What this step does—and does not do</h2>
+          </div>
+          <p>A narrow contract is easier to trust. This first step proves source compatibility; it deliberately leaves transformations and publication for later milestones.</p>
+        </div>
+
+        <div class="boundary-grid">
+          <article class="boundary-panel does">
+            <h3>Done in this step</h3>
+            <ul>
+              <li>Verify official source identity and current metadata.</li>
+              <li>Require exact labels and compatible declared types.</li>
+              <li>Allow and report additive source columns.</li>
+              <li>Check that raw grain keys are present and parseable.</li>
+              <li>Preserve leading zeros and source tokens as strings.</li>
+              <li>Return structured issues suitable for logs.</li>
+            </ul>
+          </article>
+
+          <article class="boundary-panel not-yet">
+            <h3>Intentionally not done yet</h3>
+            <ul>
+              <li>Download and publish the full immutable raw snapshot.</li>
+              <li>Convert <code>*</code>, blank, or <code>NA</code> to typed nulls.</li>
+              <li>Filter County + All rows or remove UNKNOWN.</li>
+              <li>Build DuckDB/dbt models or screening quadrants.</li>
+              <li>Calculate, rank, recommend, or make clinical claims.</li>
+              <li>Run live CMS requests during default pytest.</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="shell">
+        <div class="section-intro">
+          <div>
+            <p class="eyebrow">Trace the evidence</p>
+            <h2>Where everything lives</h2>
+          </div>
+          <p>These files stay in Git so another person can inspect the rules, examples, tests, and official evidence together. Generated raw data and databases remain ignored.</p>
+        </div>
+
+        <div class="repo-map">
+          <a class="repo-file" href="../../src/kidney_care_mart/contracts/cms_om_gv.py">
+            <span class="file-icon" aria-hidden="true">PY</span>
+            <span><strong><code>cms_om_gv.py</code></strong><span>The executable rules and structured validation results.</span></span>
+          </a>
+          <a class="repo-file" href="../../tests/unit/contracts/test_cms_om_gv_contract.py">
+            <span class="file-icon" aria-hidden="true">T</span>
+            <span><strong><code>test_cms_om_gv_contract.py</code></strong><span>Network-free tests for missing, duplicate, additive, type, and grain cases.</span></span>
+          </a>
+          <a class="repo-file" href="../../tests/fixtures/cms_om_gv/minimal.csv">
+            <span class="file-icon" aria-hidden="true">CSV</span>
+            <span><strong><code>minimal.csv</code></strong><span>A tiny synthetic source-shaped fixture with difficult raw values.</span></span>
+          </a>
+          <a class="repo-file" href="../source-schemas/cms_om_gv.schema.json">
+            <span class="file-icon" aria-hidden="true">{ }</span>
+            <span><strong><code>cms_om_gv.schema.json</code></strong><span>Complete observed schema, mappings, types, provenance, and deterministic hash.</span></span>
+          </a>
+          <a class="repo-file" href="../source-dictionaries/cms_om_gv-2014-2024.pdf">
+            <span class="file-icon" aria-hidden="true">PDF</span>
+            <span><strong><code>CMS data dictionary</code></strong><span>The pinned official definitions used to resolve exact labels.</span></span>
+          </a>
+          <a class="repo-file" href="../source-catalog.md">
+            <span class="file-icon" aria-hidden="true">MD</span>
+            <span><strong><code>source-catalog.md</code></strong><span>Human-readable identity, grain, denominator, lineage, and caveats.</span></span>
+          </a>
+          <a class="repo-file" href="../preflight.md">
+            <span class="file-icon" aria-hidden="true">✓</span>
+            <span><strong><code>preflight.md</code></strong><span>Dated evidence that official metadata and bounded samples were accessible.</span></span>
+          </a>
+          <a class="repo-file" href="../../plans/001-cms-om-gv-source-contract.md">
+            <span class="file-icon" aria-hidden="true">01</span>
+            <span><strong><code>plan 001</code></strong><span>The task scope, acceptance criteria, completion record, and handoff.</span></span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="shell">
+        <div class="section-intro">
+          <div>
+            <p class="eyebrow">Proof it works</p>
+            <h2>What “green” means here</h2>
+          </div>
+          <p>The live CMS check was run separately for evidence. The default tests are deterministic and network-free, so a pull request does not depend on the external site being available at that moment.</p>
+        </div>
+
+        <div class="evidence-strip">
+          <div class="evidence-number"><strong>44</strong><span>focused contract tests passed</span></div>
+          <div class="evidence-number"><strong>53</strong><span>total offline repository tests passed</span></div>
+          <div class="evidence-number"><strong>0</strong><span>full CMS source downloads committed</span></div>
+        </div>
+        <p class="evidence-note">The locked dependency sync, Ruff formatting, Ruff linting, JSON/hash checks, PDF inspection, pytest suite, and Git hygiene checks all completed successfully for this task.</p>
+      </div>
+    </section>
+
+    <section>
+      <div class="shell">
+        <div class="section-intro">
+          <div>
+            <p class="eyebrow">Small glossary</p>
+            <h2>Terms you will see again</h2>
+          </div>
+          <p>Open any term for a plain-language explanation.</p>
+        </div>
+
+        <div>
+          <details><summary>Schema</summary><p>The list of columns a dataset exposes and the type each column claims to have. Think of it as the shape of a table.</p></details>
+          <details><summary>Grain</summary><p>What one row represents. In the raw CMS source, one row is identified by year × geography level × geography-code representation × age level.</p></details>
+          <details><summary>Fixture</summary><p>A very small, intentionally constructed input used by tests. It makes edge cases easy to understand and keeps tests fast and network-free.</p></details>
+          <details><summary>Deterministic test</summary><p>A test that produces the same result from the same local inputs. It does not depend on a changing website, current time, or network response.</p></details>
+          <details><summary>Provenance and lineage</summary><p>Evidence of where data and definitions came from, which version was observed, and how the project resolved them.</p></details>
+          <details><summary>Compatible type family</summary><p>A group of type labels that mean the same general thing for this boundary. For example, NUMERIC, INTEGER, and DECIMAL are numeric-family types; TEXT and VARCHAR are text-family types.</p></details>
+          <details><summary>Additive column</summary><p>A source column that exists but is not required by this mart. It is allowed and reported, so people can review source growth without blocking compatible data.</p></details>
+          <details><summary>Suppression</summary><p>A source deliberately withholds a value to protect small counts or follow a reporting rule. Suppression is not the same as zero.</p></details>
+        </div>
+      </div>
+    </section>
+
+    <section class="closing">
+      <div class="shell closing-grid">
+        <div>
+          <p class="eyebrow">The takeaway</p>
+          <h2>The contract makes source change visible.</h2>
+          <p>It does not promise that CMS will never change. It promises that a change to something this mart depends on will be detected, explained, and stopped before it silently changes a published result.</p>
+        </div>
+        <aside class="next-step">
+          <strong>Next engineering step</strong>
+          <span>Build the extractor and immutable raw-manifest path for pagination, hashes, row counts, and atomic snapshot publication—without redefining this contract.</span>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="shell">
+      <span>Kidney Care Analytics Mart · Human guide</span>
+      <span>Source contract completed 2026-08-13</span>
+    </div>
+  </footer>
+
+  <script>
+    const scenarios = {
+      valid: {
+        result: "pass",
+        status: "✓ PASS",
+        reason: "All required labels, types, and county grain values are compatible.",
+        detail: "Leading zero preserved; no raw value was coerced.",
+        code: `YEAR:              "2024"
+BENE_GEO_LVL:      "County"
+BENE_GEO_CD:       "01001"
+BENE_AGE_LVL:      "All"
+BENES_OP_DLYS_PCT: "0.0085"`
+      },
+      additive: {
+        result: "pass",
+        status: "✓ PASS + REPORT",
+        reason: "Required fields are compatible. The new field is allowed and reported as additive.",
+        detail: "additive_columns = (\"NEW_CMS_FIELD\",)",
+        code: `...all 13 required fields...
+NEW_CMS_FIELD:     "example"
+
+Structured result:
+issues:            ()
+additive_columns:  ("NEW_CMS_FIELD",)`
+      },
+      missing: {
+        result: "fail",
+        status: "✕ STOP",
+        reason: "A required label disappeared, so downstream geography logic cannot be trusted.",
+        detail: "missing_required_column · BENE_GEO_CD",
+        code: `YEAR:              "2024"
+BENE_GEO_LVL:      "County"
+BENE_GEO_CD:       [MISSING]
+BENE_AGE_LVL:      "All"
+
+Issue:
+Required column is missing: BENE_GEO_CD`
+      },
+      type: {
+        result: "fail",
+        status: "✕ STOP",
+        reason: "A required metric changed from the numeric family to the text family.",
+        detail: "incompatible_required_type · BENES_OP_DLYS_PCT",
+        code: `Observed declaration:
+BENES_OP_DLYS_PCT: TEXT
+
+Contract expectation:
+BENES_OP_DLYS_PCT: numeric family
+
+Issue:
+Required column has incompatible declared type TEXT`
+      },
+      national: {
+        result: "pass",
+        status: "✓ PASS",
+        reason: "CMS currently represents the National geography code as an empty raw string.",
+        detail: "The exception is contextual; an empty County code still fails.",
+        code: `YEAR:          "2024"
+BENE_GEO_LVL:  "National"
+BENE_GEO_DESC: "National"
+BENE_GEO_CD:   ""
+BENE_AGE_LVL:  "All"
+
+Result: valid observed National grain`
+      }
+    };
+
+    const scenarioButtons = document.querySelectorAll("[data-scenario]");
+    const scenarioStatus = document.getElementById("scenario-status");
+    const scenarioReason = document.getElementById("scenario-reason");
+    const scenarioCode = document.getElementById("scenario-code");
+    const scenarioDetail = document.getElementById("scenario-detail");
+    const scenarioIcon = document.getElementById("scenario-icon");
+
+    function showScenario(name) {
+      const scenario = scenarios[name];
+      if (!scenario) return;
+
+      scenarioButtons.forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.scenario === name));
+      });
+
+      scenarioStatus.textContent = scenario.status;
+      scenarioStatus.className = `status-mark ${scenario.result}`;
+      scenarioReason.textContent = scenario.reason;
+      scenarioCode.textContent = scenario.code;
+      scenarioDetail.textContent = scenario.detail;
+      scenarioIcon.textContent = scenario.result === "pass" ? "✓" : "✕";
+    }
+
+    scenarioButtons.forEach((button) => {
+      button.addEventListener("click", () => showScenario(button.dataset.scenario));
+    });
+  </script>
+</body>
+</html>

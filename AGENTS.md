@@ -24,6 +24,13 @@ Do not weaken tests to accommodate incorrect behavior. Required-column removal, 
 
 Use Python 3.12 and `uv`, and keep `uv.lock` committed. Dependency changes require a short architecture decision record and a green full test run, as required by `specs.md`.
 
+## Numbered plan explainers
+
+- Completing a numbered plan also requires a matching beginner-friendly standalone HTML guide under `docs/guides/`. Use the same three-digit prefix as the plan, link the guide from the root `README.md` in plan order, and follow `docs/guides/README.md`.
+- Define unfamiliar terms in plain language, explain why the implementation exists, show the input-to-output flow and safety boundaries, identify what remains out of scope, link to the relevant plan/code/tests, and date any live-source evidence.
+- Keep each guide network-free, useful without JavaScript, responsive, keyboard accessible, light/dark compatible, and free of raw source downloads, secrets, or claims that exceed `specs.md`.
+- Update the matching guide whenever a completed plan changes materially. A missing or stale explainer means the plan documentation is incomplete.
+
 ## Geography, missingness, and metrics
 
 - Treat county FIPS as five-character text matching `^[0-9]{5}$`; preserve leading zeros. District of Columbia is `11001`. Exclude territories and source `UNKNOWN` pseudo-counties from the MVP.

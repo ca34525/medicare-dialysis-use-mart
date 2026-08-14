@@ -232,3 +232,8 @@ The next implementation step after this plan is complete is the `cms_om_gv` extr
 - The official 2014-2024 dictionary is pinned in `docs/source-dictionaries/` and verified by SHA-256 in the normalized schema snapshot.
 - T-001 and T-002 are implemented as network-free pytest coverage in `tests/unit/contracts/test_cms_om_gv_contract.py`.
 - CMS's empty National geography code required an explicit raw-boundary clarification: the column must exist, but an empty value is accepted only for National and the observed State pseudo-rows `Territory` and `ZZ`; blank county and ordinary-State codes fail.
+- Amendment 2026-08-14: the first full-file duplicate-grain check proved that
+  `Territory` and `ZZ` reuse the same blank code for the same year and age. The
+  raw transport grain now includes required `BENE_GEO_DESC`; the county fact
+  grain is unchanged. This corrects the specification and normalized schema
+  evidence without weakening duplicate-key publication blocking.

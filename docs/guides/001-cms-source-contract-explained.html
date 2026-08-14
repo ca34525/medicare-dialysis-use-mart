@@ -139,6 +139,11 @@
       color: var(--line);
     }
 
+    .crumbs a,
+    .crumbs span {
+      white-space: nowrap;
+    }
+
     .hero {
       display: grid;
       grid-template-columns: minmax(0, 1.35fr) minmax(18rem, 0.65fr);
@@ -988,12 +993,14 @@
     <nav class="crumbs" aria-label="Breadcrumb">
       <a href="../../README.md">Kidney Care Analytics Mart</a>
       <span aria-hidden="true">/</span>
-      <span>Human guide</span>
+      <a href="README.md">Human guides</a>
+      <span aria-hidden="true">/</span>
+      <span>Plan 001</span>
     </nav>
 
     <div class="hero">
       <div>
-        <p class="eyebrow">Beginner-friendly engineering guide</p>
+        <p class="eyebrow">Beginner-friendly engineering guide · Plan 001</p>
         <h1>What is a source contract?</h1>
         <p class="lead">
           Before this project trusts a CMS file, it checks that the file still speaks the language we expect. That automated agreement is the source contract.
@@ -1454,7 +1461,7 @@ BENES_OP_DLYS_PCT: "0.0085"</code></pre>
 
         <div>
           <details><summary>Schema</summary><p>The list of columns a dataset exposes and the type each column claims to have. Think of it as the shape of a table.</p></details>
-          <details><summary>Grain</summary><p>What one row represents. In the raw CMS source, one row is identified by year × geography level × geography-code representation × age level.</p></details>
+          <details><summary>Grain</summary><p>What one row represents. In the raw CMS source, one row is identified by year × geography level × geography description × geography-code representation × age level. The description matters because CMS reuses a blank State code for the distinct <code>Territory</code> and <code>ZZ</code> rows.</p></details>
           <details><summary>Fixture</summary><p>A very small, intentionally constructed input used by tests. It makes edge cases easy to understand and keeps tests fast and network-free.</p></details>
           <details><summary>Deterministic test</summary><p>A test that produces the same result from the same local inputs. It does not depend on a changing website, current time, or network response.</p></details>
           <details><summary>Provenance and lineage</summary><p>Evidence of where data and definitions came from, which version was observed, and how the project resolved them.</p></details>
@@ -1473,8 +1480,8 @@ BENES_OP_DLYS_PCT: "0.0085"</code></pre>
           <p>It does not promise that CMS will never change. It promises that a change to something this mart depends on will be detected, explained, and stopped before it silently changes a published result.</p>
         </div>
         <aside class="next-step">
-          <strong>Next engineering step</strong>
-          <span>Build the extractor and immutable raw-manifest path for pagination, hashes, row counts, and atomic snapshot publication—without redefining this contract.</span>
+          <strong>Next engineering step — completed</strong>
+          <span>Plan 002 built the extractor and immutable raw-manifest path. Continue with <a href="002-cms-ingestion-manifest-explained.html">the beginner guide to blobs, bytes, and manifests</a>.</span>
         </aside>
       </div>
     </section>
@@ -1482,7 +1489,7 @@ BENES_OP_DLYS_PCT: "0.0085"</code></pre>
 
   <footer>
     <div class="shell">
-      <span>Kidney Care Analytics Mart · Human guide</span>
+      <span>Kidney Care Analytics Mart · Human guide · Plan 001</span>
       <span>Source contract completed 2026-08-13</span>
     </div>
   </footer>

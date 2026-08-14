@@ -15,6 +15,7 @@ from types import MappingProxyType
 from typing import Final
 
 SOURCE_ID: Final = "cms_om_gv"
+CONTRACT_VERSION: Final = "cms_om_gv.raw.v1"
 
 REQUIRED_COLUMNS: Final[Mapping[str, str]] = MappingProxyType(
     {
@@ -37,6 +38,7 @@ REQUIRED_COLUMNS: Final[Mapping[str, str]] = MappingProxyType(
 GRAIN_KEYS: Final = (
     "YEAR",
     "BENE_GEO_LVL",
+    "BENE_GEO_DESC",
     "BENE_GEO_CD",
     "BENE_AGE_LVL",
 )
@@ -199,6 +201,16 @@ def validate_grain_keys(row: Mapping[str, str]) -> ValidationResult:
                 code="blank_grain_key",
                 field="BENE_GEO_LVL",
                 message="Grain key is blank: BENE_GEO_LVL",
+            )
+        )
+
+    geography_description = row.get("BENE_GEO_DESC")
+    if geography_description is not None and not geography_description.strip():
+        issues.append(
+            ValidationIssue(
+                code="blank_grain_key",
+                field="BENE_GEO_DESC",
+                message="Grain key is blank: BENE_GEO_DESC",
             )
         )
 

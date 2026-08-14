@@ -1,0 +1,2028 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A visual, beginner-friendly explanation of the CMS extraction, immutable raw blob, and run manifest in the Kidney Care Analytics Mart.">
+  <title>What the CMS ingestion manifest does | Kidney Care Analytics Mart</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --paper: #f4f1e8;
+      --paper-deep: #e9e2d2;
+      --surface: #fffdf7;
+      --surface-strong: #ffffff;
+      --ink: #102a43;
+      --muted: #526579;
+      --line: #c8d0d5;
+      --navy: #173f5f;
+      --teal: #177e79;
+      --teal-soft: #d8efeb;
+      --gold: #d9962f;
+      --gold-soft: #f8e7c5;
+      --green: #26734d;
+      --green-soft: #dcefe4;
+      --red: #aa3f33;
+      --red-soft: #f5dfdc;
+      --blue-soft: #e0ecf5;
+      --code: #14283a;
+      --code-ink: #edf7ff;
+      --shadow: 0 14px 34px rgb(16 42 67 / 10%);
+      --radius: 18px;
+      --content: 1120px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --paper: #0d1823;
+        --paper-deep: #142432;
+        --surface: #152635;
+        --surface-strong: #1a2d3e;
+        --ink: #e7f0f6;
+        --muted: #b3c1ce;
+        --line: #405466;
+        --navy: #8dc5e8;
+        --teal: #70d3c7;
+        --teal-soft: #173f40;
+        --gold: #f1bf66;
+        --gold-soft: #49381c;
+        --green: #7ad0a1;
+        --green-soft: #183c2c;
+        --red: #ff9e91;
+        --red-soft: #4b2827;
+        --blue-soft: #1d3549;
+        --code: #09131c;
+        --code-ink: #e6f4ff;
+        --shadow: 0 18px 38px rgb(0 0 0 / 28%);
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 8% 4%, color-mix(in srgb, var(--gold) 16%, transparent) 0, transparent 28rem),
+        radial-gradient(circle at 94% 18%, color-mix(in srgb, var(--teal) 14%, transparent) 0, transparent 32rem),
+        var(--paper);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+
+    a {
+      color: var(--navy);
+      text-underline-offset: 0.2em;
+    }
+
+    a:hover {
+      text-decoration-thickness: 0.14em;
+    }
+
+    a:focus-visible,
+    button:focus-visible,
+    summary:focus-visible {
+      outline: 3px solid var(--gold);
+      outline-offset: 3px;
+    }
+
+    code,
+    pre {
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+    }
+
+    .skip-link {
+      position: absolute;
+      left: 1rem;
+      top: -5rem;
+      z-index: 10;
+      padding: 0.75rem 1rem;
+      border: 2px solid var(--navy);
+      border-radius: 0.5rem;
+      background: var(--surface-strong);
+      color: var(--ink);
+    }
+
+    .skip-link:focus {
+      top: 1rem;
+    }
+
+    .shell {
+      width: min(var(--content), calc(100% - 2rem));
+      margin-inline: auto;
+    }
+
+    .site-header {
+      padding: 1.25rem 0 0;
+    }
+
+    .crumbs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      align-items: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .crumbs span[aria-hidden="true"] {
+      color: var(--line);
+    }
+
+    .crumbs a,
+    .crumbs span {
+      white-space: nowrap;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(19rem, 0.75fr);
+      gap: clamp(2rem, 5vw, 5rem);
+      align-items: center;
+      min-height: 36rem;
+      padding: 4rem 0 5rem;
+    }
+
+    .eyebrow {
+      margin: 0 0 0.65rem;
+      color: var(--teal);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2,
+    h3 {
+      line-height: 1.12;
+      text-wrap: balance;
+    }
+
+    h1 {
+      max-width: 12ch;
+      margin: 0;
+      font-size: clamp(2.6rem, 7vw, 5.7rem);
+      letter-spacing: -0.055em;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 3.35rem);
+      letter-spacing: -0.035em;
+    }
+
+    h3 {
+      margin: 0 0 0.65rem;
+      font-size: 1.15rem;
+    }
+
+    p {
+      margin-block: 0 1rem;
+    }
+
+    .lead {
+      max-width: 60ch;
+      margin-top: 1.5rem;
+      color: var(--muted);
+      font-size: clamp(1.05rem, 2vw, 1.28rem);
+    }
+
+    .hero-note {
+      display: inline-flex;
+      gap: 0.55rem;
+      align-items: center;
+      margin-top: 0.6rem;
+      padding: 0.55rem 0.8rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--surface) 82%, transparent);
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .hero-note::before {
+      width: 0.62rem;
+      height: 0.62rem;
+      border-radius: 50%;
+      background: var(--green);
+      content: "";
+    }
+
+    .receipt {
+      position: relative;
+      padding: 1.5rem;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      transform: rotate(1.5deg);
+    }
+
+    .receipt::before,
+    .receipt::after {
+      position: absolute;
+      right: 1.5rem;
+      left: 1.5rem;
+      height: 1px;
+      background: repeating-linear-gradient(90deg, var(--line) 0 7px, transparent 7px 12px);
+      content: "";
+    }
+
+    .receipt::before {
+      top: 4.25rem;
+    }
+
+    .receipt::after {
+      bottom: 4.15rem;
+    }
+
+    .receipt-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+      font-weight: 800;
+    }
+
+    .receipt-title span:last-child {
+      color: var(--green);
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .receipt dl {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.65rem 1rem;
+      margin: 0 0 2.5rem;
+      font-size: 0.83rem;
+    }
+
+    .receipt dt {
+      color: var(--muted);
+    }
+
+    .receipt dd {
+      min-width: 0;
+      margin: 0;
+      overflow-wrap: anywhere;
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+      text-align: right;
+    }
+
+    .receipt-total {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      font-weight: 800;
+    }
+
+    section {
+      padding: clamp(4.5rem, 9vw, 8rem) 0;
+    }
+
+    section:nth-of-type(even) {
+      background: color-mix(in srgb, var(--paper-deep) 60%, transparent);
+    }
+
+    .section-intro {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.7fr);
+      gap: 2rem 4rem;
+      align-items: end;
+      margin-bottom: 3rem;
+    }
+
+    .section-intro > p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+
+    .analogy-grid,
+    .three-up,
+    .two-up,
+    .boundary-grid,
+    .evidence-grid {
+      display: grid;
+      gap: 1.25rem;
+    }
+
+    .analogy-grid {
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      align-items: stretch;
+    }
+
+    .three-up {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .two-up {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .boundary-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .evidence-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .card,
+    .definition-card,
+    .boundary-panel,
+    .evidence-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .card,
+    .definition-card,
+    .boundary-panel {
+      padding: clamp(1.25rem, 3vw, 2rem);
+    }
+
+    .warehouse {
+      display: grid;
+      place-items: center;
+      min-height: 20rem;
+      padding: 2rem;
+      overflow: hidden;
+      background:
+        linear-gradient(135deg, color-mix(in srgb, var(--blue-soft) 78%, transparent), color-mix(in srgb, var(--teal-soft) 72%, transparent));
+    }
+
+    .warehouse-flow {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 1rem;
+      align-items: center;
+      width: 100%;
+    }
+
+    .warehouse-box {
+      display: grid;
+      place-items: center;
+      min-height: 8rem;
+      padding: 1rem;
+      border: 2px solid var(--navy);
+      border-radius: 0.75rem;
+      background: var(--surface);
+      text-align: center;
+    }
+
+    .warehouse-box strong {
+      display: block;
+      font-size: 1.08rem;
+    }
+
+    .warehouse-box span {
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    .arrow {
+      color: var(--teal);
+      font-size: 2rem;
+      font-weight: 800;
+    }
+
+    .analogy-copy {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .analogy-copy blockquote {
+      margin: 0 0 1.5rem;
+      padding-left: 1.2rem;
+      border-left: 4px solid var(--gold);
+      font-size: clamp(1.15rem, 2.2vw, 1.45rem);
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .analogy-copy p:last-child {
+      margin-bottom: 0;
+    }
+
+    .term-number {
+      display: grid;
+      place-items: center;
+      width: 2.25rem;
+      height: 2.25rem;
+      margin-bottom: 1.1rem;
+      border-radius: 50%;
+      background: var(--navy);
+      color: var(--surface-strong);
+      font-weight: 800;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .term-number {
+        color: var(--paper);
+      }
+    }
+
+    .definition-card p {
+      margin-bottom: 0;
+      color: var(--muted);
+    }
+
+    .definition-card code {
+      color: var(--teal);
+      font-size: 0.87em;
+      overflow-wrap: anywhere;
+    }
+
+    .plain-term {
+      display: block;
+      margin-bottom: 0.55rem;
+      color: var(--teal);
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .pipeline-lab {
+      display: grid;
+      grid-template-columns: minmax(14rem, 0.52fr) minmax(0, 1.48fr);
+      gap: 1.25rem;
+      align-items: stretch;
+    }
+
+    .pipeline-lab > *,
+    .bytes-layout > *,
+    .manifest-grid > * {
+      min-width: 0;
+    }
+
+    .step-controls {
+      display: grid;
+      gap: 0.65rem;
+      align-content: start;
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    .step-button,
+    .hash-button {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      border: 1px solid var(--line);
+      border-radius: 0.8rem;
+      background: var(--surface);
+      color: var(--ink);
+      font: inherit;
+      font-weight: 700;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .step-button:hover,
+    .hash-button:hover {
+      border-color: var(--teal);
+    }
+
+    .step-button[aria-pressed="true"],
+    .hash-button[aria-pressed="true"] {
+      border-color: var(--navy);
+      background: var(--navy);
+      color: var(--surface-strong);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .step-button[aria-pressed="true"],
+      .hash-button[aria-pressed="true"] {
+        color: var(--paper);
+      }
+    }
+
+    .stage {
+      min-height: 28rem;
+      padding: clamp(1.25rem, 3vw, 2rem);
+    }
+
+    .stage-heading {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem 1rem;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .stage-heading h3 {
+      margin: 0;
+      font-size: 1.45rem;
+    }
+
+    .stage-status {
+      padding: 0.35rem 0.65rem;
+      border-radius: 999px;
+      background: var(--green-soft);
+      color: var(--green);
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .flow-track {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 0.5rem;
+      margin: 2.25rem 0;
+    }
+
+    .flow-node {
+      position: relative;
+      min-height: 6rem;
+      padding: 0.85rem 0.6rem;
+      border: 1px solid var(--line);
+      border-radius: 0.75rem;
+      background: var(--paper);
+      color: var(--muted);
+      text-align: center;
+      transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+    }
+
+    .flow-node:not(:last-child)::after {
+      position: absolute;
+      top: 50%;
+      right: -0.58rem;
+      z-index: 2;
+      color: var(--line);
+      content: "›";
+      font-size: 1.35rem;
+      font-weight: 800;
+      transform: translateY(-50%);
+    }
+
+    .flow-node strong,
+    .flow-node span {
+      display: block;
+    }
+
+    .flow-node strong {
+      color: var(--ink);
+      font-size: 0.88rem;
+    }
+
+    .flow-node span {
+      margin-top: 0.35rem;
+      font-size: 0.74rem;
+      line-height: 1.35;
+    }
+
+    .flow-node.is-active {
+      border-color: var(--teal);
+      background: var(--teal-soft);
+      color: var(--ink);
+      transform: translateY(-0.28rem);
+    }
+
+    .flow-node.is-done {
+      border-color: var(--green);
+      background: var(--green-soft);
+      color: var(--ink);
+    }
+
+    .stage-detail {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(13rem, 0.55fr);
+      gap: 1.25rem;
+      align-items: start;
+    }
+
+    .stage-detail p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .proof-box {
+      padding: 1rem;
+      border-left: 4px solid var(--gold);
+      background: var(--gold-soft);
+    }
+
+    .proof-box strong,
+    .proof-box span {
+      display: block;
+    }
+
+    .proof-box span {
+      margin-top: 0.35rem;
+      font-size: 0.83rem;
+      overflow-wrap: anywhere;
+    }
+
+    .bytes-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+      gap: 1.25rem;
+    }
+
+    .bytes-copy {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .bytes-copy ul,
+    .boundary-panel ul {
+      margin: 0;
+      padding-left: 1.2rem;
+    }
+
+    .bytes-copy li + li,
+    .boundary-panel li + li {
+      margin-top: 0.65rem;
+    }
+
+    .hash-lab {
+      padding: clamp(1.25rem, 3vw, 2rem);
+    }
+
+    .hash-controls {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.65rem;
+      margin-bottom: 1rem;
+    }
+
+    .hash-output {
+      padding: 1rem;
+      border-radius: 0.8rem;
+      background: var(--code);
+      color: var(--code-ink);
+    }
+
+    .hash-output pre {
+      min-height: 5rem;
+      margin: 0 0 1rem;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .hash-output dl {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 0.45rem 1rem;
+      margin: 0;
+      font-size: 0.82rem;
+    }
+
+    .hash-output dt {
+      color: color-mix(in srgb, var(--code-ink) 70%, transparent);
+    }
+
+    .hash-output dd {
+      margin: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .hash-note {
+      margin: 1rem 0 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .manifest-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(18rem, 0.75fr);
+      gap: 1.25rem;
+      align-items: start;
+    }
+
+    .code-panel {
+      overflow: hidden;
+      border-radius: var(--radius);
+      background: var(--code);
+      color: var(--code-ink);
+      box-shadow: var(--shadow);
+    }
+
+    .code-title {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.5rem 1rem;
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid color-mix(in srgb, var(--code-ink) 22%, transparent);
+      font-size: 0.8rem;
+    }
+
+    .code-title span:last-child {
+      color: color-mix(in srgb, var(--code-ink) 68%, transparent);
+    }
+
+    .code-panel pre {
+      max-height: 38rem;
+      margin: 0;
+      padding: 1.25rem;
+      overflow: auto;
+      font-size: 0.78rem;
+      line-height: 1.65;
+    }
+
+    .json-key {
+      color: #8ed3f4;
+    }
+
+    .json-value {
+      color: #f2c879;
+    }
+
+    .json-note {
+      color: #8fd6af;
+    }
+
+    .manifest-legend {
+      display: grid;
+      gap: 0.8rem;
+    }
+
+    .manifest-item {
+      padding: 1rem;
+      border-left: 4px solid var(--teal);
+      background: var(--surface);
+    }
+
+    .manifest-item:nth-child(2) {
+      border-left-color: var(--gold);
+    }
+
+    .manifest-item:nth-child(3) {
+      border-left-color: var(--navy);
+    }
+
+    .manifest-item:nth-child(4) {
+      border-left-color: var(--green);
+    }
+
+    .manifest-item:nth-child(5) {
+      border-left-color: var(--red);
+    }
+
+    .manifest-item strong {
+      display: block;
+      margin-bottom: 0.2rem;
+    }
+
+    .manifest-item p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .storage-tree {
+      margin: 2rem 0 0;
+      padding: 1.25rem;
+      border-radius: 0.8rem;
+      background: var(--code);
+      color: var(--code-ink);
+      overflow-x: auto;
+    }
+
+    .safety-flow {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.85rem;
+      align-items: stretch;
+      margin-bottom: 1.25rem;
+    }
+
+    .safety-step {
+      position: relative;
+      padding: 1.2rem;
+      border-top: 5px solid var(--teal);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .safety-step:nth-child(3),
+    .safety-step:nth-child(4) {
+      border-top-color: var(--green);
+    }
+
+    .safety-step:not(:last-child)::after {
+      position: absolute;
+      top: 50%;
+      right: -0.7rem;
+      z-index: 2;
+      width: 1.4rem;
+      height: 1.4rem;
+      border-radius: 50%;
+      background: var(--paper);
+      color: var(--teal);
+      content: "→";
+      font-weight: 800;
+      line-height: 1.3rem;
+      text-align: center;
+      transform: translateY(-50%);
+    }
+
+    .safety-step span {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    .safety-step p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .failure-strip {
+      padding: 1rem 1.2rem;
+      border-left: 5px solid var(--red);
+      background: var(--red-soft);
+    }
+
+    .failure-strip strong {
+      color: var(--red);
+    }
+
+    .failure-strip p {
+      margin: 0.3rem 0 0;
+    }
+
+    .retry-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    .retry-table th,
+    .retry-table td {
+      padding: 0.85rem;
+      border-bottom: 1px solid var(--line);
+      overflow-wrap: anywhere;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .retry-table th {
+      font-size: 0.78rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .retry-table td:first-child {
+      width: 7rem;
+      font-weight: 800;
+    }
+
+    .retry-yes {
+      color: var(--green);
+    }
+
+    .retry-no {
+      color: var(--red);
+    }
+
+    .rerun-diagram {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1.1fr);
+      gap: 1.2rem;
+      align-items: center;
+    }
+
+    .run-stack,
+    .stored-stack {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .run-chip,
+    .stored-file {
+      padding: 0.9rem 1rem;
+      border: 1px solid var(--line);
+      border-radius: 0.7rem;
+      background: var(--surface);
+    }
+
+    .run-chip strong,
+    .stored-file strong,
+    .run-chip span,
+    .stored-file span {
+      display: block;
+    }
+
+    .run-chip span,
+    .stored-file span {
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .stored-file.blob {
+      border-color: var(--green);
+      background: var(--green-soft);
+    }
+
+    .rerun-arrow {
+      color: var(--teal);
+      font-size: 2.2rem;
+      font-weight: 800;
+    }
+
+    .finding {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 1.2rem;
+      align-items: start;
+      padding: clamp(1.25rem, 3vw, 2rem);
+      border: 1px solid var(--gold);
+      border-radius: var(--radius);
+      background: var(--gold-soft);
+    }
+
+    .finding-mark {
+      display: grid;
+      place-items: center;
+      width: 3rem;
+      height: 3rem;
+      border-radius: 50%;
+      background: var(--gold);
+      color: #102a43;
+      font-size: 1.45rem;
+      font-weight: 900;
+    }
+
+    .finding p:last-child {
+      margin-bottom: 0;
+    }
+
+    .boundary-panel.done {
+      border-top: 6px solid var(--green);
+    }
+
+    .boundary-panel.not-yet {
+      border-top: 6px solid var(--gold);
+    }
+
+    .boundary-panel h3 {
+      font-size: 1.35rem;
+    }
+
+    .repo-map {
+      display: grid;
+      gap: 0;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .repo-row {
+      display: grid;
+      grid-template-columns: minmax(13rem, 0.8fr) minmax(0, 1.2fr);
+      gap: 1.25rem;
+      padding: 1rem 1.2rem;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .repo-row:last-child {
+      border-bottom: 0;
+    }
+
+    .repo-row code {
+      color: var(--teal);
+      overflow-wrap: anywhere;
+    }
+
+    .repo-row span {
+      color: var(--muted);
+    }
+
+    .evidence-card {
+      min-height: 10rem;
+      padding: 1.2rem;
+    }
+
+    .evidence-card strong {
+      display: block;
+      margin-bottom: 0.4rem;
+      color: var(--navy);
+      font-size: clamp(1.7rem, 4vw, 2.5rem);
+      line-height: 1;
+    }
+
+    .evidence-card span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .evidence-note {
+      margin: 1.2rem 0 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .evidence-note code {
+      overflow-wrap: anywhere;
+      word-break: break-all;
+    }
+
+    .spaced-grid {
+      margin-top: 1.25rem;
+    }
+
+    details {
+      border-bottom: 1px solid var(--line);
+    }
+
+    summary {
+      padding: 1rem 0;
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    details p {
+      max-width: 76ch;
+      margin: 0;
+      padding: 0 0 1rem 1.25rem;
+      color: var(--muted);
+    }
+
+    .closing {
+      background: var(--navy) !important;
+      color: var(--surface-strong);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .closing {
+        color: var(--paper);
+      }
+    }
+
+    .closing .eyebrow {
+      color: var(--gold);
+    }
+
+    .closing-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(18rem, 0.75fr);
+      gap: 2rem 4rem;
+      align-items: center;
+    }
+
+    .closing p:not(.eyebrow) {
+      max-width: 58ch;
+      color: color-mix(in srgb, var(--surface-strong) 78%, transparent);
+    }
+
+    .next-step {
+      padding: 1.2rem;
+      border-left: 4px solid var(--gold);
+      background: rgb(255 255 255 / 8%);
+    }
+
+    .next-step strong,
+    .next-step span {
+      display: block;
+    }
+
+    .next-step span {
+      margin-top: 0.4rem;
+      color: color-mix(in srgb, var(--surface-strong) 78%, transparent);
+    }
+
+    footer {
+      padding: 1.5rem 0;
+      background: var(--paper-deep);
+      color: var(--muted);
+      font-size: 0.84rem;
+    }
+
+    footer .shell {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem 2rem;
+      justify-content: space-between;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 900px) {
+      .hero,
+      .section-intro,
+      .analogy-grid,
+      .pipeline-lab,
+      .bytes-layout,
+      .manifest-grid,
+      .closing-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        min-height: auto;
+        padding-top: 3rem;
+      }
+
+      .receipt {
+        max-width: 31rem;
+        transform: none;
+      }
+
+      .three-up,
+      .evidence-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .step-controls {
+        grid-template-columns: repeat(5, minmax(8rem, 1fr));
+        overflow-x: auto;
+        padding-bottom: 0.3rem;
+      }
+
+      .step-button {
+        min-height: 4rem;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .three-up,
+      .two-up,
+      .boundary-grid,
+      .evidence-grid,
+      .stage-detail {
+        grid-template-columns: 1fr;
+      }
+
+      .flow-track {
+        grid-template-columns: 1fr;
+      }
+
+      .flow-node {
+        min-height: auto;
+        text-align: left;
+      }
+
+      .flow-node:not(:last-child)::after {
+        top: auto;
+        right: 1rem;
+        bottom: -1.22rem;
+        content: "↓";
+        transform: none;
+      }
+
+      .safety-flow {
+        grid-template-columns: 1fr;
+      }
+
+      .step-controls {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        overflow: visible;
+      }
+
+      .safety-step:not(:last-child)::after {
+        top: auto;
+        right: 1rem;
+        bottom: -1.15rem;
+        content: "↓";
+        transform: none;
+      }
+
+      .rerun-diagram {
+        grid-template-columns: 1fr;
+      }
+
+      .rerun-arrow {
+        transform: rotate(90deg);
+        text-align: center;
+      }
+
+      .repo-row {
+        grid-template-columns: 1fr;
+        gap: 0.35rem;
+      }
+    }
+
+    @media (max-width: 440px) {
+      .shell {
+        width: min(var(--content), calc(100% - 1.2rem));
+      }
+
+      h1 {
+        font-size: 2.6rem;
+      }
+
+      .warehouse-flow,
+      .hash-controls {
+        grid-template-columns: 1fr;
+      }
+
+      .warehouse-flow .arrow {
+        transform: rotate(90deg);
+        text-align: center;
+      }
+
+      .hash-output dl {
+        grid-template-columns: 1fr;
+      }
+
+      .finding {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    @media print {
+      body {
+        background: #ffffff;
+        color: #102a43;
+      }
+
+      .step-controls,
+      .hash-controls {
+        display: none;
+      }
+
+      .pipeline-lab,
+      .bytes-layout,
+      .manifest-grid {
+        grid-template-columns: 1fr;
+      }
+
+      section {
+        break-inside: avoid;
+        padding: 2rem 0;
+      }
+
+      .card,
+      .definition-card,
+      .boundary-panel,
+      .evidence-card,
+      .code-panel,
+      .repo-map {
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to guide</a>
+
+  <header class="site-header">
+    <div class="shell">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="../../README.md">Kidney Care Analytics Mart</a>
+        <span aria-hidden="true">/</span>
+        <a href="README.md">Human guides</a>
+        <span aria-hidden="true">/</span>
+        <span>Plan 002</span>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <div class="shell hero">
+      <div>
+        <p class="eyebrow">Beginner-friendly engineering guide · Plan 002</p>
+        <h1>What is an ingestion manifest?</h1>
+        <p class="lead">
+          The extractor receives a changing CMS file, proves that the delivery is complete and acceptable, stores the exact file once, and writes a small receipt describing exactly what happened. That receipt is the manifest.
+        </p>
+        <div class="hero-note">Completed and independently reconciled on 2026-08-14</div>
+      </div>
+
+      <aside class="receipt" aria-label="Simplified ingestion receipt">
+        <div class="receipt-title">
+          <span>RAW RECEIVING</span>
+          <span>verified</span>
+        </div>
+        <dl>
+          <dt>Source</dt><dd>cms_om_gv</dd>
+          <dt>Run</dt><dd>…20260814…</dd>
+          <dt>Rows</dt><dd>36,994</dd>
+          <dt>Bytes</dt><dd>57,865,948</dd>
+          <dt>SHA-256</dt><dd>10c83040…6fad</dd>
+          <dt>Pages</dt><dd>1</dd>
+        </dl>
+        <div class="receipt-total">
+          <span>Published</span>
+          <span>blob + manifest</span>
+        </div>
+      </aside>
+    </div>
+
+    <section>
+      <div class="shell">
+        <div class="section-intro">
+          <div>
+            <p class="eyebrow">Start with an analogy</p>
+            <h2>A warehouse receiving desk</h2>
+          </div>
+          <p>The project does not unpack a shipment onto production shelves merely because a truck arrived.</p>
+        </div>
+
+        <div class="analogy-grid">
+          <div class="warehouse card" aria-label="CMS shipment moving through a receiving check">
+            <div class="warehouse-flow">
+              <div class="warehouse-box">
+                <div>
+                  <strong>CMS shipment</strong>
+                  <span>a changing CSV download</span>
+                </div>
+              </div>
+              <span class="arrow" aria-hidden="true">→</span>
+              <div class="warehouse-box">
+                <div>
+                  <strong>Receiving desk</strong>
+                  <span>count, inspect, fingerprint, record</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <article class="card analogy-copy">
+            <blockquote>“Did we receive the right shipment, in full, without changing it—and can we prove that later?”</blockquote>
+            <p>The extractor starts with the durable CMS catalog, resolves the current official file, and downloads it into a temporary area. It checks the delivery before anything becomes a permanent raw snapshot.</p>
+            <p>The exact shipment becomes the <strong>blob</strong>. The receiving record becomes the <strong>manifest</strong>. Later transformations use those local, verified artifacts instead of contacting CMS again.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="shell">
+        <div class="section-intro">
+          <div>
+            <p class="eyebrow">Three objects</p>
+            <h2>Temporary file, blob, manifest</h2>
+          </div>
+          <p>These names describe three different responsibilities. Keeping them separate is what makes failure safe and history reproducible.</p>
+        </div>
+
+        <div class="three-up">
+          <article class="definition-card">
+            <span class="term-number">1</span>
+            <span class="plain-term">Untrusted delivery</span>
+            <h3>Temporary file</h3>
+            <p>The download lands under <code>data/raw/.tmp/&lt;run-id&gt;/</code>. It may be incomplete or invalid, so no downstream model should use it yet.</p>
+          </article>
+          <article class="definition-card">
+            <span class="term-number">2</span>
+            <span class="plain-term">Exact stored content</span>
+            <h3>Blob</h3>
+            <p>“Blob” means a stored object treated as bytes. Here it is still a CSV, but its filename is the SHA-256 fingerprint of its exact contents. Identical contents share one blob.</p>
+          </article>
+          <article class="definition-card">
+            <span class="term-number">3</span>
+            <span class="plain-term">The receipt</span>
+            <h3>Manifest</h3>
+            <p>A small canonical JSON document records the source, run, timestamps, counts, hashes, schema evidence, and blob path. It tells a later build which verified bytes to use.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="shell">
+        <div class="section-intro">
+          <div>
+            <p class="eyebrow">Walk the pipeline</p>
+            <h2>Trust is earned in five steps</h2>
+          </div>
+          <p>Select a step to see what the extractor knows at that point. The permanent files do not appear until validation succeeds.</p>
+        </div>
+
+        <div class="pipeline-lab">
+          <div class="step-controls" aria-label="Pipeline step selector">
+            <button class="step-button" type="button" data-step="0" aria-pressed="true">1 · Resolve</button>
+            <button class="step-button" type="button" data-step="1" aria-pressed="false">2 · Download</button>
+            <button class="step-button" type="button" data-step="2" aria-pressed="false">3 · Verify</button>
+            <button class="step-button" type="button" data-step="3" aria-pressed="false">4 · Publish</button>
+            <button class="step-button" type="button" data-step="4" aria-pressed="false">5 · Reuse</button>
+          </div>
+
+          <div class="stage card">
+            <div class="stage-heading">
+              <h3 id="stage-title">Resolve the current official file</h3>
+              <span class="stage-status" id="stage-status">Durable identity first</span>
+            </div>
+
+            <div class="flow-track" aria-label="Resolve, download, verify, publish, and reuse pipeline">
+              <div class="flow-node is-active" data-node="0"><strong>Resolve</strong><span>catalog + stable ID</span></div>
+              <div class="flow-node" data-node="1"><strong>Download</strong><span>temporary bytes</span></div>
+              <div class="flow-node" data-node="2"><strong>Verify</strong><span>contract + evidence</span></div>
+              <div class="flow-node" data-node="3"><strong>Publish</strong><span>blob + manifest</span></div>
+              <div class="flow-node" data-node="4"><strong>Reuse</strong><span>safe no-op</span></div>
+            </div>
+
+            <div class="stage-detail" aria-live="polite">
+              <p id="stage-description">The extractor begins at the official CMS catalog and requires exactly one match for the stable dataset ID. It corroborates the title and landing page, then selects the one official full CSV. A version-specific download URL is recorded as lineage, never trusted as the only locator.</p>
+              <aside class="proof-box">
+                <strong id="proof-label">Blocking question</strong>
+                <span id="proof-value">Can durable CMS metadata resolve exactly one intended dataset and one usable full CSV?</span>
+              </aside>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="shell">
+        <div class="section-intro">
+          <div>
+            <p class="eyebrow">Why all the emphasis on bytes?</p>
+            <h2>Bytes are the raw file’s exact identity</h2>
+          </div>
+          <p>A CSV is text to a person, but it is a sequence of bytes to a computer. That lower-level view lets the project prove sameness without interpreting the data first.</p>
+        </div>
+
+        <div class="bytes-layout">
+          <article class="card bytes-copy">
+            <p>Two tables can look equivalent on screen yet have different raw bytes. Re-saving can change line endings, quoting, column order, encoding, or a leading zero.</p>
+            <ul>
+              <li><strong>Byte count</strong> helps detect a cut-off transfer.</li>
+              <li><strong>SHA-256</strong> turns all bytes into a stable 64-character fingerprint.</li>
+              <li><strong>Unchanged bytes</strong> preserve <code>*</code>, blank, <code>NA</code>, and numeric <code>0</code> as distinct raw evidence.</li>
+              <li><strong>Binary streaming</strong> avoids loading the roughly 58 MB source into memory or silently reserializing it.</li>
+            </ul>
+          </article>
+
+          <div class="hash-lab card">
+            <h3>One small value change, a completely different fingerprint</h3>
+            <div class="hash-controls" aria-label="Hash example selector">
+              <button class="hash-button" type="button" data-hash="original" aria-pressed="true">Original county <code>01001</code></button>
+              <button class="hash-button" type="button" data-hash="changed" aria-pressed="false">Changed county <code>01003</code></button>
+            </div>
+            <div class="hash-output" aria-live="polite">
+              <pre id="hash-sample">YEAR,BENE_GEO_CD
+2024,01001
+</pre>
+              <dl>
+                <dt>Bytes</dt>
+                <dd id="hash-bytes">28</dd>
+                <dt>SHA-256</dt>
+                <dd id="hash-value">3526190a198b89063accde1cecfcbaccc0b08d237e7588ee6f0ea0242cc37396</dd>
+              </dl>
+            </div>
+            <p class="hash-note">Both examples contain 28 UTF-8 bytes. The count alone cannot prove identity; the hash distinguishes them. The real run records both.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="shell">
+        <div class="section-intro">
+          <div>
+            <p class="eyebrow">Inside the receipt</p>
+            <h2>What the manifest proves</h2>
+          </div>
+          <p>The actual manifest is canonical UTF-8 JSON: sorted keys, stable lists, and one final newline. That makes the receipt itself deterministic and easy to compare.</p>
+        </div>
+
+        <div class="manifest-grid">
+          <div class="code-panel">
+            <div class="code-title">
+              <span>Abridged Plan 002 manifest</span>
+              <span>illustrative view; long lists and URLs shortened</span>
+            </div>
+            <pre aria-label="Abridged sample manifest"><code>{
+  <span class="json-key">"manifest_format_version"</span>: <span class="json-value">1</span>,
+  <span class="json-key">"pipeline"</span>: {
+    <span class="json-key">"extractor_version"</span>: <span class="json-value">"0.1.0"</span>,
+    <span class="json-key">"run_id"</span>: <span class="json-value">"cms-om-gv-live-20260814…"</span>
+  },
+  <span class="json-key">"source"</span>: {
+    <span class="json-key">"logical_source_id"</span>: <span class="json-value">"cms_om_gv"</span>,
+    <span class="json-key">"stable_dataset_id"</span>:
+      <span class="json-value">"6219697b-8f6c-4164-bed4-cd9317c58ebc"</span>,
+    <span class="json-key">"catalog_url"</span>: <span class="json-value">"https://data.cms.gov/data.json"</span>,
+    <span class="json-key">"resolved_csv_url"</span>: <span class="json-value">"https://data.cms.gov/…csv"</span>
+  },
+  <span class="json-key">"retrieval"</span>: {
+    <span class="json-key">"retrieved_at_utc"</span>: <span class="json-value">"2026-08-14T…Z"</span>,
+    <span class="json-key">"source_release"</span>: <span class="json-value">"2014-2024"</span>,
+    <span class="json-key">"http_etag"</span>: <span class="json-value">null</span>
+  },
+  <span class="json-key">"content"</span>: {
+    <span class="json-key">"byte_count"</span>: <span class="json-value">57865948</span>,
+    <span class="json-key">"csv_row_count"</span>: <span class="json-value">36994</span>,
+    <span class="json-key">"sha256"</span>:
+      <span class="json-value">"10c8304012da34da…ce6711b6806fad"</span>
+  },
+  <span class="json-key">"transport"</span>: {
+    <span class="json-key">"mode"</span>: <span class="json-value">"full_csv"</span>,
+    <span class="json-key">"page_count"</span>: <span class="json-value">1</span>,
+    <span class="json-key">"record_count"</span>: <span class="json-value">36994</span>
+  },
+  <span class="json-key">"schema"</span>: {
+    <span class="json-key">"columns"</span>: <span class="json-note">[246 ordered name/type objects]</span>,
+    <span class="json-key">"additive_columns"</span>: <span class="json-note">[233 reported names]</span>,
+    <span class="json-key">"schema_sha256"</span>:
+      <span class="json-value">"4b409f690a9bc0a9…0d62639296d50"</span>,
+    <span class="json-key">"header_sha256"</span>:
+      <span class="json-value">"2c9d097415be8f24…771afe6f1465db"</span>
+  },
+  <span class="json-key">"storage"</span>: {
+    <span class="json-key">"blob_path"</span>:
+      <span class="json-value">"blobs/sha256/10c83040…06fad.csv"</span>,
+    <span class="json-key">"content_noop"</span>: <span class="json-value">true</span>
+  }
+}</code></pre>
+          </div>
+
+          <div class="manifest-legend">
+            <article class="manifest-item">
+              <strong>Lineage</strong>
+              <p>Which logical source, official locator, current file, extractor version, and run created this reference?</p>
+            </article>
+            <article class="manifest-item">
+              <strong>Integrity</strong>
+              <p>Do the byte count and content hash match the referenced file exactly?</p>
+            </article>
+            <article class="manifest-item">
+              <strong>Shape</strong>
+              <p>Which ordered columns and declared types appeared, and which compatible additions were reported?</p>
+            </article>
+            <article class="manifest-item">
+              <strong>Completeness</strong>
+              <p>Do CSV rows, transport records, and the one-response page count reconcile?</p>
+            </article>
+            <article class="manifest-item">
+              <strong>Storage</strong>
+              <p>Where is the immutable blob, and did this run reuse content already stored?</p>
+            </article>
+          </div>
+        </div>
+
+        <pre class="storage-tree" aria-label="Generated raw storage tree"><code>data/raw/
+├── blobs/
+│   └── sha256/
+│       └── &lt;content-sha256&gt;.csv       ← one immutable copy of these bytes
+├── manifests/
+│   └── cms_om_gv/
+│       └── &lt;pipeline-run-id&gt;.json     ← one immutable receipt per run
+└── .tmp/
+    └── &lt;pipeline-run-id&gt;/             ← removed after success or failure</code></pre>
+      </div>
+    </section>
+
+    <section>
+      <div class="shell">
+        <div class="section-intro">
+          <div>
+            <p class="eyebrow">Safe publication</p>
+            <h2>Permanent means validated</h2>
+          </div>
+          <p>The pipeline uses temporary paths on the same filesystem and no-overwrite publication. A partially downloaded file can never masquerade as a successful snapshot.</p>
+        </div>
+
+        <div class="safety-flow" aria-label="Atomic raw publication sequence">
+          <article class="safety-step">
+            <span>Step 1</span>
+            <h3>Stage</h3>
+            <p>Create a new run-scoped temporary file.</p>
+          </article>
+          <article class="safety-step">
+            <span>Step 2</span>
+            <h3>Validate</h3>
+            <p>Re-read the CSV and reconcile bytes, rows, schema, and grain.</p>
+          </article>
+          <article class="safety-step">
+            <span>Step 3</span>
+            <h3>Link blob</h3>
+            <p>Create the hash-named final blob without overwriting one that exists.</p>
+          </article>
+          <article class="safety-step">
+            <span>Step 4</span>
+            <h3>Write receipt</h3>
+            <p>Publish canonical manifest bytes only after the blob is proven valid.</p>
+          </article>
+        </div>
+
+        <div class="failure-strip">
+          <strong>If any check fails:</strong>
+          <p>The temporary partial file is cleaned up. No final manifest appears, no existing blob is changed, and previously published mart state remains intact.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="shell">
+        <div class="section-intro">
+          <div>
+            <p class="eyebrow">Retry with judgment</p>
+            <h2>Try transport again; never argue with evidence</h2>
+          </div>
+          <p>A timeout may clear on the next attempt. A missing required column will not. Retries are bounded and reserved for plausibly temporary delivery problems.</p>
+        </div>
+
+        <div class="card">
+          <table class="retry-table">
+            <caption class="sr-only">Which failures the extractor retries</caption>
+            <thead>
+              <tr>
+                <th scope="col">Action</th>
+                <th scope="col">Failure examples</th>
+                <th scope="col">Reason</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="retry-yes">Retry</td>
+                <td>Connection failure, timeout, HTTP 408, HTTP 429, HTTP 5xx, incomplete body versus <code>Content-Length</code></td>
+                <td>The source or network may recover. Each partial file is removed first, delays back off, and attempts are capped.</td>
+              </tr>
+              <tr>
+                <td class="retry-no">Stop</td>
+                <td>Wrong dataset, duplicate header, missing required field, incompatible type, malformed or duplicate grain, failed row/hash reconciliation</td>
+                <td>The received evidence is unacceptable. Repeating the same interpretation would hide a contract or data-quality problem.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="shell">
+        <div class="section-intro">
+          <div>
+            <p class="eyebrow">Reruns without duplicates</p>
+            <h2>One blob, many honest receipts</h2>
+          </div>
+          <p>A run is an event; a blob is content. Separating those identities preserves lineage without storing the same 58 MB file repeatedly.</p>
+        </div>
+
+        <div class="rerun-diagram card" aria-label="Two runs reusing one content-addressed blob">
+          <div class="run-stack">
+            <div class="run-chip">
+              <strong>Run A</strong>
+              <span>first retrieval of hash 10c83040…</span>
+            </div>
+            <div class="run-chip">
+              <strong>Run B</strong>
+              <span>later retrieval of the same hash</span>
+            </div>
+          </div>
+          <span class="rerun-arrow" aria-hidden="true">→</span>
+          <div class="stored-stack">
+            <div class="stored-file blob">
+              <strong>1 verified blob</strong>
+              <span><code>blobs/sha256/10c83040….csv</code></span>
+            </div>
+            <div class="stored-file">
+              <strong>2 run manifests</strong>
+              <span>Run B records <code>content_noop: true</code></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="three-up spaced-grid">
+          <article class="definition-card">
+            <span class="plain-term">Same content, new run</span>
+            <h3>Reuse the blob</h3>
+            <p>Verify the existing hash-named file, keep it, and publish a new receipt that records the successful content no-op.</p>
+          </article>
+          <article class="definition-card">
+            <span class="plain-term">Same run, same receipt</span>
+            <h3>Manifest no-op</h3>
+            <p>Return success without creating another file. Repeating the operation has the same final state.</p>
+          </article>
+          <article class="definition-card">
+            <span class="plain-term">Same run, different history</span>
+            <h3>Block the conflict</h3>
+            <p>Never overwrite an existing run ID to tell a different story. The caller must choose a new run ID or investigate.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="shell">
+        <div class="section-intro">
+          <div>
+            <p class="eyebrow">What the live check taught us</p>
+            <h2>A strict gate found a real source detail</h2>
+          </div>
+          <p>The live full-file run was not just ceremonial. It exercised an invariant against all 36,994 source rows and exposed a grain detail that the small sample could not prove.</p>
+        </div>
+
+        <div class="finding">
+          <div class="finding-mark" aria-hidden="true">!</div>
+          <div>
+            <h3><code>BENE_GEO_DESC</code> belongs in the raw transport grain</h3>
+            <p>CMS uses the same blank State code for two distinct pseudo-rows named <code>Territory</code> and <code>ZZ</code>. A grain made only from year, level, code, and age would falsely call them duplicates.</p>
+            <p>The fix added the required description field to the raw grain. It did <strong>not</strong> weaken duplicate detection, and it did not change the later county fact grain. This is the value of blocking publication on unexplained duplicates.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="shell">
+        <div class="section-intro">
+          <div>
+            <p class="eyebrow">A clear boundary</p>
+            <h2>What Plan 002 does—and does not do</h2>
+          </div>
+          <p>Raw ingestion protects evidence. Meaningful metrics and county modeling belong to later transformations that consume the immutable snapshot.</p>
+        </div>
+
+        <div class="boundary-grid">
+          <article class="boundary-panel done">
+            <h3>Completed here</h3>
+            <ul>
+              <li>Resolve the current file from durable official CMS metadata.</li>
+              <li>Download with timeouts and bounded transient retries.</li>
+              <li>Preserve, count, and hash the exact response bytes.</li>
+              <li>Validate headers, types, rows, and every complete raw grain.</li>
+              <li>Publish immutable content-addressed blobs and run manifests.</li>
+              <li>Make repeated content and repeated runs deterministic and safe.</li>
+            </ul>
+          </article>
+
+          <article class="boundary-panel not-yet">
+            <h3>Intentionally left for later</h3>
+            <ul>
+              <li>Convert <code>*</code>, blank, or <code>NA</code> into typed nulls and statuses.</li>
+              <li>Normalize county FIPS or filter County + All rows.</li>
+              <li>Exclude territories or <code>UNKNOWN</code> pseudo-counties from the MVP mart.</li>
+              <li>Build DuckDB, dbt, Parquet, Airflow, or Power BI assets.</li>
+              <li>Calculate observed outpatient dialysis use among Original Medicare beneficiaries.</li>
+              <li>Update a latest-successful pointer before every later publication gate passes.</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="shell">
+        <div class="section-intro">
+          <div>
+            <p class="eyebrow">Follow the implementation</p>
+            <h2>Where the behavior lives</h2>
+          </div>
+          <p>The guide is an explanation, not a parallel specification. The plan, authoritative specification, code, and tests remain the checkable sources of truth.</p>
+        </div>
+
+        <div class="repo-map">
+          <div class="repo-row">
+            <a href="../../plans/002-cms-om-gv-ingestion-manifest.md"><code>plans/002-cms-om-gv-ingestion-manifest.md</code></a>
+            <span>Scope, invariants, red–green sequence, acceptance criteria, and completion evidence.</span>
+          </div>
+          <div class="repo-row">
+            <a href="../../src/kidney_care_mart/extract/http.py"><code>src/…/extract/http.py</code></a>
+            <span>Streaming bytes, content-length checks, timeouts, and transient-only retries.</span>
+          </div>
+          <div class="repo-row">
+            <a href="../../src/kidney_care_mart/extract/manifest.py"><code>src/…/extract/manifest.py</code></a>
+            <span>CSV evidence, canonical hashes, reconciliation, immutable blobs, and manifest publication.</span>
+          </div>
+          <div class="repo-row">
+            <a href="../../src/kidney_care_mart/extract/cms_om_gv.py"><code>src/…/extract/cms_om_gv.py</code></a>
+            <span>Official CMS resolution and the source-specific end-to-end orchestration.</span>
+          </div>
+          <div class="repo-row">
+            <a href="../../tests/unit/extract/"><code>tests/unit/extract/</code></a>
+            <span>Network-free success, retry, truncation, contract, reconciliation, atomicity, conflict, and no-op tests.</span>
+          </div>
+          <div class="repo-row">
+            <a href="../../tests/fixtures/cms_om_gv/"><code>tests/fixtures/cms_om_gv/</code></a>
+            <span>Small official-shaped catalog and CSV inputs; no full CMS download.</span>
+          </div>
+          <div class="repo-row">
+            <a href="../../data/README.md"><code>data/README.md</code></a>
+            <span>Generated raw storage layout and Git-ignore boundary.</span>
+          </div>
+          <div class="repo-row">
+            <a href="../../docs/source-catalog.md"><code>docs/source-catalog.md</code></a>
+            <span>Durable locators, extraction command, lineage, and source-specific limitations.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="shell">
+        <div class="section-intro">
+          <div>
+            <p class="eyebrow">Evidence, not a claim</p>
+            <h2>The completed check</h2>
+          </div>
+          <p>Offline checks are deterministic and network-free. Live evidence is dated because CMS may legitimately publish a new version later.</p>
+        </div>
+
+        <div class="evidence-grid">
+          <article class="evidence-card">
+            <strong>49</strong>
+            <span>focused extraction tests passed without network access</span>
+          </article>
+          <article class="evidence-card">
+            <strong>104</strong>
+            <span>tests passed in the complete locked repository suite</span>
+          </article>
+          <article class="evidence-card">
+            <strong>36,994</strong>
+            <span>live CSV data rows reconciled on 2026-08-14</span>
+          </article>
+          <article class="evidence-card">
+            <strong>1 → 2</strong>
+            <span>one blob safely referenced by two live run manifests</span>
+          </article>
+        </div>
+        <p class="evidence-note">The 2026-08-14 snapshot contained 57,865,948 bytes and 246 columns, including 233 compatible additive columns. Its content SHA-256 was <code>10c8304012da34da3ecfe4caf4548927095f693383814d0e79ce6711b6806fad</code>. Full source downloads and generated manifests remain ignored by Git.</p>
+      </div>
+    </section>
+
+    <section>
+      <div class="shell">
+        <div class="section-intro">
+          <div>
+            <p class="eyebrow">Small glossary</p>
+            <h2>Terms you will see again</h2>
+          </div>
+          <p>Open any term for a plain-language explanation.</p>
+        </div>
+
+        <div>
+          <details><summary>Byte</summary><p>A single unit of stored digital information. A file is an ordered sequence of bytes. At the raw boundary, preserving that exact sequence prevents accidental cleanup or reinterpretation.</p></details>
+          <details><summary>Blob</summary><p>Short for “binary large object.” In this project it means one immutable stored CSV treated as exact bytes. Text files can be blobs; “binary” describes how storage treats the object, not whether a person can read it.</p></details>
+          <details><summary>Hash and SHA-256</summary><p>A hash function turns any amount of input into a fixed-size fingerprint. SHA-256 produces 256 bits, usually written as 64 hexadecimal characters. Matching hashes are strong evidence of matching bytes; a different hash means the content changed.</p></details>
+          <details><summary>Content-addressed storage</summary><p>A layout where a file’s address comes from its content hash rather than a friendly mutable name such as “latest.csv.” The same bytes naturally point to the same path.</p></details>
+          <details><summary>Manifest</summary><p>A small machine-readable receipt that describes a larger artifact: where it came from, when and how it was retrieved, its counts and hashes, its schema evidence, and where the exact blob is stored.</p></details>
+          <details><summary>Lineage</summary><p>The trace from an output back through its run, manifest, immutable raw bytes, resolved source version, stable official dataset, and extraction code.</p></details>
+          <details><summary>Canonical JSON</summary><p>JSON serialized by one exact rule—sorted keys, compact separators, UTF-8, stable list ordering, and a final newline here—so the same manifest data always produces the same bytes.</p></details>
+          <details><summary>Atomic publication</summary><p>A publication step that appears complete all at once. Other work never sees a half-written final file. This extractor stages and validates first, then creates final immutable files on the same filesystem.</p></details>
+          <details><summary>Idempotent and no-op</summary><p>An idempotent operation can be repeated without creating duplicates or changing the correct final state. A no-op is a successful repetition that records or returns the existing result without republishing identical content.</p></details>
+          <details><summary>Reconciliation</summary><p>Independently checking that related facts agree—for example, downloaded byte count versus HTTP metadata, CSV rows versus CMS metadata, and a manifest hash versus the stored blob.</p></details>
+          <details><summary>Content-Length</summary><p>An optional HTTP response header that says how many bytes the server intends to send. If the extractor receives a different count, it treats the transfer as incomplete.</p></details>
+          <details><summary>ETag and Last-Modified</summary><p>Optional HTTP headers that provide additional source-version clues. They are retained when CMS sends them, but the extractor still computes its own byte count and cryptographic hashes.</p></details>
+        </div>
+      </div>
+    </section>
+
+    <section class="closing">
+      <div class="shell closing-grid">
+        <div>
+          <p class="eyebrow">The takeaway</p>
+          <h2>The manifest turns a download into reproducible evidence.</h2>
+          <p>The blob preserves exactly what CMS sent. The manifest proves which blob a run used and why it was accepted. Together they let later transformations proceed from stable local evidence even after the live CMS file changes.</p>
+        </div>
+        <aside class="next-step">
+          <strong>Next engineering step</strong>
+          <span>Build the raw-to-stage transformation from the immutable manifest and blob—without contacting CMS again or changing the raw evidence.</span>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="shell">
+      <span>Kidney Care Analytics Mart · Human guide · Plan 002</span>
+      <span>Ingestion manifest completed 2026-08-14</span>
+    </div>
+  </footer>
+
+  <script>
+    const pipelineSteps = [
+      {
+        title: "Resolve the current official file",
+        status: "Durable identity first",
+        description: "The extractor begins at the official CMS catalog and requires exactly one match for the stable dataset ID. It corroborates the title and landing page, then selects the one official full CSV. A version-specific download URL is recorded as lineage, never trusted as the only locator.",
+        proofLabel: "Blocking question",
+        proofValue: "Can durable CMS metadata resolve exactly one intended dataset and one usable full CSV?"
+      },
+      {
+        title: "Stream unchanged bytes to a temporary file",
+        status: "Untrusted delivery",
+        description: "The response is read in small binary chunks. Each chunk is written unchanged while SHA-256, CMS-compatible SHA-1, and the byte count are calculated. Timeouts and a bounded retry policy apply only to plausible transport failures.",
+        proofLabel: "Evidence collected",
+        proofValue: "bytes + SHA-256 + SHA-1 + ETag + Last-Modified + attempt count"
+      },
+      {
+        title: "Verify content before publication",
+        status: "All gates must pass",
+        description: "The staged file is re-read as UTF-8 CSV. Header order, declared types, required fields, logical row count, every complete raw grain, additive columns, source metadata, and separate schema/header hashes must reconcile. Any unexplained mismatch stops the run.",
+        proofLabel: "Blocking question",
+        proofValue: "Do the source contract, file, metadata, counts, hashes, and complete raw grain all agree?"
+      },
+      {
+        title: "Publish immutable final artifacts",
+        status: "Validated evidence",
+        description: "The extractor creates a final blob whose name is its content SHA-256, then writes a canonical run manifest that references it. No existing final file is overwritten. The manifest appears only after the blob passes independent reconciliation.",
+        proofLabel: "Final artifacts",
+        proofValue: "blobs/sha256/<hash>.csv + manifests/cms_om_gv/<run-id>.json"
+      },
+      {
+        title: "Reuse identical content safely",
+        status: "Successful no-op",
+        description: "If a later run downloads the same bytes, the extractor verifies and reuses the existing blob instead of storing another copy. The new run still receives its own manifest with content_noop set to true, preserving an honest event history.",
+        proofLabel: "Idempotency rule",
+        proofValue: "same content → one blob; new run → new receipt; same run + same receipt → no-op"
+      }
+    ];
+
+    const stepButtons = document.querySelectorAll("[data-step]");
+    const flowNodes = document.querySelectorAll("[data-node]");
+    const stageTitle = document.getElementById("stage-title");
+    const stageStatus = document.getElementById("stage-status");
+    const stageDescription = document.getElementById("stage-description");
+    const proofLabel = document.getElementById("proof-label");
+    const proofValue = document.getElementById("proof-value");
+
+    function selectStep(index) {
+      const selected = pipelineSteps[index];
+      stepButtons.forEach((button) => {
+        button.setAttribute("aria-pressed", String(Number(button.dataset.step) === index));
+      });
+      flowNodes.forEach((node) => {
+        const nodeIndex = Number(node.dataset.node);
+        node.classList.toggle("is-active", nodeIndex === index);
+        node.classList.toggle("is-done", nodeIndex < index);
+      });
+      stageTitle.textContent = selected.title;
+      stageStatus.textContent = selected.status;
+      stageDescription.textContent = selected.description;
+      proofLabel.textContent = selected.proofLabel;
+      proofValue.textContent = selected.proofValue;
+    }
+
+    stepButtons.forEach((button) => {
+      button.addEventListener("click", () => selectStep(Number(button.dataset.step)));
+    });
+
+    const hashExamples = {
+      original: {
+        sample: "YEAR,BENE_GEO_CD\n2024,01001\n",
+        bytes: "28",
+        sha256: "3526190a198b89063accde1cecfcbaccc0b08d237e7588ee6f0ea0242cc37396"
+      },
+      changed: {
+        sample: "YEAR,BENE_GEO_CD\n2024,01003\n",
+        bytes: "28",
+        sha256: "fd2cbe205f8911c81ccb2320f009c740cbdbf7bea284a0929a2ce0df27853114"
+      }
+    };
+
+    const hashButtons = document.querySelectorAll("[data-hash]");
+    const hashSample = document.getElementById("hash-sample");
+    const hashBytes = document.getElementById("hash-bytes");
+    const hashValue = document.getElementById("hash-value");
+
+    hashButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const selectedName = button.dataset.hash;
+        const selected = hashExamples[selectedName];
+        hashButtons.forEach((candidate) => {
+          candidate.setAttribute("aria-pressed", String(candidate.dataset.hash === selectedName));
+        });
+        hashSample.textContent = selected.sample;
+        hashBytes.textContent = selected.bytes;
+        hashValue.textContent = selected.sha256;
+      });
+    });
+  </script>
+</body>
+</html>

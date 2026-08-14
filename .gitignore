@@ -23,6 +23,7 @@ htmlcov/
 .tox/
 .nox/
 .hypothesis/
+.test-artifacts/
 .ipynb_checkpoints/
 
 # Local data, downloads, and generated publications
@@ -120,4 +121,3 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 $RECYCLE.BIN/
-

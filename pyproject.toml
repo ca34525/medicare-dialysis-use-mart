@@ -28,7 +28,13 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 minversion = "8.3"
-addopts = ["--strict-config", "--strict-markers", "-ra"]
+addopts = [
+    "--strict-config",
+    "--strict-markers",
+    "--basetemp=data/.pytest-tmp",
+    "-ra",
+]
+cache_dir = "data/.pytest-cache"
 testpaths = ["tests"]
 
 [tool.ruff]

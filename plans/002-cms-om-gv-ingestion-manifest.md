@@ -1,6 +1,6 @@
 # Plan 002: CMS Geographic Variation extraction and immutable raw manifests
 
-**Status:** Planned 2026-08-14  
+**Status:** Completed 2026-08-14
 **Source ID:** `cms_om_gv`  
 **Depends on:** Completed Plan 001 source contract  
 **Specification coverage:** Milestone 1; T-003 and T-004 for the CMS full-file
@@ -353,29 +353,29 @@ The live check must remain separate from the default test suite.
 
 ## Acceptance criteria
 
-- [ ] Official catalog resolution returns exactly the stable intended dataset
+- [x] Official catalog resolution returns exactly the stable intended dataset
   and one usable current full CSV.
-- [ ] Production code has no hard-coded version-specific CSV as its sole
+- [x] Production code has no hard-coded version-specific CSV as its sole
   locator.
-- [ ] A valid fixture extraction publishes one content-addressed blob and one
+- [x] A valid fixture extraction publishes one content-addressed blob and one
   canonical run manifest.
-- [ ] The raw bytes are unchanged from the completed response.
-- [ ] Content hash, byte count, row count, schema hash, header hash, and blob
+- [x] The raw bytes are unchanged from the completed response.
+- [x] Content hash, byte count, row count, schema hash, header hash, and blob
   path reconcile exactly.
-- [ ] Required schema and grain failures block publication; additive columns
+- [x] Required schema and grain failures block publication; additive columns
   pass and are reported.
-- [ ] Truncated or interrupted transfers cannot create a final blob or
+- [x] Truncated or interrupted transfers cannot create a final blob or
   manifest.
-- [ ] Retry is bounded and limited to transient transport failures.
-- [ ] Same-content and same-run behavior is idempotent without overwrites.
-- [ ] T-003 passes for the CMS full-file, one-response transport and is
+- [x] Retry is bounded and limited to transient transport failures.
+- [x] Same-content and same-run behavior is idempotent without overwrites.
+- [x] T-003 passes for the CMS full-file, one-response transport and is
   explicitly recorded as `page_count = 1`; no multi-page source claim is made.
-- [ ] T-004 passes for hash, bytes, rows, and schema reconciliation.
-- [ ] Offline tests make zero external requests.
-- [ ] A separate live extraction succeeds and its manifest is independently
+- [x] T-004 passes for hash, bytes, rows, and schema reconciliation.
+- [x] Offline tests make zero external requests.
+- [x] A separate live extraction succeeds and its manifest is independently
   reconciled from disk.
-- [ ] Generated raw data and manifests are ignored and absent from Git status.
-- [ ] Ruff and the complete pytest suite pass from the locked environment.
+- [x] Generated raw data and manifests are ignored and absent from Git status.
+- [x] Ruff and the complete pytest suite pass from the locked environment.
 
 ## Stop conditions
 
@@ -406,3 +406,26 @@ five-character county FIPS, type CMS missingness with distinct statuses, select
 County + All rows, exclude `UNKNOWN`, and map the District of Columbia to
 `11001`. That later plan must consume the immutable manifest and raw blob
 rather than contacting CMS directly.
+
+## Completion record
+
+- Added standard-library catalog/data-viewer resolution, bounded JSON and CSV
+  transport, transient-only retry, unchanged-byte streaming, and cleanup of
+  failed partial transfers.
+- Added streaming raw validation for exact ordered headers, compatible declared
+  types, logical row counts, parseable and unique raw grains, additive columns,
+  CMS metadata byte/SHA-1 reconciliation, and separate canonical schema/header
+  hashes.
+- Added atomic no-overwrite publication for SHA-256 blobs and canonical
+  run-scoped manifests, including verified content reuse, same-run idempotency,
+  conflict detection, corrupt-blob blocking, and path traversal protection.
+- Added 49 network-free extraction tests. The complete locked suite contains
+  104 passing tests; Ruff formatting and lint gates pass.
+- The 2026-08-14 live check published the 57,865,948-byte, 36,994-row source at
+  SHA-256 `10c8304012da34da3ecfe4caf4548927095f693383814d0e79ce6711b6806fad`.
+  A second run reused the single blob and wrote a second manifest with
+  `content_noop: true`; independent disk reconciliation matched all evidence.
+- The live duplicate-key gate exposed and explicitly corrected the raw-grain
+  definition: CMS reuses a blank State code for distinct `Territory` and `ZZ`
+  rows, so the transport grain includes `BENE_GEO_DESC`. No duplicate-key rule
+  was weakened, and the downstream county fact grain is unchanged.

@@ -6,11 +6,14 @@ It is not a clinical tool, prevalence estimate, opaque opportunity score, or fin
 
 ## Current status
 
-The locked Python 3.12 development environment and offline quality checks are verified on the initial implementation machine. The first executable source contract, for CMS Original Medicare Geographic Variation, is implemented with pinned schema/dictionary evidence and network-free T-001/T-002 tests. A working extractor, dbt mart, Airflow DAG, and Power BI report have not yet been established; remaining source and environment checks are recorded in [`docs/preflight.md`](docs/preflight.md).
+The locked Python 3.12 development environment and offline quality checks are verified on the initial implementation machine. The CMS Original Medicare Geographic Variation source contract and full-file extractor are implemented with pinned schema/dictionary evidence, immutable content-addressed raw snapshots, canonical run manifests, and network-free T-001 through T-004 coverage for this one-response source. Raw-to-stage transformations, the dbt mart, Airflow DAG, and Power BI report have not yet been established; remaining source and environment checks are recorded in [`docs/preflight.md`](docs/preflight.md).
 
 ## Human guides
 
-- [What is the CMS source contract?](docs/guides/cms-source-contract-explained.html) explains the first contract visually for readers who are new to data engineering. Open the downloaded file in a web browser for the interactive examples.
+- [Plan 001 — What is the CMS source contract?](docs/guides/001-cms-source-contract-explained.html) explains the first contract visually for readers who are new to data engineering.
+- [Plan 002 — What is an ingestion manifest?](docs/guides/002-cms-ingestion-manifest-explained.html) explains raw downloads, bytes, blobs, hashes, manifests, atomic publication, and safe reruns at the same introductory level.
+
+Open either downloaded HTML file in a web browser for its interactive examples. The numbering follows the matching files in [`plans/`](plans/); the authoring and review convention is in [`docs/guides/README.md`](docs/guides/README.md).
 
 ## Bootstrap quick start
 

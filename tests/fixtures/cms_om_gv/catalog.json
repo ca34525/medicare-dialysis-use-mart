@@ -1,0 +1,41 @@
+{
+  "@context": "https://project-open-data.cio.gov/v1.1/schema/catalog.jsonld",
+  "dataset": [
+    {
+      "@type": "dcat:Dataset",
+      "accessLevel": "public",
+      "distribution": [
+        {
+          "@type": "dcat:Distribution",
+          "accessURL": "https://data.cms.gov/data-api/v1/dataset/6219697b-8f6c-4164-bed4-cd9317c58ebc/data",
+          "description": "latest",
+          "format": "API",
+          "modified": "2026-05-15",
+          "title": "Medicare Geographic Variation - by National, State & County : 2024-01-01"
+        },
+        {
+          "@type": "dcat:Distribution",
+          "downloadURL": "https://data.cms.gov/sites/default/files/current/cms-om-gv.csv",
+          "format": "CSV",
+          "mediaType": "text/csv",
+          "modified": "2026-05-15",
+          "temporal": "2024-01-01/2024-12-31",
+          "title": "Medicare Geographic Variation - by National, State & County : 2024-01-01"
+        }
+      ],
+      "identifier": "https://data.cms.gov/data-api/v1/dataset/6219697b-8f6c-4164-bed4-cd9317c58ebc/data-viewer",
+      "landingPage": "https://data.cms.gov/summary-statistics-on-use-and-payments/medicare-geographic-comparisons/medicare-geographic-variation-by-national-state-county",
+      "modified": "2026-05-15",
+      "temporal": "2014-01-01/2024-12-31",
+      "title": "Medicare Geographic Variation - by National, State & County"
+    },
+    {
+      "@type": "dcat:Dataset",
+      "distribution": [],
+      "identifier": "https://data.cms.gov/data-api/v1/dataset/00000000-0000-0000-0000-000000000000/data-viewer",
+      "landingPage": "https://data.cms.gov/example",
+      "modified": "2026-01-01",
+      "title": "Unrelated fixture dataset"
+    }
+  ]
+}

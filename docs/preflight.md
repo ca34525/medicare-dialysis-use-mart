@@ -39,6 +39,35 @@ The specification's research review found these public services feasible, but ea
 | CDC/ATSDR SVI 2022 U.S. county data | Yes | Pending | Official CSV or deterministic REST pagination returns the pinned 3,144-row county snapshot, with distinct FIPS. |
 | Census Geocoder | Conditional | Pending | A sample or batch request succeeds for unresolved public facility business addresses. |
 
+## CMS Geographic Variation full-file ingestion check
+
+On 2026-08-14, the explicit live extractor resolved the current full CSV from
+the official CMS catalog and stable dataset identity without authentication.
+The first validation attempt correctly blocked before publication because the
+then-declared four-field raw key duplicated the distinct State pseudo-rows
+`Territory` and `ZZ`, both of which use a blank code. Bounded one-row API checks
+confirmed the source representation. The authoritative specification,
+executable contract, normalized schema evidence, and source catalog were
+corrected together to include required `BENE_GEO_DESC` in the raw transport
+grain; duplicate complete raw grains still block publication.
+
+The corrected live run published one ignored content-addressed blob with
+SHA-256 `10c8304012da34da3ecfe4caf4548927095f693383814d0e79ce6711b6806fad`,
+57,865,948 bytes, 36,994 logical CSV data rows, 246 ordered columns, and 233
+contract-compatible additive columns. The one-response transport recorded
+`page_count: 1`. A second run under a new run ID resolved the same bytes, reused
+the one verified blob, and recorded `content_noop: true` in a second canonical
+manifest.
+
+A separate standard-library reconciliation reread the saved blob and manifest
+from disk. Content SHA-256, byte count, logical row count, record count, typed
+schema SHA-256 `4b409f690a9bc0a9378559035ba2829b9873490680376fdbf1a0d62639296d50`,
+raw-header SHA-256 `2c9d097415be8f240dd0d462f0d8907a2ce9209eb8742c840c771afe6f1465db`,
+canonical JSON bytes, and the single-blob/two-manifest layout all reconciled.
+The raw CSV, manifests, and temporary paths are ignored and are not committed.
+After the raw-grain correction, the exact locked offline handoff commands passed
+with 104 tests plus clean Ruff formatting and lint checks.
+
 ## Deferred or not required
 
 | Check | Status | Note |

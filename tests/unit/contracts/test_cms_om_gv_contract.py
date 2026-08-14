@@ -192,7 +192,7 @@ def test_non_integer_year_fails_grain_parsing() -> None:
 
 @pytest.mark.parametrize(
     "blank_key",
-    ("BENE_GEO_LVL", "BENE_GEO_CD", "BENE_AGE_LVL"),
+    ("BENE_GEO_LVL", "BENE_GEO_DESC", "BENE_GEO_CD", "BENE_AGE_LVL"),
 )
 def test_blank_county_grain_values_fail(blank_key: str) -> None:
     """Blank county grain values cannot enter the contract unnoticed."""

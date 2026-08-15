@@ -12,6 +12,7 @@ from pathlib import Path
 import pytest
 
 from kidney_care_mart.contracts.cms_om_gv import (
+    CONTRACT_VERSION,
     GRAIN_KEYS,
     REQUIRED_COLUMNS,
     ColumnSchema,
@@ -24,6 +25,12 @@ from kidney_care_mart.contracts.cms_om_gv import (
 FIXTURE_PATH = Path(__file__).parents[2] / "fixtures" / "cms_om_gv" / "minimal.csv"
 REPOSITORY_ROOT = Path(__file__).parents[3]
 SCHEMA_PATH = REPOSITORY_ROOT / "docs" / "source-schemas" / "cms_om_gv.schema.json"
+
+
+def test_plan_006_contract_requires_reported_dialysis_user_count() -> None:
+    """T-011 is supported by governed v2 count evidence, not derivation."""
+    assert CONTRACT_VERSION == "cms_om_gv.raw.v2"
+    assert REQUIRED_COLUMNS["BENES_OP_DLYS_CNT"] == "NUMERIC"
 
 
 def required_schema() -> list[ColumnSchema]:

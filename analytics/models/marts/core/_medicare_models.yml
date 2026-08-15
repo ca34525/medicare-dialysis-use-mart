@@ -1,0 +1,254 @@
+version: 2
+
+models:
+  - name: dim_year
+    description: >-
+      One integer CMS calendar year observed in either governed county or
+      authoritative benchmark facts. The latest flag is derived from the
+      loaded snapshot, not from wall-clock time.
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: year
+        data_type: integer
+        description: CMS calendar year.
+        data_tests: [not_null, unique]
+      - name: is_latest_cms_year
+        data_type: boolean
+        description: True for exactly the maximum loaded CMS year.
+        data_tests: [not_null]
+
+  - name: fct_medicare_county_year
+    description: >-
+      One county or reviewed historical county identity per CMS calendar year.
+      Metrics are reported CMS values with explicit missingness status. The
+      dialysis share describes observed outpatient dialysis use among Original
+      Medicare beneficiaries; it is not kidney disease prevalence.
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: county_fips
+        data_type: varchar
+        description: Five-character county FIPS at the source-observed identity.
+        data_tests: [not_null]
+      - name: year
+        data_type: integer
+        description: CMS calendar year; foreign key to dim_year.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_year')
+                field: year
+      - name: county_geography_mapping_method
+        data_type: varchar
+        description: Direct county FIPS or the exact DC State-to-11001 rule.
+        data_tests: [not_null]
+      - name: benes_om_cnt
+        data_type: decimal(38, 0)
+        description: Reported Original Medicare beneficiary count.
+      - name: benes_om_cnt_status
+        data_type: varchar
+        description: Availability status for the beneficiary count.
+        data_tests: [not_null]
+      - name: ma_prtcptn_rate
+        data_type: decimal(38, 10)
+        description: Medicare Advantage participation proportion, 0 to 1.
+      - name: ma_prtcptn_rate_status
+        data_type: varchar
+        description: Availability status for the participation rate.
+        data_tests: [not_null]
+      - name: bene_dual_pct
+        data_type: decimal(38, 10)
+        description: Dual-eligible beneficiary proportion, 0 to 1.
+      - name: bene_dual_pct_status
+        data_type: varchar
+        description: Availability status for the dual-eligible proportion.
+        data_tests: [not_null]
+      - name: benes_op_dlys_cnt
+        data_type: decimal(38, 0)
+        description: >-
+          Reported count of Original Medicare beneficiaries with observed
+          outpatient dialysis facility use.
+      - name: benes_op_dlys_cnt_status
+        data_type: varchar
+        description: Availability status for the dialysis-user count.
+        data_tests: [not_null]
+      - name: benes_op_dlys_pct
+        data_type: decimal(38, 10)
+        description: >-
+          Observed outpatient dialysis use among Original Medicare
+          beneficiaries, reported as a 0-to-1 proportion.
+      - name: benes_op_dlys_pct_status
+        data_type: varchar
+        description: Availability status for the dialysis-use proportion.
+        data_tests: [not_null]
+      - name: op_dlys_visits_per_1000_benes
+        data_type: decimal(38, 10)
+        description: Outpatient dialysis visits per 1,000 beneficiaries.
+      - name: op_dlys_visits_per_1000_benes_status
+        data_type: varchar
+        description: Availability status for the visits rate.
+        data_tests: [not_null]
+      - name: op_dlys_mdcr_stdzd_pymt_pc
+        data_type: decimal(38, 10)
+        description: Standardized Medicare payment per beneficiary in dollars.
+      - name: op_dlys_mdcr_stdzd_pymt_pc_status
+        data_type: varchar
+        description: Availability status for standardized payment.
+        data_tests: [not_null]
+      - name: acute_hosp_readmsn_pct
+        data_type: decimal(38, 10)
+        description: Source-reported acute hospital readmission proportion.
+      - name: acute_hosp_readmsn_pct_status
+        data_type: varchar
+        description: Availability status for readmissions.
+        data_tests: [not_null]
+      - name: er_visits_per_1000_benes
+        data_type: decimal(38, 10)
+        description: Emergency-room visits per 1,000 beneficiaries.
+      - name: er_visits_per_1000_benes_status
+        data_type: varchar
+        description: Availability status for the emergency-room visits rate.
+        data_tests: [not_null]
+      - name: source_id
+        data_type: varchar
+        description: CMS source identifier from the verified v2 manifest.
+        data_tests: [not_null]
+      - name: source_manifest_run_id
+        data_type: varchar
+        description: CMS v2 manifest run ID.
+        data_tests: [not_null]
+      - name: source_content_sha256
+        data_type: varchar
+        description: Immutable CMS CSV SHA-256.
+        data_tests: [not_null]
+      - name: source_retrieved_at_utc
+        data_type: varchar
+        description: UTC retrieval timestamp from the CMS manifest.
+        data_tests: [not_null]
+      - name: source_modified_at
+        data_type: varchar
+        description: Upstream CMS modified date recorded in the manifest.
+
+  - name: fct_medicare_benchmark_year
+    description: >-
+      One source-published State or National benchmark per analytical key and
+      CMS calendar year. No value is recomputed by summing or averaging county
+      rates or percentages.
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: benchmark_geography_type
+        data_type: varchar
+        description: state or national.
+        data_tests: [not_null]
+      - name: benchmark_geography_key
+        data_type: varchar
+        description: Two-character state FIPS or analytical National key US.
+        data_tests: [not_null]
+      - name: year
+        data_type: integer
+        description: CMS calendar year; foreign key to dim_year.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_year')
+                field: year
+      - name: source_geography_description
+        data_type: varchar
+        description: Exact source State or National label.
+        data_tests: [not_null]
+      - name: source_geography_code
+        data_type: varchar
+        description: Exact source code; National remains blank.
+        data_tests: [not_null]
+      - name: benes_om_cnt
+        data_type: decimal(38, 0)
+        description: Source-published benchmark beneficiary count.
+      - name: benes_om_cnt_status
+        data_type: varchar
+        description: Availability status for the beneficiary count.
+        data_tests: [not_null]
+      - name: ma_prtcptn_rate
+        data_type: decimal(38, 10)
+        description: Source-published participation proportion, 0 to 1.
+      - name: ma_prtcptn_rate_status
+        data_type: varchar
+        description: Availability status for the participation rate.
+        data_tests: [not_null]
+      - name: bene_dual_pct
+        data_type: decimal(38, 10)
+        description: Source-published dual-eligible proportion, 0 to 1.
+      - name: bene_dual_pct_status
+        data_type: varchar
+        description: Availability status for the dual-eligible proportion.
+        data_tests: [not_null]
+      - name: benes_op_dlys_cnt
+        data_type: decimal(38, 0)
+        description: Source-published benchmark dialysis-user count.
+      - name: benes_op_dlys_cnt_status
+        data_type: varchar
+        description: Availability status for the dialysis-user count.
+        data_tests: [not_null]
+      - name: benes_op_dlys_pct
+        data_type: decimal(38, 10)
+        description: >-
+          Source-published benchmark for observed outpatient dialysis use among
+          Original Medicare beneficiaries, as a 0-to-1 proportion.
+      - name: benes_op_dlys_pct_status
+        data_type: varchar
+        description: Availability status for the dialysis-use proportion.
+        data_tests: [not_null]
+      - name: op_dlys_visits_per_1000_benes
+        data_type: decimal(38, 10)
+        description: Source-published visits per 1,000 beneficiaries.
+      - name: op_dlys_visits_per_1000_benes_status
+        data_type: varchar
+        description: Availability status for the visits rate.
+        data_tests: [not_null]
+      - name: op_dlys_mdcr_stdzd_pymt_pc
+        data_type: decimal(38, 10)
+        description: Source-published standardized payment per beneficiary.
+      - name: op_dlys_mdcr_stdzd_pymt_pc_status
+        data_type: varchar
+        description: Availability status for standardized payment.
+        data_tests: [not_null]
+      - name: acute_hosp_readmsn_pct
+        data_type: decimal(38, 10)
+        description: Source-published acute readmission proportion.
+      - name: acute_hosp_readmsn_pct_status
+        data_type: varchar
+        description: Availability status for readmissions.
+        data_tests: [not_null]
+      - name: er_visits_per_1000_benes
+        data_type: decimal(38, 10)
+        description: Source-published ER visits per 1,000 beneficiaries.
+      - name: er_visits_per_1000_benes_status
+        data_type: varchar
+        description: Availability status for the ER visits rate.
+        data_tests: [not_null]
+      - name: source_id
+        data_type: varchar
+        description: CMS source identifier from the verified v2 manifest.
+        data_tests: [not_null]
+      - name: source_manifest_run_id
+        data_type: varchar
+        description: CMS v2 manifest run ID.
+        data_tests: [not_null]
+      - name: source_content_sha256
+        data_type: varchar
+        description: Immutable CMS CSV SHA-256.
+        data_tests: [not_null]
+      - name: source_retrieved_at_utc
+        data_type: varchar
+        description: UTC retrieval timestamp from the CMS manifest.
+        data_tests: [not_null]
+      - name: source_modified_at
+        data_type: varchar
+        description: Upstream CMS modified date recorded in the manifest.
+

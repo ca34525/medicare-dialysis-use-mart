@@ -200,10 +200,10 @@
     <section id="geography" aria-labelledby="geography-heading">
       <h2 id="geography-heading">The county gate is narrow and auditable</h2>
       <div class="two-column">
-        <article class="card"><h3>Rows that enter</h3><ul><li><code>BENE_GEO_LVL = County</code></li><li><code>BENE_AGE_LVL = All</code></li><li>Five ASCII digits in <code>BENE_GEO_CD</code></li><li>District of Columbia as <code>11001</code></li></ul></article>
+        <article class="card"><h3>Rows that enter</h3><ul><li><code>BENE_GEO_LVL = County</code></li><li><code>BENE_AGE_LVL = All</code></li><li>Five ASCII digits in <code>BENE_GEO_CD</code></li><li>One exact exception: State <code>DC</code>, code <code>11</code>, All becomes county-equivalent <code>11001</code></li></ul></article>
         <article class="card"><h3>Rows that do not enter</h3><ul><li>Age subgroups, state rows, and national rows</li><li>Anchored source <code>UNKNOWN</code> pseudo-counties</li><li>Territory FIPS prefixes outside the MVP</li><li>Malformed or duplicate county-year keys</li></ul></article>
       </div>
-      <div class="callout warning"><strong>No fuzzy geography:</strong> the transformation does not use ZIP codes, name similarity, or a guessed District of Columbia mapping. A selected county that violates the explicit FIPS contract blocks the build.</div>
+      <div class="callout warning"><strong>No fuzzy geography:</strong> the transformation does not use ZIP codes or name similarity. The DC rule is an exact, audited source-shape exception; a simultaneous County <code>11001</code> row blocks as ambiguous.</div>
     </section>
 
     <section id="tests" aria-labelledby="tests-heading">
@@ -222,12 +222,12 @@
       <h2 id="limits-heading">What remains outside this plan</h2>
       <ul>
         <li>The SVI-specific <code>-999</code> rule and paginated SVI ingestion.</li>
-        <li>State and national benchmark facts; they are not mixed into county staging.</li>
-        <li>Dimensions, final facts, CMS-to-SVI joins, percentiles, and screening quadrants.</li>
+        <li>State and national benchmark facts were outside Plan 003 and are now built separately by Plan 006; they never mix into county staging.</li>
+        <li>Dimensions, final facts, and CMS-to-SVI reconciliation were outside Plan 003 and are now completed by Plans 005-006. Percentiles and screening quadrants remain deferred.</li>
         <li>Facility geography and context, publication, Airflow, Power BI, hosting, and cloud work.</li>
         <li>Patient-level data, clinical inference, causal claims, opaque scores, automated decisions, or final site-selection recommendations.</li>
       </ul>
-      <p>The next dependency is the 2022 CDC/ATSDR SVI county contract and paginated ingestion path. That work will complete the SVI missingness rule before any screening join.</p>
+      <p>Plans 004-006 subsequently completed the SVI path, governed CMS facts, and pinned geography reconciliation. Screening classification still waits for its own transparent plan.</p>
     </section>
 
     <section id="files" aria-labelledby="files-heading">

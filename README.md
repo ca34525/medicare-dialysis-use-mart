@@ -6,7 +6,7 @@ It is not a clinical tool, prevalence estimate, opaque opportunity score, or fin
 
 ## Current status
 
-The locked Python 3.12 development environment and offline quality checks are verified on the initial implementation machine. The CMS Original Medicare Geographic Variation source contract, full-file extractor, immutable raw snapshot/manifest path, and manifest-driven DuckDB/dbt county-year stage are implemented. The CDC/ATSDR SVI 2022 U.S. county path now runs from exact, immutable ArcGIS pages through a reconciled manifest and raw-string DuckDB load to a typed county stage, `dim_county`, and `fct_svi_county`. Both source paths preserve five-character county FIPS, raw missingness evidence, declared grain, vintage, and lineage with deterministic fixture tests. The facility source, CMS final facts and benchmarks, pinned CMS/SVI reconciliation, screening mart, Airflow DAG, and Power BI report remain deferred; current source and environment evidence is recorded in [`docs/preflight.md`](docs/preflight.md).
+The locked Python 3.12 environment and offline quality checks are verified. CMS contract v2 and the CDC/ATSDR SVI 2022 path now assemble atomically into one run-scoped DuckDB input. dbt produces governed CMS county-year facts, source-published State/National benchmarks, a year dimension, a current-plus-historical county dimension, the static SVI fact, and a blocking latest-year CMS/SVI geography reconciliation. The pinned build has 3,144 current counties on both sides, all matched; 11 reviewed historical CMS identities remain separate and inactive. Raw missingness, five-character FIPS, grain, vintage, and lineage remain explicit. The screening quadrant, facility context, publication, Airflow DAG, and Power BI report remain deferred; dated evidence is in [`docs/preflight.md`](docs/preflight.md).
 
 ## Human guides
 
@@ -15,6 +15,7 @@ The locked Python 3.12 development environment and offline quality checks are ve
 - [Plan 003 — How does raw CMS data become a typed county stage?](docs/guides/003-cms-staging-explained.html) explains manifest verification, raw-string loading, suppression and unavailability, county filtering, dbt tests, and deterministic reruns.
 - [Plan 004 — How does the SVI county source contract protect the mart?](docs/guides/004-svi-source-contract-explained.html) explains the official layer identity, required fields, county grain, source-defined denominators, unavailable sentinel, dated live evidence, and safety boundaries.
 - [Plan 005 — How do paginated SVI responses become trusted county facts?](docs/guides/005-svi-source-to-fact-explained.html) explains exact API pages, immutable hashes and manifests, raw-token typing, the county dimension, the SVI fact, and the boundaries that keep this context out of screening decisions for now.
+- [Plan 006 — How do verified CMS and SVI inputs become governed facts?](docs/guides/006-cms-facts-and-geography-explained.html) explains atomic two-source assembly, CMS facts and benchmarks, the DC county-equivalent rule, historical identities, and full-outer current-county reconciliation.
 
 Open any downloaded HTML file in a web browser. The numbering follows the matching files in [`plans/`](plans/); the authoring and review convention is in [`docs/guides/README.md`](docs/guides/README.md).
 
@@ -83,12 +84,45 @@ Copy-Item analytics/profiles.example.yml analytics/profiles.yml
 $env:KIDNEY_CARE_DUCKDB_PATH = (Resolve-Path `
   "data/staging/<run-id>.duckdb").Path
 uv run dbt build --project-dir analytics --profiles-dir analytics `
-  --select stg_cdc_svi_county_2022+
+  --select stg_cdc_svi_county_2022 fct_svi_county `
+  --indirect-selection cautious
 ```
 
 Generated pages, manifests, DuckDB files, profiles, dbt logs, and dbt targets
 are ignored. These models provide static 2022 social vulnerability context;
 they do not calculate a screening quadrant or recommendation.
+
+## Combined dimensional build quick start
+
+The Plan 006 fixtures cover atomic two-source input, governed dimensions and
+facts, failure injection, reconciliation, and deterministic fresh-path
+checksums without network access:
+
+```powershell
+uv run pytest tests/unit/stage/test_build_inputs.py
+uv run pytest tests/integration/test_cms_dimensional_dbt.py
+```
+
+To build from two already downloaded, verified manifests:
+
+```powershell
+uv run python -m kidney_care_mart.stage.build_inputs `
+  --build-id <build-id> `
+  --cms-manifest data/raw/manifests/cms_om_gv/<v2-run-id>.json `
+  --svi-manifest data/raw/manifests/cdc_svi_county_2022/<run-id>.json `
+  --raw-root data/raw `
+  --database data/staging/<build-id>.duckdb
+Copy-Item analytics/profiles.example.yml analytics/profiles.yml
+$env:KIDNEY_CARE_DUCKDB_PATH = (Resolve-Path `
+  "data/staging/<build-id>.duckdb").Path
+uv run dbt build --project-dir analytics --profiles-dir analytics
+uv run dbt docs generate --project-dir analytics --profiles-dir analytics
+```
+
+The builder re-verifies both manifests and every referenced byte, records a
+deterministic input-set hash, and publishes only after both raw relations and
+their audits reconcile. A CMS v1 manifest is intentionally rejected on this
+path. Generated databases, manifests, profiles, and dbt artifacts stay ignored.
 
 ## Bootstrap quick start
 

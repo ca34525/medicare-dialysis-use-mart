@@ -200,7 +200,7 @@
         <article><h3>Fetch pages</h3><p>Request attributes only, ordered by <code>GRASP_ID ASC</code>, at most 2,000 rows.</p></article>
         <article><h3>Seal evidence</h3><p>Hash exact JSON bytes, reconcile every key, and publish one canonical manifest.</p></article>
         <article><h3>Type carefully</h3><p>Load raw token text, then distinguish <code>-999</code>, null, zero, and invalid text.</p></article>
-        <article><h3>Build models</h3><p>Create <code>dim_county</code> and <code>fct_svi_county</code> with tested grains and lineage.</p></article>
+        <article><h3>Build models</h3><p>Create the current portion of <code>dim_county</code> and <code>fct_svi_county</code> with tested grains and lineage. Plan 006 later adds only reviewed historical identities to the dimension.</p></article>
       </div>
       <p class="callout"><strong>Publication rule:</strong> the manifest is the successful-snapshot receipt. A short page, duplicate FIPS, reordered object ID, hash mismatch, invalid path, or changed required field prevents that receipt—and prevents a final staging database.</p>
     </section>
@@ -249,7 +249,7 @@
           <thead><tr><th scope="col">Model</th><th scope="col">Grain</th><th scope="col">Responsibility</th></tr></thead>
           <tbody>
             <tr><td><code>stg_cdc_svi_county_2022</code></td><td>One row per county FIPS</td><td>Retain source labels, raw/value/status triplets, SVI/ACS vintage, exact page lineage, and validated ranges.</td></tr>
-            <tr><td><code>dim_county</code></td><td>One row per canonical county FIPS</td><td>Provide five-character county identity, source labels, in-scope status, and geography provenance for future joins.</td></tr>
+            <tr><td><code>dim_county</code></td><td>One row per exact county identity FIPS</td><td>Provide the 3,144 current SVI identities and provenance; Plan 006 later appends 11 inactive historical CMS identities without successor mapping.</td></tr>
             <tr><td><code>fct_svi_county</code></td><td>County FIPS × SVI vintage</td><td>Carry the five ranks and six contextual percentages with statuses, denominators, vintage, and snapshot lineage.</td></tr>
           </tbody>
         </table>
@@ -276,7 +276,7 @@
         <li><strong>T-008 and the SVI portion of T-009:</strong> stage, dimension, and fact grains are unique and fact county keys resolve.</li>
         <li><strong>T-010:</strong> reported ranks stay within <code>[0,1]</code> and selected percentages within <code>[0,100]</code>.</li>
         <li>Failure injection proves truncated pages, duplicate keys, malformed FIPS, invalid numeric text, and out-of-range values block progress.</li>
-        <li>The 2026-08-14 live dbt selection completed 73 model/unit/data results with zero errors and produced 3,144 rows in the raw relation, stage, dimension, and fact.</li>
+        <li>The 2026-08-14 live dbt selection completed 73 model/unit/data results with zero errors and produced 3,144 rows in the raw relation, stage, then-current dimension, and fact. The dimension now has 3,155 rows after Plan 006 added 11 historical-only identities; the SVI fact remains 3,144 current rows.</li>
         <li>A second live run found the same page and snapshot hashes, reused both immutable page blobs, and recorded <code>content_noop: true</code>.</li>
       </ul>
       <p class="callout"><strong>Network boundary:</strong> live extraction is an explicit command. The default pytest and dbt fixture suite uses only small synthetic files and makes no external request.</p>
@@ -297,7 +297,7 @@
         <div class="callout failure">
           <h3>Explicitly deferred</h3>
           <ul class="boundary-list">
-            <li>The pinned 3,144/3,144 CMS-to-SVI T-014 reconciliation.</li>
+            <li>The pinned 3,144/3,144 CMS-to-SVI T-014 reconciliation was completed by Plan 006.</li>
             <li>The Medicare P75 calculation and four screening quadrants.</li>
             <li>Facility data, geography assignment, and quality context.</li>
             <li>Parquet publication, Airflow, Power BI, hosting, and AWS.</li>

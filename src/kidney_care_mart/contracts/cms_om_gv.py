@@ -15,7 +15,7 @@ from types import MappingProxyType
 from typing import Final
 
 SOURCE_ID: Final = "cms_om_gv"
-CONTRACT_VERSION: Final = "cms_om_gv.raw.v1"
+CONTRACT_VERSION: Final = "cms_om_gv.raw.v2"
 
 REQUIRED_COLUMNS: Final[Mapping[str, str]] = MappingProxyType(
     {
@@ -27,6 +27,7 @@ REQUIRED_COLUMNS: Final[Mapping[str, str]] = MappingProxyType(
         "BENES_OM_CNT": "NUMERIC",
         "MA_PRTCPTN_RATE": "NUMERIC",
         "BENE_DUAL_PCT": "NUMERIC",
+        "BENES_OP_DLYS_CNT": "NUMERIC",
         "BENES_OP_DLYS_PCT": "NUMERIC",
         "OP_DLYS_VISITS_PER_1000_BENES": "NUMERIC",
         "OP_DLYS_MDCR_STDZD_PYMT_PC": "NUMERIC",

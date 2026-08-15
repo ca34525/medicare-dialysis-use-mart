@@ -23,17 +23,29 @@ FIXTURE_CSV = FIXTURE_DIR / "staging.csv"
 FIXTURE_MANIFEST = FIXTURE_DIR / "staging-manifest.json"
 PROFILE_EXAMPLE = PROJECT_DIR / "profiles.example.yml"
 MODEL_RELATION = "staging.stg_cms_om_gv_county_year"
+BENCHMARK_RELATION = "staging.stg_cms_om_gv_benchmark_year"
 METRIC_PREFIXES = (
     "benes_om_cnt",
     "ma_prtcptn_rate",
     "bene_dual_pct",
+    "benes_op_dlys_cnt",
     "benes_op_dlys_pct",
     "op_dlys_visits_per_1000_benes",
     "op_dlys_mdcr_stdzd_pymt_pc",
     "acute_hosp_readmsn_pct",
     "er_visits_per_1000_benes",
 )
-NA_RAW_VALUES = ("NA", "na", " NA ", "NA", "na", " NA ", "NA", "na")
+NA_RAW_VALUES = (
+    "NA",
+    "na",
+    " NA ",
+    "NA",
+    "NA",
+    "na",
+    " NA ",
+    "NA",
+    "na",
+)
 
 
 def materialize_snapshot(
@@ -133,6 +145,47 @@ def test_dbt_project_parses_with_credential_free_profile(
     assert result.success, result.exception
 
 
+def test_authoritative_benchmarks_are_staged_from_source_rows(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    raw_root, manifest_path = materialize_snapshot(tmp_path)
+    database_path = tmp_path / "benchmarks.duckdb"
+    load_cms_om_gv_snapshot(manifest_path, raw_root, database_path)
+    monkeypatch.setenv("KIDNEY_CARE_DUCKDB_PATH", str(database_path))
+
+    result = invoke_dbt(
+        (
+            "build",
+            "--select",
+            "stg_cms_om_gv_benchmark_year",
+            "--indirect-selection",
+            "cautious",
+        ),
+        profiles_dir(tmp_path),
+    )
+
+    assert result.success, result.exception
+    with duckdb.connect(str(database_path)) as connection:
+        rows = connection.execute(
+            f"""
+            select benchmark_geography_type,
+                   benchmark_geography_key,
+                   source_geography_code,
+                   benes_op_dlys_cnt,
+                   benes_op_dlys_pct
+            from {BENCHMARK_RELATION}
+            order by benchmark_geography_type, benchmark_geography_key
+            """
+        ).fetchall()
+
+    assert rows == [
+        ("national", "US", "", 202500, Decimal("0.0075000000")),
+        ("state", "01", "01", 7500, Decimal("0.0100000000")),
+        ("state", "11", "11", 0, Decimal("0E-10")),
+    ]
+
+
 def test_fixture_build_types_filters_and_rebuilds_deterministically(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -144,7 +197,13 @@ def test_fixture_build_types_filters_and_rebuilds_deterministically(
     profile_dir = profiles_dir(tmp_path)
 
     first_build = invoke_dbt(
-        ("build", "--select", "stg_cms_om_gv_county_year"),
+        (
+            "build",
+            "--select",
+            "stg_cms_om_gv_county_year",
+            "--indirect-selection",
+            "cautious",
+        ),
         profile_dir,
     )
 
@@ -178,6 +237,27 @@ def test_fixture_build_types_filters_and_rebuilds_deterministically(
                 """
             ).fetchall()
         }
+        geography = connection.execute(
+            f"""
+            select county_fips,
+                   source_geography_level,
+                   source_geography_code,
+                   county_geography_mapping_method
+            from {MODEL_RELATION}
+            where county_fips in ('01001', '11001')
+            order by county_fips
+            """
+        ).fetchall()
+
+    assert geography == [
+        ("01001", "County", "01001", "source_county_fips"),
+        (
+            "11001",
+            "State",
+            "11",
+            "district_of_columbia_state_to_county_equivalent",
+        ),
+    ]
 
     for index, _prefix in enumerate(METRIC_PREFIXES):
         offset = index * 3
@@ -200,7 +280,13 @@ def test_fixture_build_types_filters_and_rebuilds_deterministically(
     assert rows["01009"][1] == 42
 
     second_build = invoke_dbt(
-        ("build", "--select", "stg_cms_om_gv_county_year"),
+        (
+            "build",
+            "--select",
+            "stg_cms_om_gv_county_year",
+            "--indirect-selection",
+            "cautious",
+        ),
         profile_dir,
     )
 
@@ -220,6 +306,16 @@ def test_fixture_build_types_filters_and_rebuilds_deterministically(
             "assert_cms_numeric_values_valid",
         ),
         (
+            "fractional-dialysis-count",
+            lambda content: content.replace(b",20,0.0200,", b",20.5,0.0200,", 1),
+            "assert_cms_numeric_values_valid",
+        ),
+        (
+            "negative-dialysis-count",
+            lambda content: content.replace(b",20,0.0200,", b",-1,0.0200,", 1),
+            "assert_cms_numeric_values_valid",
+        ),
+        (
             "invalid-fips",
             lambda content: content.replace(
                 b",01001,All,1000,", b",ABCDE,All,1000,", 1
@@ -230,7 +326,7 @@ def test_fixture_build_types_filters_and_rebuilds_deterministically(
             "duplicate-county-year",
             lambda content: (
                 content
-                + b"2024,County,AL-Synthetic Autauga Alias,01001,All,900,0.4,0.1,0.02,1400,190,0.14,490,duplicate county year\n"
+                + b"2024,County,AL-Synthetic Autauga Alias,01001,All,900,0.4,0.1,18,0.02,1400,190,0.14,490,duplicate county year\n"
             ),
             "assert_cms_county_year_unique",
         ),
@@ -253,9 +349,47 @@ def test_quality_failures_block_dbt_build_with_named_evidence(
     monkeypatch.setenv("KIDNEY_CARE_DUCKDB_PATH", str(database_path))
 
     result = invoke_dbt(
-        ("build", "--select", "stg_cms_om_gv_county_year"),
+        (
+            "build",
+            "--select",
+            "stg_cms_om_gv_county_year",
+            "--indirect-selection",
+            "cautious",
+        ),
         profiles_dir(tmp_path),
     )
 
     assert not result.success
     assert expected_failure in result_failures(result)
+
+
+def test_ambiguous_dc_source_shape_blocks_county_staging(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    duplicate_dc = (
+        FIXTURE_CSV.read_bytes()
+        + b"2024,County,DC-Synthetic District of Columbia,11001,All,0,0,0,0,0,0,0,0,0,ambiguous DC county row\n"
+    )
+    raw_root, manifest_path = materialize_snapshot(
+        tmp_path,
+        run_id="cms-om-gv-ambiguous-dc",
+        csv_bytes=duplicate_dc,
+    )
+    database_path = tmp_path / "ambiguous-dc.duckdb"
+    load_cms_om_gv_snapshot(manifest_path, raw_root, database_path)
+    monkeypatch.setenv("KIDNEY_CARE_DUCKDB_PATH", str(database_path))
+
+    result = invoke_dbt(
+        (
+            "build",
+            "--select",
+            "stg_cms_om_gv_county_year",
+            "--indirect-selection",
+            "cautious",
+        ),
+        profiles_dir(tmp_path),
+    )
+
+    assert not result.success
+    assert "assert_cms_dc_county_equivalent_unambiguous" in result_failures(result)

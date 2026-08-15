@@ -1,7 +1,7 @@
 # Environment and source preflight
 
 **Record date:** 2026-08-14
-**Status:** Gate 0 in progress; local bootstrap, CMS ingestion/stage, and SVI source-to-fact path verified
+**Status:** Gate 0 sources in progress; local bootstrap and CMS/SVI dimensional path verified
 
 This record distinguishes facts observed in the initial workspace from checks that still need to run on the implementation machine. A specification or configuration file is not evidence that its corresponding tool or integration works.
 
@@ -109,10 +109,11 @@ executable contract, normalized schema evidence, and source catalog were
 corrected together to include required `BENE_GEO_DESC` in the raw transport
 grain; duplicate complete raw grains still block publication.
 
-The corrected live run published one ignored content-addressed blob with
+The corrected v1 live run published one ignored content-addressed blob with
 SHA-256 `10c8304012da34da3ecfe4caf4548927095f693383814d0e79ce6711b6806fad`,
 57,865,948 bytes, 36,994 logical CSV data rows, 246 ordered columns, and 233
-contract-compatible additive columns. The one-response transport recorded
+contract-compatible additive columns under the then-current 13-field contract.
+The one-response transport recorded
 `page_count: 1`. A second run under a new run ID resolved the same bytes, reused
 the one verified blob, and recorded `content_noop: true` in a second canonical
 manifest.
@@ -125,6 +126,44 @@ canonical JSON bytes, and the single-blob/two-manifest layout all reconciled.
 The raw CSV, manifests, and temporary paths are ignored and are not committed.
 After the raw-grain correction, the exact locked offline handoff commands passed
 with 104 tests plus clean Ruff formatting and lint checks.
+
+## Plan 006 CMS v2 and paired dimensional check
+
+On 2026-08-15 UTC, after the expanded offline contract, loader, dbt, and
+failure-injection path was green, one bounded CMS refresh ran under contract
+`cms_om_gv.raw.v2`. The v2 manifest promotes `BENES_OP_DLYS_CNT` to the
+14-field required contract and reports 232 compatible additions. It reverified
+the same 57,865,948 bytes and 36,994 rows at SHA-256
+`10c8304012da34da3ecfe4caf4548927095f693383814d0e79ce6711b6806fad`,
+required no retry, reused the verified blob, and did not alter either v1
+manifest. The schema and header hashes remained
+`4b409f690a9bc0a9378559035ba2829b9873490680376fdbf1a0d62639296d50`
+and
+`2c9d097415be8f240dd0d462f0d8907a2ce9209eb8742c840c771afe6f1465db`.
+
+The atomic combined builder paired that CMS v2 manifest with the verified SVI
+2022 manifest. It loaded 36,994 CMS rows and 3,144 SVI rows under input-set
+SHA-256
+`6fb37a3834b2d9dba28395520e92d5f999cee3c88220b8a7c4054fae3bbc8307`.
+The full dbt build completed 214 model, seed, unit-test, and data-test results
+with zero errors. Reduced dimensional evidence was:
+
+| Relation/evidence | Rows or result |
+|---|---:|
+| CMS county stage and fact | 34,563 each |
+| CMS benchmark stage and fact | 572 each; 51 State plus one National in each year 2014-2024 |
+| `dim_year` | 11; 2014-2024 |
+| `dim_county` | 3,155; 3,144 current plus 11 historical-only |
+| Latest CMS county fact | 3,144; 3,143 direct County codes plus one audited DC mapping |
+| Latest CMS/SVI reconciliation | 3,144 `matched`; zero mismatch |
+
+The first ordered semantic hashes were `60a5de80…d26b6c` (`dim_year`),
+`6f3d6dd0…b7d7eb7` (`dim_county`), `2c8de875…15cbeed` (county fact),
+`0369f9c1…3abef4` (benchmark fact), and `3c94415a…631fe0b`
+(reconciliation). A second database assembled independently at a fresh path
+from the same two manifests reproduced the same input-set hash, row counts,
+214-result green dbt build, and all five complete semantic hashes. Full raw
+rows, manifests, DuckDB databases, and dbt artifacts remain ignored.
 
 ## Deferred or not required
 

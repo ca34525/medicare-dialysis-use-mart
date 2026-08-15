@@ -1,15 +1,22 @@
 with expected as (
     select count(*) as row_count
     from {{ source('raw', 'cms_om_gv') }}
-    where "BENE_GEO_LVL" = 'County'
-      and "BENE_AGE_LVL" = 'All'
-      and substr("BENE_GEO_CD", 1, 2) not in ('60', '66', '69', '72', '78')
-      and not (
-          regexp_full_match(trim("BENE_GEO_CD"), '[0-9]{2}000')
-          and regexp_full_match(
-              upper(trim("BENE_GEO_DESC")),
-              '[A-Z]{2}-UNKNOWN'
-          )
+    where (
+        "BENE_GEO_LVL" = 'County'
+        and "BENE_AGE_LVL" = 'All'
+        and substr("BENE_GEO_CD", 1, 2) not in ('60', '66', '69', '72', '78')
+        and not (
+            regexp_full_match(trim("BENE_GEO_CD"), '[0-9]{2}000')
+            and regexp_full_match(
+                upper(trim("BENE_GEO_DESC")),
+                '[A-Z]{2}-UNKNOWN'
+            )
+        )
+    ) or (
+        "BENE_GEO_LVL" = 'State'
+        and upper(trim("BENE_GEO_DESC")) = 'DC'
+        and trim("BENE_GEO_CD") = '11'
+        and "BENE_AGE_LVL" = 'All'
       )
 ),
 

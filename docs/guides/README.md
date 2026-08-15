@@ -27,6 +27,8 @@ Current guides:
   `plans/004-cdc-svi-county-source-contract.md`.
 - `005-svi-source-to-fact-explained.html` corresponds to
   `plans/005-cdc-svi-source-to-fact.md`.
+- `006-cms-facts-and-geography-explained.html` corresponds to
+  `plans/006-cms-dimensional-facts-and-geography-reconciliation.md`.
 
 ## Required content
 

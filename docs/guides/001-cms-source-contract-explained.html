@@ -1123,7 +1123,7 @@
             <h2>Required does not mean exclusive</h2>
           </div>
           <p>
-            CMS currently exposes 246 columns. The mart needs 13 of them for its approved scope. The other 233 are allowed to exist and are reported as additive rather than treated as failures.
+            CMS currently exposes 246 columns. Contract v2 needs 14 of them for its approved scope, including the reported outpatient dialysis-user count. The other 232 are allowed to exist and are reported as additive rather than treated as failures.
           </p>
         </div>
 
@@ -1131,9 +1131,9 @@
           <div class="schema-bars" aria-label="Schema composition">
             <div>
               <div class="bar-title"><span>Contract role</span><span>246 columns</span></div>
-              <div class="bar-track" role="img" aria-label="13 required columns and 233 additive columns">
-                <div class="bar-segment bar-required">13</div>
-                <div class="bar-segment bar-additive">233 additive</div>
+              <div class="bar-track" role="img" aria-label="14 required columns and 232 additive columns">
+                <div class="bar-segment bar-required">14</div>
+                <div class="bar-segment bar-additive">232 additive</div>
               </div>
               <div class="bar-legend">
                 <span class="legend-item"><span class="swatch"></span>Required for this mart</span>
@@ -1158,7 +1158,7 @@
             <h3>Why allow extra columns?</h3>
             <p>Public datasets evolve. A new CMS field should not break the pipeline simply because the mart does not use it yet. The contract reports additions so people can review them without blocking otherwise compatible data.</p>
             <div class="callout">
-              <strong>But removal is different.</strong> If CMS removes or incompatibly changes one of the 13 fields the mart depends on, publication must stop.
+              <strong>But removal is different.</strong> If CMS removes or incompatibly changes one of the 14 fields the mart depends on, publication must stop.
             </div>
           </div>
         </div>
@@ -1512,7 +1512,7 @@ BENES_OP_DLYS_PCT: "0.0085"`
         status: "✓ PASS + REPORT",
         reason: "Required fields are compatible. The new field is allowed and reported as additive.",
         detail: "additive_columns = (\"NEW_CMS_FIELD\",)",
-        code: `...all 13 required fields...
+        code: `...all 14 required fields...
 NEW_CMS_FIELD:     "example"
 
 Structured result:

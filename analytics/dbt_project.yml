@@ -9,6 +9,16 @@ macro-paths: ["macros"]
 test-paths: ["tests"]
 clean-targets: ["target", "dbt_packages", "logs"]
 
+seeds:
+  kidney_care_mart:
+    historical_county_identities:
+      +column_types:
+        county_fips: varchar
+        state_fips: varchar
+        observed_cms_start_year: integer
+        observed_cms_end_year: integer
+        is_current_county: boolean
+
 models:
   kidney_care_mart:
     staging:

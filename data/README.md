@@ -65,9 +65,35 @@ The SVI loader uses the same run-scoped database boundary and creates
 is independently rehashed and reparsed before loading. Required ArcGIS
 attributes remain text, including numeric JSON tokens and the raw `-999`
 sentinel, and each row carries manifest, snapshot, and page lineage. dbt then
-adds `staging.stg_cdc_svi_county_2022`, `main.dim_county`, and
-`main.fct_svi_county`. The stage converts `-999` and JSON null to typed nulls
+adds `staging.stg_cdc_svi_county_2022` and `staging.fct_svi_county`. The stage
+converts `-999` and JSON null to typed nulls
 with distinct statuses while reported numeric zero remains zero.
+
+Plan 006 adds an atomic combined-input path:
+
+```text
+data/staging/
+`-- <build-id>.duckdb
+    |-- raw.cms_om_gv
+    |-- raw.cms_om_gv_load_audit
+    |-- raw.cdc_svi_county_2022
+    |-- raw.cdc_svi_county_2022_load_audit
+    `-- raw.build_input_audit
+```
+
+Both manifests and every referenced blob/page are independently verified in a
+private working directory. The final database appears only after both raw
+relations, both source audits, and the one-row build audit reconcile. The audit
+records both contract versions, manifest runs, row/page counts, source hashes,
+and a deterministic `input_set_sha256`. Same path plus same inputs is a no-op;
+different inputs or an abandoned partial path are blocking conflicts.
+
+dbt adds `staging.dim_year`, the 3,144-current-plus-11-historical
+`staging.dim_county`, `staging.fct_medicare_county_year`, the authoritative
+`staging.fct_medicare_benchmark_year`, and
+`staging.audit_cms_svi_county_reconciliation`. Historical identities are
+version-controlled metadata only: no successor FIPS, boundary allocation, or
+trend bridge is generated.
 
 Do not commit downloaded source files, generated manifests, DuckDB databases,
 Parquet outputs, credentials, or patient information. Tests use only the small

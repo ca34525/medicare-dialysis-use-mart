@@ -2,7 +2,7 @@
 
 ## `cms_om_gv` - CMS Original Medicare Geographic Variation
 
-**Contract status:** Verified 2026-08-13 against the official CMS catalog, current data-viewer metadata, a bounded API sample, and the pinned 2014-2024 data dictionary.
+**Contract status:** Contract v2 and dimensional path verified 2026-08-15 UTC against the official CMS catalog, current full file, pinned 2014-2024 dictionary, and the paired SVI snapshot.
 
 | Attribute | Contract |
 |---|---|
@@ -12,14 +12,15 @@
 | Stable latest API | `https://data.cms.gov/data-api/v1/dataset/6219697b-8f6c-4164-bed4-cd9317c58ebc/data` |
 | Current source vintage | Calendar years 2014-2024; catalog modified 2026-05-15 |
 | Raw transport grain | `YEAR x BENE_GEO_LVL x BENE_GEO_DESC x BENE_GEO_CD x BENE_AGE_LVL` using CMS's raw geography-code representation |
-| Primary county denominator | Original Medicare beneficiaries (`BENES_OM_CNT`) after later County + All filtering; this contract does not filter or calculate metrics |
+| Primary county denominator | Original Medicare beneficiaries (`BENES_OM_CNT`) for each source-published County + All row |
+| Dialysis-user count | `BENES_OP_DLYS_CNT`, a reported integral count; never derived from a rounded share |
 | Primary screening field | `BENES_OP_DLYS_PCT`, observed outpatient dialysis use among Original Medicare beneficiaries |
 | Access | Public CSV/API without authentication |
 | Lineage | Official catalog -> stable dataset identity -> current API/data-viewer metadata and resolved version distribution; field definitions -> pinned official dictionary |
 
 The version-specific CSV URL is retained only as observed provenance in the normalized schema snapshot. Resolution must begin with the official catalog or stable dataset identity; code must not treat that distribution URL as the durable locator.
 
-The current metadata exposes 246 columns: 242 `NUMERIC` and four `TEXT`. The executable contract requires 13 fields and treats the other 233 observed fields as additive. Exact labels, definitions, declared types, full observed order, additive fields, type encoding, and hashes are recorded in `docs/source-schemas/cms_om_gv.schema.json`.
+The current metadata exposes 246 columns: 242 `NUMERIC` and four `TEXT`. The executable v2 contract requires 14 fields, including `BENES_OP_DLYS_CNT`, and reports the other 232 observed fields as compatible additions. Exact labels, definitions, declared types, full observed order, additive fields, type encoding, and hashes are recorded in `docs/source-schemas/cms_om_gv.schema.json`. Existing v1 manifests remain immutable historical ingestion evidence, but the combined dimensional builder rejects them with `cms_contract_upgrade_required`.
 
 ### Full-file extraction and immutable lineage
 
@@ -35,7 +36,7 @@ pytest or default pull-request checks:
 
 ```powershell
 uv run python -m kidney_care_mart.extract.cms_om_gv `
-  --run-id cms-om-gv-live-<UTC timestamp> `
+  --run-id cms-om-gv-v2-live-<UTC timestamp> `
   --output-root data/raw
 ```
 
@@ -113,8 +114,11 @@ uv run pytest tests/integration/test_cms_om_gv_dbt.py
 
 The typed stage grain is one five-character county FIPS by CMS calendar year.
 It selects exact County + All rows, excludes the anchored `UNKNOWN` source
-representation and territory prefixes, preserves leading-zero FIPS, and
-requires District of Columbia to be `11001`. Each required metric retains its
+representation and territory prefixes, and preserves leading-zero FIPS. The
+one explicit exception maps only State `DC` / code `11` / All to county-
+equivalent `11001`, while retaining the State source fields and mapping method;
+an ordinary County `11001` appearing simultaneously is a blocking ambiguity.
+Each required metric retains its
 raw string, fixed-point typed value, and one status: `reported`, `suppressed`,
 `unavailable_blank`, `unavailable_na`, or the build-blocking
 `invalid_numeric`. Rates and percentages retain their source scale and are not
@@ -122,7 +126,38 @@ aggregated in staging.
 
 ### Raw geography-code exception
 
-The bounded current sample confirms `BENE_GEO_CD=""` for the National row. CMS also emits the same empty code for distinct State pseudo-rows `Territory` and `ZZ`. The raw transport grain therefore includes `BENE_GEO_DESC`, and the contract accepts an empty geography code only in those source contexts. This correction was confirmed during the 2026-08-14 full-file live check after the narrower key correctly blocked as duplicated; duplicate complete raw grains still block publication. County and ordinary State rows require a nonblank code. Plan 003 now applies county FIPS typing, County + All scope, District of Columbia validation, territory exclusion, and anchored `UNKNOWN` removal in the typed stage; state and national benchmark modeling remains deferred.
+The bounded current sample confirms `BENE_GEO_CD=""` for the National row. CMS also emits the same empty code for distinct State pseudo-rows `Territory` and `ZZ`. The raw transport grain therefore includes `BENE_GEO_DESC`, and the contract accepts an empty geography code only in those source contexts. Duplicate complete raw grains still block publication. County and ordinary State rows require a nonblank code. The live full file supplies DC as a State row rather than a County row, so Plan 006 owns the exact, audited State-to-`11001` exception. State and National + All rows are now staged separately as authoritative benchmarks; territory and pseudo-state rows are excluded.
+
+### Combined dimensions, facts, and reconciliation
+
+`kidney_care_mart.stage.build_inputs` accepts one CMS v2 manifest and one SVI
+v1 manifest beneath the same raw root. It reuses the two source loaders only in
+private paths, copies both verified raw relations and audits with one DuckDB
+writer, adds `raw.build_input_audit`, reconciles row/page counts, and publishes
+the final database atomically. The audit preserves both contract versions,
+manifest IDs, retrieval timestamps, hashes, and the deterministic source-set
+hash. Same target plus identical evidence is a no-op; changed evidence or a
+partial working path is a conflict.
+
+The governed models are:
+
+| Model | Grain | Vintage, denominator, and lineage |
+|---|---|---|
+| `dim_year` | One loaded CMS calendar year | Derived from the union of county and benchmark fact years; latest year is the loaded maximum. |
+| `dim_county` | One exact five-character FIPS identity | 3,144 current SVI 2022 identities plus 11 reviewed historical CMS-only identities. Current rows retain SVI manifest/hash lineage; historical rows retain seed version and explicit boundary warning. |
+| `fct_medicare_county_year` | County FIPS x CMS year | Source-reported CMS counts, 0-to-1 proportions, rates per 1,000, dollars per beneficiary, statuses, DC mapping method, and CMS manifest/hash lineage. |
+| `fct_medicare_benchmark_year` | Benchmark type x key x CMS year | Exact State/National + All source rows and CMS lineage. No county rate or percentage is aggregated. |
+| `fct_svi_county` | County FIPS x SVI vintage | Static SVI 2022 ranks and contextual percentages with their distinct source denominators and SVI manifest/hash lineage. |
+| `audit_cms_svi_county_reconciliation` | Unioned latest-current county FIPS | Full-outer CMS/SVI presence and row counts plus both vintages and source hashes. Any non-`matched` status blocks the build. |
+
+The historical identity seed contains exact source labels and observed CMS year
+bounds for `02261`, `02270`, the eight pre-2022 Connecticut county FIPS, and
+`46113`. These keys remain inactive and separate. The seed deliberately has no
+successor FIPS, fuzzy match, allocation, or longitudinal bridge.
+
+T-011 checks only rows where both reported counts exist and rejects a dialysis-
+user count above `BENES_OM_CNT`. It does not infer suppressed counts or demand
+equality between a count and a rounded reported share.
 
 ### Missingness, denominator, and interpretation
 
@@ -243,8 +278,9 @@ and JSON null become typed nulls with distinct statuses; numeric zero remains
 reported zero. Ranks must be null or `[0,1]`, and percentages must be null or
 `[0,100]`.
 
-`dim_county` has one row per county FIPS with the SVI geography labels and
-source provenance. `fct_svi_county` has one row per county FIPS x SVI vintage
+The current portion of `dim_county` has one row per SVI county FIPS with SVI
+geography labels and source provenance; Plan 006 appends only the 11 reviewed
+historical CMS identities. `fct_svi_county` remains one row per current county FIPS x SVI vintage
 and preserves the five ranks, six contextual percentages, status fields,
 source-defined denominator labels, and manifest/snapshot lineage. These models
 provide contextual facts only; facility characteristics, future Medicare facts,
@@ -287,6 +323,7 @@ reused both pages and recorded a content no-op. These are dated observations,
 not timeless constants. No full source rows, geometry, manifest, or generated
 database are committed.
 
-Pinned CMS-to-SVI geography reconciliation T-014, CMS final fact/benchmark
-models, and the `RPL_THEMES >= 0.75` screening component remain deferred. This
-source fact does not itself classify, rank, or recommend counties.
+Plan 006 now completes pinned CMS-to-SVI geography reconciliation T-014 and the
+CMS fact/benchmark models. The `RPL_THEMES >= 0.75` screening component remains
+deferred. This source fact does not itself classify, rank, or recommend
+counties.

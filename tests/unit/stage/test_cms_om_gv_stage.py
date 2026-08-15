@@ -70,22 +70,27 @@ def test_verified_snapshot_loads_required_values_as_raw_text(tmp_path: Path) -> 
         assert all(types_by_name[name] == "VARCHAR" for name in REQUIRED_COLUMNS)
         values = connection.execute(
             """
-            select "BENE_GEO_CD", "BENES_OM_CNT", "BENES_OP_DLYS_PCT"
+            select
+                "BENE_GEO_LVL",
+                "BENE_GEO_CD",
+                "BENES_OM_CNT",
+                "BENES_OP_DLYS_CNT",
+                "BENES_OP_DLYS_PCT"
             from raw.cms_om_gv
             where "BENE_GEO_DESC" in (
                 'AL-Synthetic Autauga',
                 'AL-Synthetic Barbour',
                 'AL-Synthetic Bibb',
-                'DC-Synthetic District of Columbia'
+                'DC'
             ) and "BENE_AGE_LVL" = 'All'
-            order by "BENE_GEO_CD"
+            order by "BENE_GEO_LVL", "BENE_GEO_CD"
             """
         ).fetchall()
         assert values == [
-            ("01001", "1000", "0.0200"),
-            ("01005", "", ""),
-            ("01007", "NA", "NA"),
-            ("11001", "0", "0"),
+            ("County", "01001", "1000", "20", "0.0200"),
+            ("County", "01005", "", "", ""),
+            ("County", "01007", "NA", "NA", "NA"),
+            ("State", "11", "0", "0", "0"),
         ]
 
 

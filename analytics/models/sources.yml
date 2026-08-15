@@ -29,6 +29,10 @@ sources:
             description: Raw Medicare Advantage participation-rate string.
           - name: BENE_DUAL_PCT
             description: Raw dual-eligible-share string.
+          - name: BENES_OP_DLYS_CNT
+            description: >-
+              Raw count of Original Medicare beneficiaries using outpatient
+              dialysis facility services.
           - name: BENES_OP_DLYS_PCT
             description: >-
               Raw observed outpatient dialysis beneficiary-share string among

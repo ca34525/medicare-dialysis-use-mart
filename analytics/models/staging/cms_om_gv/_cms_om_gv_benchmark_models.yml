@@ -1,0 +1,164 @@
+version: 2
+
+models:
+  - name: stg_cms_om_gv_benchmark_year
+    description: >-
+      One authoritative CMS State or National + All benchmark row per
+      analytical geography key and calendar year. Values are source-published;
+      no county rate or percentage is aggregated into this model.
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: benchmark_geography_type
+        data_type: varchar
+        description: State or national analytical role.
+        data_tests: [not_null]
+      - name: benchmark_geography_key
+        data_type: varchar
+        description: Two-character state FIPS or US for the National row.
+        data_tests: [not_null]
+      - name: year
+        data_type: integer
+        description: CMS calendar year.
+        data_tests: [not_null]
+      - name: source_geography_level
+        data_type: varchar
+        description: Raw CMS State or National geography level.
+        data_tests: [not_null]
+      - name: source_geography_description
+        data_type: varchar
+        description: Raw CMS State or National label.
+        data_tests: [not_null]
+      - name: source_geography_code
+        data_type: varchar
+        description: Raw CMS code; the National code remains blank.
+        data_tests: [not_null]
+      - name: source_age_level
+        data_type: varchar
+        description: Raw CMS age level; always All.
+        data_tests: [not_null]
+      - name: benes_om_cnt_raw
+        data_type: varchar
+        description: Raw Original Medicare beneficiary-count token.
+        data_tests: [not_null]
+      - name: benes_om_cnt
+        data_type: decimal(38, 0)
+        description: Authoritative benchmark Original Medicare beneficiary count.
+      - name: benes_om_cnt_status
+        data_type: varchar
+        description: Interpretation status for benes_om_cnt_raw.
+        data_tests: [not_null]
+      - name: ma_prtcptn_rate_raw
+        data_type: varchar
+        description: Raw Medicare Advantage participation-rate token.
+        data_tests: [not_null]
+      - name: ma_prtcptn_rate
+        data_type: decimal(38, 10)
+        description: Source-published benchmark participation rate.
+      - name: ma_prtcptn_rate_status
+        data_type: varchar
+        description: Interpretation status for ma_prtcptn_rate_raw.
+        data_tests: [not_null]
+      - name: bene_dual_pct_raw
+        data_type: varchar
+        description: Raw dual-eligible-share token.
+        data_tests: [not_null]
+      - name: bene_dual_pct
+        data_type: decimal(38, 10)
+        description: Source-published benchmark dual-eligible share.
+      - name: bene_dual_pct_status
+        data_type: varchar
+        description: Interpretation status for bene_dual_pct_raw.
+        data_tests: [not_null]
+      - name: benes_op_dlys_cnt_raw
+        data_type: varchar
+        description: Raw outpatient dialysis-user count token.
+        data_tests: [not_null]
+      - name: benes_op_dlys_cnt
+        data_type: decimal(38, 0)
+        description: Source-published benchmark dialysis-user count.
+      - name: benes_op_dlys_cnt_status
+        data_type: varchar
+        description: Interpretation status for benes_op_dlys_cnt_raw.
+        data_tests: [not_null]
+      - name: benes_op_dlys_pct_raw
+        data_type: varchar
+        description: >-
+          Raw observed outpatient dialysis use among Original Medicare
+          beneficiaries token.
+        data_tests: [not_null]
+      - name: benes_op_dlys_pct
+        data_type: decimal(38, 10)
+        description: >-
+          Source-published benchmark observed outpatient dialysis use among
+          Original Medicare beneficiaries; not a prevalence estimate.
+      - name: benes_op_dlys_pct_status
+        data_type: varchar
+        description: Interpretation status for benes_op_dlys_pct_raw.
+        data_tests: [not_null]
+      - name: op_dlys_visits_per_1000_benes_raw
+        data_type: varchar
+        description: Raw outpatient dialysis visits-per-1,000 token.
+        data_tests: [not_null]
+      - name: op_dlys_visits_per_1000_benes
+        data_type: decimal(38, 10)
+        description: Source-published benchmark visits per 1,000.
+      - name: op_dlys_visits_per_1000_benes_status
+        data_type: varchar
+        description: Interpretation status for the visits token.
+        data_tests: [not_null]
+      - name: op_dlys_mdcr_stdzd_pymt_pc_raw
+        data_type: varchar
+        description: Raw standardized payment-per-capita token.
+        data_tests: [not_null]
+      - name: op_dlys_mdcr_stdzd_pymt_pc
+        data_type: decimal(38, 10)
+        description: >-
+          Source-published standardized payment per capita; payment geography,
+          not health status, is standardized.
+      - name: op_dlys_mdcr_stdzd_pymt_pc_status
+        data_type: varchar
+        description: Interpretation status for the payment token.
+        data_tests: [not_null]
+      - name: acute_hosp_readmsn_pct_raw
+        data_type: varchar
+        description: Raw acute readmission-share token.
+        data_tests: [not_null]
+      - name: acute_hosp_readmsn_pct
+        data_type: decimal(38, 10)
+        description: Source-published benchmark acute readmission share.
+      - name: acute_hosp_readmsn_pct_status
+        data_type: varchar
+        description: Interpretation status for the readmission token.
+        data_tests: [not_null]
+      - name: er_visits_per_1000_benes_raw
+        data_type: varchar
+        description: Raw ER visits-per-1,000 token.
+        data_tests: [not_null]
+      - name: er_visits_per_1000_benes
+        data_type: decimal(38, 10)
+        description: Source-published benchmark ER visits per 1,000.
+      - name: er_visits_per_1000_benes_status
+        data_type: varchar
+        description: Interpretation status for the ER token.
+        data_tests: [not_null]
+      - name: source_id
+        data_type: varchar
+        description: Logical source ID from the verified manifest.
+        data_tests: [not_null]
+      - name: source_manifest_run_id
+        data_type: varchar
+        description: CMS v2 manifest run ID.
+        data_tests: [not_null]
+      - name: source_content_sha256
+        data_type: varchar
+        description: Immutable CMS blob SHA-256.
+        data_tests: [not_null]
+      - name: source_retrieved_at_utc
+        data_type: varchar
+        description: CMS retrieval timestamp.
+        data_tests: [not_null]
+      - name: source_modified_at
+        data_type: varchar
+        description: CMS upstream modified date.

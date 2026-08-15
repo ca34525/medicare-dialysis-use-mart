@@ -1,0 +1,67 @@
+version: 2
+
+models:
+  - name: audit_cms_svi_county_reconciliation
+    description: >-
+      Full-outer reconciliation at one row per unioned current county FIPS for
+      the latest loaded CMS year and static SVI 2022 vintage. Both snapshot
+      identities remain present even when one county key is missing.
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: county_fips
+        data_type: varchar
+        description: Unioned current county FIPS.
+        data_tests: [not_null, unique]
+      - name: reconciliation_status
+        data_type: varchar
+        description: matched or a named source-presence/duplicate mismatch.
+        data_tests: [not_null]
+      - name: cms_present
+        data_type: boolean
+        description: Whether the latest CMS fact contains the key.
+        data_tests: [not_null]
+      - name: svi_present
+        data_type: boolean
+        description: Whether the SVI fact contains the key.
+        data_tests: [not_null]
+      - name: cms_row_count
+        data_type: bigint
+        description: Latest-year CMS rows for the key.
+        data_tests: [not_null]
+      - name: svi_row_count
+        data_type: bigint
+        description: SVI rows for the key.
+        data_tests: [not_null]
+      - name: cms_latest_year
+        data_type: integer
+        description: Maximum CMS year derived from the loaded fact.
+        data_tests: [not_null]
+      - name: cms_source_manifest_run_id
+        data_type: varchar
+        description: CMS v2 manifest run ID for the audit.
+        data_tests: [not_null]
+      - name: cms_source_content_sha256
+        data_type: varchar
+        description: Immutable CMS CSV identity for the audit.
+        data_tests: [not_null]
+      - name: cms_source_modified_at
+        data_type: varchar
+        description: Upstream CMS modified date.
+      - name: svi_vintage
+        data_type: integer
+        description: Static SVI release year, 2022.
+        data_tests: [not_null]
+      - name: svi_source_manifest_run_id
+        data_type: varchar
+        description: SVI manifest run ID for the audit.
+        data_tests: [not_null]
+      - name: svi_source_snapshot_sha256
+        data_type: varchar
+        description: Ordered SVI page-set identity for the audit.
+        data_tests: [not_null]
+      - name: svi_source_modified_at
+        data_type: varchar
+        description: ArcGIS layer edit timestamp.
+

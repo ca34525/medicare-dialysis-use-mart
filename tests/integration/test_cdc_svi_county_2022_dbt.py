@@ -146,7 +146,33 @@ def add_cms_fixture_to_database(tmp_path: Path, database_path: Path) -> None:
         escaped_database = str(cms_database).replace("'", "''")
         connection.execute(f"attach '{escaped_database}' as cms_fixture (read_only)")
         connection.execute(
-            "create table raw.cms_om_gv as select * from cms_fixture.raw.cms_om_gv"
+            """
+            create table raw.cms_om_gv as
+            select * replace (
+                case
+                    when "BENE_GEO_CD" = '01003' then '02013'
+                    else "BENE_GEO_CD"
+                end as "BENE_GEO_CD",
+                case
+                    when "BENE_GEO_CD" = '01003'
+                        then 'AK-Synthetic County B'
+                    else "BENE_GEO_DESC"
+                end as "BENE_GEO_DESC"
+            )
+            from cms_fixture.raw.cms_om_gv
+            where (
+                "BENE_GEO_LVL" = 'County'
+                and "BENE_AGE_LVL" = 'All'
+                and "BENE_GEO_CD" in ('01001', '01003')
+            ) or (
+                "BENE_GEO_LVL" = 'State'
+                and "BENE_AGE_LVL" = 'All'
+                and "BENE_GEO_CD" in ('01', '11')
+            ) or (
+                "BENE_GEO_LVL" = 'National'
+                and "BENE_AGE_LVL" = 'All'
+            )
+            """
         )
         connection.execute(
             """
@@ -242,12 +268,17 @@ def test_combined_fixture_build_types_svi_and_rebuilds_deterministically(
         ).fetchone() == (3,)
         assert connection.execute(
             f"select count(*) from {DIMENSION_RELATION}"
-        ).fetchone() == (3,)
+        ).fetchone() == (14,)
         assert connection.execute(
             f"select count(*) from {FACT_RELATION}"
         ).fetchone() == (3,)
         assert connection.execute(
-            f"select county_fips from {DIMENSION_RELATION} order by county_fips"
+            f"""
+            select county_fips
+            from {DIMENSION_RELATION}
+            where is_current_county
+            order by county_fips
+            """
         ).fetchall() == [("01001",), ("02013",), ("11001",)]
         first_checksum = semantic_checksum(connection)
         rows = {

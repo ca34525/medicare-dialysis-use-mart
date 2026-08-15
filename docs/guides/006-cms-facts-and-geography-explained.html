@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A beginner-friendly explanation of Plan 006: atomic CMS and SVI inputs, governed Medicare facts, historical county identities, and latest-current geography reconciliation.">
+  <title>Plan 006 · CMS facts and geography reconciliation</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --page: #f6f3ea;
+      --surface: #ffffff;
+      --ink: #172426;
+      --muted: #4b5d60;
+      --accent: #005f62;
+      --accent-ink: #ffffff;
+      --warm: #f4dfb4;
+      --line: #b8c6c6;
+      --good: #17643a;
+      --bad: #8a2735;
+      --shadow: rgba(23, 36, 38, 0.12);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --page: #121a1c;
+        --surface: #1c282b;
+        --ink: #f2f6f4;
+        --muted: #c2cdca;
+        --accent: #8ad8d2;
+        --accent-ink: #102022;
+        --warm: #3c3323;
+        --line: #526467;
+        --good: #8bd8a7;
+        --bad: #ffadb9;
+        --shadow: rgba(0, 0, 0, 0.3);
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--page);
+      color: var(--ink);
+      font-family: "Segoe UI", system-ui, sans-serif;
+      font-size: 1rem;
+      line-height: 1.62;
+    }
+    a { color: var(--accent); text-underline-offset: 0.18em; }
+    a:hover { text-decoration-thickness: 0.16em; }
+    :focus-visible { outline: 0.2rem solid var(--accent); outline-offset: 0.2rem; }
+    code { overflow-wrap: anywhere; font-family: Consolas, "Courier New", monospace; font-size: 0.92em; }
+    .skip-link {
+      position: absolute;
+      left: 1rem;
+      top: -5rem;
+      z-index: 20;
+      padding: 0.7rem 1rem;
+      background: var(--accent);
+      color: var(--accent-ink);
+      border-radius: 0.4rem;
+    }
+    .skip-link:focus { top: 1rem; }
+    .shell { width: min(72rem, calc(100% - 2rem)); margin-inline: auto; }
+    header {
+      padding: 4.5rem 0 3.2rem;
+      background:
+        linear-gradient(135deg, color-mix(in srgb, var(--accent) 16%, transparent), transparent 52%),
+        var(--surface);
+      border-bottom: 1px solid var(--line);
+    }
+    .eyebrow {
+      margin: 0 0 0.5rem;
+      color: var(--accent);
+      font-size: 0.82rem;
+      font-weight: 750;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    h1, h2, h3 { line-height: 1.15; text-wrap: balance; }
+    h1 { max-width: 18ch; margin: 0; font-size: clamp(2.3rem, 7vw, 5.2rem); letter-spacing: -0.055em; }
+    h2 { margin: 0 0 1rem; font-size: clamp(1.65rem, 4vw, 2.55rem); letter-spacing: -0.025em; }
+    h3 { margin-top: 0; font-size: 1.1rem; }
+    .lede { max-width: 44rem; margin: 1.4rem 0 0; color: var(--muted); font-size: 1.16rem; }
+    nav { border-bottom: 1px solid var(--line); background: var(--surface); }
+    nav ul { display: flex; gap: 0.35rem 1.1rem; flex-wrap: wrap; margin: 0; padding: 0.8rem 0; list-style: none; }
+    nav a { font-weight: 650; text-decoration: none; }
+    main section { padding: 3.4rem 0; border-bottom: 1px solid var(--line); }
+    .prose { max-width: 38rem; }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+    .card, .callout, details {
+      min-width: 0;
+      padding: 1.15rem;
+      border: 1px solid var(--line);
+      border-radius: 0.8rem;
+      background: var(--surface);
+      box-shadow: 0 0.45rem 1.4rem var(--shadow);
+    }
+    .card p, .card ul { margin-bottom: 0; }
+    .analogy { background: var(--warm); }
+    .callout { max-width: 50rem; margin-top: 1.2rem; box-shadow: none; }
+    .callout strong { color: var(--accent); }
+    .flow { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.75rem; margin-top: 1.4rem; }
+    .flow article { position: relative; padding: 1rem; border: 1px solid var(--line); border-radius: 0.7rem; background: var(--surface); }
+    .flow .number { display: block; color: var(--accent); font-weight: 800; }
+    .metric-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-top: 1.3rem; }
+    .metric { padding: 1rem; border-left: 0.28rem solid var(--accent); background: var(--surface); }
+    .metric strong { display: block; font-size: 1.7rem; line-height: 1; }
+    .metric span { color: var(--muted); font-size: 0.9rem; }
+    .table-wrap { max-width: 100%; overflow-x: auto; margin-top: 1.2rem; border: 1px solid var(--line); border-radius: 0.7rem; }
+    table { width: 100%; min-width: 43rem; border-collapse: collapse; background: var(--surface); }
+    th, td { padding: 0.8rem; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-size: 0.84rem; letter-spacing: 0.04em; text-transform: uppercase; }
+    .status { font-weight: 750; color: var(--good); }
+    .failure { color: var(--bad); }
+    .boundary { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .boundary ul { padding-left: 1.2rem; }
+    details { margin-top: 1rem; box-shadow: none; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 750; }
+    dl { display: grid; grid-template-columns: max-content 1fr; gap: 0.5rem 1rem; }
+    dt { font-weight: 750; }
+    dd { margin: 0; color: var(--muted); }
+    footer { padding: 2.4rem 0 4rem; color: var(--muted); }
+
+    @media (max-width: 54rem) {
+      .grid, .flow, .metric-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 38rem) {
+      .shell { width: min(100% - 1.25rem, 72rem); }
+      header { padding-top: 3.5rem; }
+      .grid, .flow, .metric-strip, .boundary { grid-template-columns: 1fr; }
+      dl { grid-template-columns: 1fr; gap: 0.1rem; }
+      dd { margin-bottom: 0.65rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
+    @media print {
+      :root { --page: #ffffff; --surface: #ffffff; --ink: #000000; --muted: #333333; --accent: #174f51; --line: #777777; --warm: #f3f3f3; }
+      nav, .skip-link { display: none; }
+      header, main section { padding-block: 1.2rem; }
+      .card, .callout, details { box-shadow: none; break-inside: avoid; }
+      a { color: inherit; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to the explanation</a>
+  <header>
+    <div class="shell">
+      <p class="eyebrow">Plan 006 · completed dimensional foundation</p>
+      <h1>Two verified sources, one governed county story</h1>
+      <p class="lede">How CMS and SVI snapshots become auditable county facts, why old county identities stay separate, and how a full-outer check proves that every current county is present on both sides.</p>
+    </div>
+  </header>
+  <nav aria-label="Guide sections">
+    <div class="shell">
+      <ul>
+        <li><a href="#why">Why</a></li>
+        <li><a href="#flow">Flow</a></li>
+        <li><a href="#geography">Geography</a></li>
+        <li><a href="#models">Models</a></li>
+        <li><a href="#checks">Checks</a></li>
+        <li><a href="#boundaries">Boundaries</a></li>
+        <li><a href="#links">Links</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main id="main-content">
+    <section id="why">
+      <div class="shell">
+        <p class="eyebrow">The problem</p>
+        <h2>A matching FIPS is useful only after both inputs are trustworthy</h2>
+        <p class="prose">CMS reports yearly service use. SVI supplies static 2022 social context. A five-character county FIPS is their join key, but the sources arrive separately, use different vintages, and do not represent every historical boundary the same way. Joining them too early could hide a missing county, turn old geography into false continuity, or mix a county rate with a State benchmark.</p>
+        <div class="grid">
+          <article class="card analogy"><h3>Think of a two-envelope closing</h3><p>Each envelope is opened and checked privately. The combined file is signed only when both receipts, every byte, and every row count agree.</p></article>
+          <article class="card"><h3>The product phrase matters</h3><p>The CMS measure is <strong>observed outpatient dialysis use among Original Medicare beneficiaries</strong>. It is not kidney disease prevalence, unmet need, or a site recommendation.</p></article>
+          <article class="card"><h3>The current question is narrow</h3><p>For the latest CMS year, does each current SVI county appear exactly once in CMS, including District of Columbia?</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="flow">
+      <div class="shell">
+        <p class="eyebrow">Input to output</p>
+        <h2>The build moves through five guarded boundaries</h2>
+        <div class="flow" aria-label="Five-step combined dimensional data flow">
+          <article><span class="number">01</span><h3>Verify CMS v2</h3><p>Rehash the immutable CSV and require all 14 fields in <code>cms_om_gv.raw.v2</code>, including <code>BENES_OP_DLYS_CNT</code>.</p></article>
+          <article><span class="number">02</span><h3>Verify SVI v1</h3><p>Rehash every ordered JSON page and reconcile 3,144 source rows and keys.</p></article>
+          <article><span class="number">03</span><h3>Assemble atomically</h3><p>One writer copies both raw tables and audits, records an input-set hash, then publishes.</p></article>
+          <article><span class="number">04</span><h3>Build facts</h3><p>dbt types values and statuses, resolves dimensions, and copies authoritative benchmarks.</p></article>
+          <article><span class="number">05</span><h3>Reconcile current keys</h3><p>A full outer join labels matches, missing sides, or duplicates. Anything but <code>matched</code> fails.</p></article>
+        </div>
+        <p class="callout"><strong>Atomic</strong> means readers see either the previous complete database or the new complete database—never the builder’s half-finished work. Same path plus identical evidence is a no-op; different evidence is a conflict.</p>
+      </div>
+    </section>
+
+    <section id="geography">
+      <div class="shell">
+        <p class="eyebrow">Geography without invention</p>
+        <h2>Current, DC, and historical identities have different jobs</h2>
+        <div class="grid">
+          <article class="card"><h3>3,144 current identities</h3><p>SVI 2022 supplies the current county labels, State fields, FIPS, vintage, manifest ID, and snapshot hash.</p></article>
+          <article class="card"><h3>One exact DC exception</h3><p>CMS publishes DC as State <code>DC</code>, code <code>11</code>, All. That exact row becomes county-equivalent <code>11001</code> while its source shape and <code>district_of_columbia_state_to_county_equivalent</code> mapping method stay visible.</p></article>
+          <article class="card"><h3>11 historical identities</h3><p>Old Alaska, Connecticut, and South Dakota FIPS found in prior CMS years remain inactive rows with observed year bounds and a boundary warning.</p></article>
+        </div>
+        <div class="callout"><strong>No bridge is invented:</strong> the historical seed contains no successor FIPS, allocation factor, ZIP substitution, or fuzzy name match. A Connecticut county before 2022 and a later planning region remain separate identities.</div>
+        <details>
+          <summary>Which historical FIPS are retained?</summary>
+          <p><code>02261</code>, <code>02270</code>, <code>09001</code>, <code>09003</code>, <code>09005</code>, <code>09007</code>, <code>09009</code>, <code>09011</code>, <code>09013</code>, <code>09015</code>, and <code>46113</code>. They exist so exact historical CMS facts resolve—not so values can be reassigned to a modern successor.</p>
+        </details>
+      </div>
+    </section>
+
+    <section id="models">
+      <div class="shell">
+        <p class="eyebrow">Declared grains and meanings</p>
+        <h2>Each table answers one kind of question</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th scope="col">Model</th><th scope="col">Grain</th><th scope="col">Meaning and lineage</th></tr></thead>
+            <tbody>
+              <tr><td><code>dim_year</code></td><td>One CMS calendar year</td><td>2014–2024 in the dated build; latest means the maximum loaded year.</td></tr>
+              <tr><td><code>dim_county</code></td><td>One exact county identity FIPS</td><td>3,144 current SVI identities plus 11 inactive historical CMS identities.</td></tr>
+              <tr><td><code>fct_medicare_county_year</code></td><td>County FIPS × CMS year</td><td>Reported CMS counts, proportions, rates, payments, statuses, DC mapping method, and CMS manifest/hash lineage.</td></tr>
+              <tr><td><code>fct_medicare_benchmark_year</code></td><td>Type × key × CMS year</td><td>Exact 51 State and one National source rows per year. County rates are never averaged into these values.</td></tr>
+              <tr><td><code>fct_svi_county</code></td><td>County FIPS × SVI vintage</td><td>Static SVI 2022 ranks and contextual percentages with their source-defined denominators.</td></tr>
+              <tr><td><code>audit_cms_svi_county_reconciliation</code></td><td>One unioned latest-current FIPS</td><td>Both source-presence counts, both vintages, both hashes, and a named status.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="callout"><strong>Benchmark</strong> means a State or National value published by CMS. It is not calculated by summing percentages, averaging county rates, or filling missing counties with zero.</p>
+      </div>
+    </section>
+
+    <section id="checks">
+      <div class="shell">
+        <p class="eyebrow">Verification evidence</p>
+        <h2>The full build matches the pinned shape</h2>
+        <p class="prose">On 2026-08-15 UTC, the bounded CMS v2 refresh found the same 36,994-row source bytes as the earlier snapshot and reused the verified blob with zero retries. The paired SVI snapshot had 3,144 rows. These are dated observations, not timeless promises.</p>
+        <div class="metric-strip" aria-label="Pinned Plan 006 dimensional results">
+          <div class="metric"><strong>3,155</strong><span>county dimension rows</span></div>
+          <div class="metric"><strong>34,563</strong><span>CMS county-year facts</span></div>
+          <div class="metric"><strong>572</strong><span>authoritative benchmark rows</span></div>
+          <div class="metric"><strong>3,144</strong><span>latest-current matched rows</span></div>
+        </div>
+        <div class="boundary">
+          <article class="card">
+            <h3 class="status">What must pass</h3>
+            <ul>
+              <li><strong>T-008:</strong> every declared primary grain is unique.</li>
+              <li><strong>T-009:</strong> fact county/year keys resolve to dimensions.</li>
+              <li><strong>T-010:</strong> reported values meet unit, bound, and status rules.</li>
+              <li><strong>T-011:</strong> reported dialysis users never exceed reported beneficiaries.</li>
+              <li><strong>T-014:</strong> latest CMS and current SVI reconcile 3,144 to 3,144.</li>
+              <li><strong>T-020 portion:</strong> fresh paths reproduce semantic checksums.</li>
+            </ul>
+          </article>
+          <article class="card">
+            <h3 class="failure">What blocks</h3>
+            <ul>
+              <li>CMS v1 evidence on the combined path.</li>
+              <li>Corrupt or missing bytes, partial output, or changed target inputs.</li>
+              <li>Negative/fractional counts, invalid metrics, or inconsistent statuses.</li>
+              <li>County-year duplicates, unknown FIPS, or ambiguous DC rows.</li>
+              <li><code>cms_only</code>, <code>svi_only</code>, or duplicate reconciliation status.</li>
+            </ul>
+          </article>
+        </div>
+        <p class="callout"><strong>Missing stays missing:</strong> CMS <code>*</code>, blank, and <code>NA</code> become distinct null statuses. A numeric zero remains reported zero. T-011 runs only when both counts are reported and never reverse-engineers a count from a rounded share.</p>
+      </div>
+    </section>
+
+    <section id="boundaries">
+      <div class="shell">
+        <p class="eyebrow">Safety boundary</p>
+        <h2>This foundation is ready for screening logic, but does not contain it</h2>
+        <div class="boundary">
+          <article class="card"><h3>Completed here</h3><ul><li>CMS raw contract v2 and exact missingness.</li><li>Atomic CMS/SVI input assembly.</li><li>County/year dimensions and CMS facts.</li><li>Authoritative State/National benchmarks.</li><li>Reviewed historical identities.</li><li>Pinned latest-current reconciliation.</li></ul></article>
+          <article class="card"><h3>Still deferred</h3><ul><li>National county 75th percentile and four screening quadrants.</li><li>Facility ingestion, geography assignment, and due-diligence context.</li><li>Parquet publication and latest-successful pointer.</li><li>Airflow, CI expansion, Power BI, hosting, and optional AWS.</li><li>Any patient-level data, clinical or causal claim, opaque score, automated decision, provider ranking, or final site-selection recommendation.</li></ul></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="links">
+      <div class="shell">
+        <p class="eyebrow">Trace the evidence</p>
+        <h2>Authoritative files and tests</h2>
+        <ul>
+          <li><a href="../../specs.md">Product and engineering specification</a> and <a href="../../plans/006-cms-dimensional-facts-and-geography-reconciliation.md">Plan 006</a></li>
+          <li><a href="../../src/kidney_care_mart/stage/build_inputs.py">Atomic combined-input builder</a> and <a href="../../analytics/seeds/historical_county_identities.csv">historical identity seed</a></li>
+          <li><a href="../../analytics/models/marts/core/fct_medicare_county_year.sql">CMS county fact</a>, <a href="../../analytics/models/marts/core/fct_medicare_benchmark_year.sql">benchmark fact</a>, and <a href="../../analytics/models/audit/audit_cms_svi_county_reconciliation.sql">reconciliation model</a></li>
+          <li><a href="../../tests/unit/stage/test_build_inputs.py">Atomic builder tests</a> and <a href="../../tests/integration/test_cms_dimensional_dbt.py">dimensional integration and checksum tests</a></li>
+          <li><a href="../source-catalog.md">Source catalog</a>, <a href="../preflight.md">dated live evidence</a>, <a href="../../data/README.md">generated-data boundary</a>, and <a href="../../README.md">repository README</a></li>
+        </ul>
+        <details open>
+          <summary>Short glossary</summary>
+          <dl>
+            <dt>Contract</dt><dd>A machine-checkable agreement about required fields, types, grain, and allowed additions.</dd>
+            <dt>Grain</dt><dd>What one row represents, such as one county in one CMS year.</dd>
+            <dt>Lineage</dt><dd>The manifest IDs, hashes, timestamps, and source labels that show where a value came from.</dd>
+            <dt>Full outer join</dt><dd>A comparison that keeps keys found on either side, so a missing county cannot disappear.</dd>
+            <dt>County-equivalent</dt><dd>A geography treated like a county for analysis; here, District of Columbia is <code>11001</code>.</dd>
+            <dt>Semantic checksum</dt><dd>A hash of ordered model columns and values, independent of DuckDB file layout.</dd>
+          </dl>
+        </details>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="shell">Plan 006 guide · network-free · live evidence dated 2026-08-15 UTC · <a href="../../README.md">Back to the project</a></div>
+  </footer>
+</body>
+</html>

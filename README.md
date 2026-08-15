@@ -6,7 +6,7 @@ It is not a clinical tool, prevalence estimate, opaque opportunity score, or fin
 
 ## Current status
 
-The locked Python 3.12 environment and offline quality checks are verified. CMS contract v2 and the CDC/ATSDR SVI 2022 path assemble atomically into one run-scoped DuckDB input. dbt now produces governed source facts, a fixed national continuous P75 threshold, a one-row-per-current-county transparent screening mart, and a five-category reconciliation audit. In the pinned 2026-08-15 snapshot, 2,148 of 3,144 counties have both components, 996 are explicitly insufficient, and the P75 for observed outpatient dialysis use among Original Medicare beneficiaries is `0.0086000000`. Facility context, publication, Airflow, and Power BI remain deferred; dated evidence is in [`docs/preflight.md`](docs/preflight.md).
+The locked Python 3.12 environment and offline quality checks are verified. CMS contract v2 and the CDC/ATSDR SVI 2022 path assemble atomically into one run-scoped DuckDB input. dbt now produces governed source facts, a fixed national continuous P75 threshold, a one-row-per-current-county transparent screening mart, and a five-category reconciliation audit. In the pinned 2026-08-15 snapshot, 2,148 of 3,144 counties have both components, 996 are explicitly insufficient, and the P75 for observed outpatient dialysis use among Original Medicare beneficiaries is `0.0086000000`. The CMS Dialysis Facility Listing now has a verified raw contract and immutable full-file ingestion path. Typed facility facts, county assignment, screening context, publication, Airflow, and Power BI remain deferred; dated evidence is in [`docs/preflight.md`](docs/preflight.md).
 
 ## Human guides
 
@@ -17,6 +17,7 @@ The locked Python 3.12 environment and offline quality checks are verified. CMS 
 - [Plan 005 — How do paginated SVI responses become trusted county facts?](docs/guides/005-svi-source-to-fact-explained.html) explains exact API pages, immutable hashes and manifests, raw-token typing, the county dimension, the SVI fact, and the boundary between source preparation and downstream classification.
 - [Plan 006 — How do verified CMS and SVI inputs become governed facts?](docs/guides/006-cms-facts-and-geography-explained.html) explains atomic two-source assembly, CMS facts and benchmarks, the DC county-equivalent rule, historical identities, and full-outer current-county reconciliation.
 - [Plan 007 — How does the transparent county screen work?](docs/guides/007-county-screening-explained.html) explains the fixed national percentile, inclusive boundaries, missing-data behavior, four quadrants, audit totals, and the decisions this screen does not make.
+- [Plan 008 — How does a facility CSV become trusted raw evidence?](docs/guides/008-facility-source-and-ingestion-explained.html) explains textual CCN grain, dictionary and schema mapping, complete full-file checks, immutable blobs and manifests, measure companions, dated live evidence, and the work intentionally deferred.
 
 Open any downloaded HTML file in a web browser. The numbering follows the matching files in [`plans/`](plans/); the authoring and review convention is in [`docs/guides/README.md`](docs/guides/README.md).
 
@@ -92,6 +93,33 @@ uv run dbt build --project-dir analytics --profiles-dir analytics `
 Generated pages, manifests, DuckDB files, profiles, dbt logs, and dbt targets
 are ignored. These models provide static 2022 social vulnerability context;
 they do not calculate a screening quadrant or recommendation.
+
+## CMS Dialysis Facility raw-ingestion quick start
+
+The committed synthetic fixtures verify the 41-field raw contract, textual
+CCN grain, complete CSV reconciliation, immutable publication, safe reruns,
+and failure injection without network access:
+
+```powershell
+uv run pytest `
+  tests/unit/contracts/test_cms_dialysis_facility_contract.py `
+  tests/unit/extract/test_cms_dialysis_facility.py
+```
+
+Run the separate live extractor only when current-source validation is
+intended. It begins with official CMS metadata and does not accept an arbitrary
+download URL:
+
+```powershell
+uv run python -m kidney_care_mart.extract.cms_dialysis_facility `
+  --run-id cms-dialysis-facility-live-<UTC timestamp> `
+  --output-root data/raw
+```
+
+The unchanged CSV publishes beneath a content SHA-256 and the run manifest
+under `data/raw/manifests/cms_dialysis_facility/`; both are ignored. This path
+creates no DuckDB model, county assignment, facility aggregate, screening
+change, or latest-mart pointer.
 
 ## Combined dimensional build quick start
 

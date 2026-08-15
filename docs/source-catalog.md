@@ -167,6 +167,120 @@ equality between a count and a rounded reported share.
 - `OP_DLYS_MDCR_STDZD_PYMT_PC` adjusts for geographic payment-rate differences, not beneficiary health status.
 - This source describes observed outpatient dialysis use among Original Medicare beneficiaries. It does not establish kidney disease prevalence, unmet need, disease burden, or an intervention or site-selection recommendation.
 
+## `cms_dialysis_facility` - CMS Dialysis Facility Listing
+
+**Contract status:** Raw contract v1 and immutable full-file ingestion verified
+2026-08-15 UTC against the official Provider Data catalog, API schema, full
+current CSV, and July 2026 dictionary.
+
+| Attribute | Contract |
+|---|---|
+| Durable identity | CMS Provider Data dataset `23ew-n7w9` |
+| Official catalog | `https://data.cms.gov/provider-data/data.json` |
+| Official landing page | `https://data.cms.gov/provider-data/dataset/23ew-n7w9` |
+| Current source vintage | Quarterly snapshot released 2026-07-15; catalog modified 2026-06-16; dictionary release July 2026 |
+| Raw grain | One source row per nonblank, unique textual CMS Certification Number (CCN) within one content-identified snapshot |
+| Required scope | 41 fields: identity, public business location, characteristics, star-rating companions, and seven companions for each of survival, hospitalization, and readmission |
+| Access | Public full CSV and Provider Data API metadata without authentication |
+| Lineage | Official Provider Data catalog -> stable dataset identity -> official schema metadata and one current complete CSV; definitions -> pinned official dictionary |
+
+The CCN is preserved as 1-to-10 ASCII-digit text because the official
+dictionary declares variable `PROVFS` as character data with a maximum length
+of 10. It is never numerically coerced: leading zeros are evidence, not
+formatting to discard. Facility name, address, city, state, ZIP, county/parish,
+and telephone also remain raw source strings. These are the provider's public
+business-location fields. They do not establish patient residence, county
+assignment, or service-area coverage, and ZIP is never used as a county key.
+
+The Provider Data API currently exposes 142 fields, all transported as raw
+text. Contract `cms_dialysis_facility.raw.v1` requires 41 exact one-to-one
+mappings across dictionary variable, official label and definition, declared
+type and maximum length, unit, CSV header, and API field slug. The other 101
+observed fields are compatible additions and are reported in sorted order.
+Exact source order, mappings, additions, dated observations, and the canonical
+schema-evidence SHA-256
+`e87cf25487005a81c8af015b4256da6a0da4205a369c2406cb3ff9b399ceec0f`
+are recorded in `docs/source-schemas/cms_dialysis_facility.schema.json`. The
+pinned 57-page dictionary is 1,199,186 bytes with SHA-256
+`64348a21e3c98b9cb5b915a2243fb3a54b452ca61943c8f9f1eadf7429176fa0`.
+
+### Measure periods and companions
+
+The snapshot release date is not a measure period. The 2026-08-15 current file
+carried distinct raw period tokens: `01Jan2021-31Dec2024` for survival and
+`01Jan2024-31Dec2024` for hospitalization and readmission. The contract keeps
+each outcome's period, availability code, source category, denominator,
+facility estimate, lower confidence limit, and upper confidence limit together.
+The denominator is source-specific: patients for survival and hospitalization,
+and hospitalizations for readmission. The source-defined availability codes
+observed for all three families were `001`, `199`, `201`, and `258`.
+
+This raw boundary does not interpret those codes, type numbers or dates, assess
+range or interval consistency, average outcomes into a quality score, or treat
+missing values as zero. The star rating likewise keeps its period and
+availability companion. Facility characteristics and quality measures are
+future due-diligence context only and cannot alter the screening quadrant.
+
+### Full-file extraction and immutable lineage
+
+Run the separate live operation explicitly from the repository root:
+
+```powershell
+uv run python -m kidney_care_mart.extract.cms_dialysis_facility `
+  --run-id cms-dialysis-facility-live-<UTC timestamp> `
+  --output-root data/raw
+```
+
+The extractor begins at the official catalog, requires exactly dataset
+`23ew-n7w9` with the expected Listing by Facility title and landing page,
+validates the ordered Provider Data API schema and record count, and selects
+one official current complete CSV. It rejects state/national averages,
+patient-survey datasets, samples, archives, HTML, non-CSV resources, and any
+caller-supplied raw URL. The full response streams unchanged to a same-volume
+temporary file with exact `Content-Length`, media-type, SHA-256, byte, logical
+CSV-row, ordered-header, required-field, and distinct-CCN checks. Only bounded
+transient transport failures retry; schema, CSV, key, and reconciliation
+failures block immediately.
+
+Verified bytes publish once at
+`data/raw/blobs/sha256/<content-sha256>.csv`. Each run has one canonical
+manifest at
+`data/raw/manifests/cms_dialysis_facility/<pipeline-run-id>.json`. The manifest
+records the official locators, release and retrieval times, transport headers,
+contract/dictionary/schema/header identities, all ordered fields and additions,
+content hash and bytes, `page_count: 1`, row and distinct-CCN counts, leading-
+zero count, safe relative blob path, and no-op state. Same bytes reuse the
+verified blob; same-run identical lineage is a no-op; changed lineage,
+conflicting manifests, and corrupt existing blobs cannot overwrite history.
+
+### Dated complete-source evidence and limits
+
+On 2026-08-15 UTC, the production extractor and an independent disk reread
+reconciled 7,490 CSV rows to the API count and 7,490 distinct nonblank CCNs.
+The unchanged CSV was 7,263,788 bytes at SHA-256
+`02a7155f9797fe3194f220e765eb8ac511cbc1402e286c3e235a3157ba7cee5f`;
+858 CCNs retained a leading zero. The ordered 142-header hash was
+`f3e5a27bf8724f7ac4d20f415eedd399dbb78ccc178fa7f5de29a577d1a292cf`,
+and the API schema hash was
+`9740947ff6269ff4e433cd8e0755855efcfd78ed74407965dda947183d69d2fd`.
+A second immediate run under a new ID reverified and reused the same blob with
+no retry and `content_noop: true`.
+
+This reconciles the earlier 7,490 examined snapshot in `specs.md`. A
+planning-time catalog display showed 7,557 rows before the July 2026 release;
+the current official CSV and API now agree on 7,490. Both are dated source
+observations, not timeless constants. Generated CSVs, manifests, and response
+evidence remain ignored. No typed facility relation, facility fact, county
+assignment, Census remediation, facility aggregate, screen enrichment, mart
+publication, Airflow, or Power BI behavior is implemented by this contract.
+
+Implementation and verification are in
+`src/kidney_care_mart/contracts/cms_dialysis_facility.py`,
+`src/kidney_care_mart/extract/cms_dialysis_facility.py`,
+`tests/fixtures/cms_dialysis_facility/`,
+`tests/unit/contracts/test_cms_dialysis_facility_contract.py`, and
+`tests/unit/extract/test_cms_dialysis_facility.py`.
+
 ## `cdc_svi_county_2022` - CDC/ATSDR SVI 2022 U.S. county data
 
 **Contract status:** Source-to-fact path verified 2026-08-14 against the

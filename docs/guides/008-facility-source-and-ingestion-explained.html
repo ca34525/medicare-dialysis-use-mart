@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A beginner-friendly guide to the verified CMS dialysis facility raw contract, complete CSV ingestion, and immutable manifest in Plan 008.">
+  <title>Plan 008: Facility source contract and ingestion explained</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --page: #f5f1e8;
+      --surface: #ffffff;
+      --ink: #17212b;
+      --muted: #46515c;
+      --accent: #075985;
+      --accent-ink: #ffffff;
+      --warm: #f3dfb5;
+      --border: #9aa3ad;
+      --success: #166534;
+      --danger: #991b1b;
+      --shadow: rgba(23, 33, 43, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--page);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 1rem;
+      line-height: 1.65;
+    }
+
+    a { color: var(--accent); text-underline-offset: 0.2em; }
+    a:hover { text-decoration-thickness: 0.15em; }
+    a:focus-visible {
+      outline: 0.2rem solid var(--accent);
+      outline-offset: 0.2rem;
+      border-radius: 0.15rem;
+    }
+
+    .skip-link {
+      position: fixed;
+      z-index: 10;
+      top: 0.5rem;
+      left: 0.5rem;
+      padding: 0.65rem 0.85rem;
+      color: var(--accent-ink);
+      background: var(--accent);
+      transform: translateY(-180%);
+    }
+
+    .skip-link:focus { transform: translateY(0); }
+
+    header {
+      padding: clamp(2rem, 7vw, 5rem) 1rem 2.5rem;
+      color: var(--accent-ink);
+      background: var(--accent);
+    }
+
+    .wrap { width: min(70rem, calc(100% - 2rem)); margin-inline: auto; }
+    .eyebrow { margin: 0 0 0.5rem; font-weight: 750; letter-spacing: 0.08em; text-transform: uppercase; }
+    h1 { max-width: 18ch; margin: 0; font-size: clamp(2.2rem, 7vw, 4.8rem); line-height: 1.04; }
+    header p { max-width: 66ch; margin: 1.25rem 0 0; font-size: 1.15rem; }
+
+    nav {
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    nav ul {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem 1.25rem;
+      margin: 0;
+      padding: 0.8rem 0;
+      list-style: none;
+    }
+
+    main { padding: 2rem 0 4rem; }
+    section { margin-block: 3.5rem; scroll-margin-top: 1rem; }
+    h2 { margin-bottom: 0.6rem; font-size: clamp(1.7rem, 4vw, 2.4rem); line-height: 1.2; }
+    h3 { margin-top: 2rem; line-height: 1.3; }
+    p, li { max-width: 72ch; }
+    code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; overflow-wrap: anywhere; }
+
+    .lede, .card, .callout, .flow-step {
+      border: 1px solid var(--border);
+      border-radius: 0.8rem;
+      background: var(--surface);
+      box-shadow: 0 0.25rem 1rem var(--shadow);
+    }
+
+    .lede { padding: clamp(1.2rem, 4vw, 2rem); font-size: 1.12rem; }
+    .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+    .card { padding: 1.2rem; }
+    .card h3 { margin-top: 0; }
+    .metric { display: block; color: var(--accent); font-size: 1.75rem; font-weight: 800; line-height: 1.2; }
+
+    .analogy {
+      padding: clamp(1.2rem, 4vw, 2rem);
+      border-left: 0.45rem solid var(--accent);
+      background: var(--warm);
+    }
+
+    .flow { display: grid; gap: 0.75rem; counter-reset: flow; }
+    .flow-step { position: relative; padding: 1rem 1rem 1rem 4rem; }
+    .flow-step::before {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      display: grid;
+      width: 2rem;
+      height: 2rem;
+      place-items: center;
+      border-radius: 50%;
+      color: var(--accent-ink);
+      background: var(--accent);
+      font-weight: 800;
+      counter-increment: flow;
+      content: counter(flow);
+    }
+
+    .flow-step strong { display: block; margin-bottom: 0.25rem; }
+    .flow-step p { margin: 0; }
+
+    .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 0.7rem; }
+    table { width: 100%; min-width: 44rem; border-collapse: collapse; background: var(--surface); }
+    th, td { padding: 0.75rem; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+    th { color: var(--accent-ink); background: var(--accent); }
+    tr:last-child td { border-bottom: 0; }
+
+    .callout { padding: 1.2rem; }
+    .callout strong { color: var(--success); }
+    .boundary { border-left: 0.45rem solid var(--danger); }
+    .boundary strong { color: var(--danger); }
+
+    .two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .plain-list { padding-left: 1.2rem; }
+    .plain-list li + li { margin-top: 0.65rem; }
+
+    footer { padding: 2rem 1rem; border-top: 1px solid var(--border); background: var(--surface); }
+    footer p { margin: 0 auto; }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --page: #111827;
+        --surface: #1f2937;
+        --ink: #f8fafc;
+        --muted: #cbd5e1;
+        --accent: #7dd3fc;
+        --accent-ink: #082f49;
+        --warm: #3f3522;
+        --border: #64748b;
+        --success: #86efac;
+        --danger: #fca5a5;
+        --shadow: rgba(0, 0, 0, 0.3);
+      }
+    }
+
+    @media (max-width: 38rem) {
+      .wrap { width: min(100% - 1rem, 70rem); }
+      .cards, .two-column { grid-template-columns: 1fr; }
+      nav ul { display: grid; grid-template-columns: 1fr 1fr; }
+      .flow-step { padding-left: 3.6rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition-duration: 0.01ms !important; }
+    }
+
+    @media print {
+      :root { color-scheme: light; }
+      body { color: #000000; background: #ffffff; font-size: 10pt; }
+      header { color: #000000; background: #ffffff; padding: 0 0 1rem; }
+      nav, .skip-link { display: none; }
+      .wrap { width: 100%; }
+      .card, .lede, .callout, .flow-step { box-shadow: none; break-inside: avoid; }
+      a { color: #000000; text-decoration: underline; }
+      a[href]::after { content: " (" attr(href) ")"; font-size: 0.8em; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
+  <header>
+    <div class="wrap">
+      <p class="eyebrow">Plan 008 · completed raw-source boundary</p>
+      <h1>How a facility CSV becomes evidence we can trust</h1>
+      <p>This guide explains the CMS dialysis facility source contract, unchanged full-file ingestion, and immutable manifest—before any typing, county assignment, or analytical use.</p>
+    </div>
+  </header>
+
+  <nav aria-label="Guide sections">
+    <div class="wrap">
+      <ul>
+        <li><a href="#purpose">Purpose</a></li>
+        <li><a href="#grain">Raw grain</a></li>
+        <li><a href="#companions">Companions</a></li>
+        <li><a href="#flow">Flow</a></li>
+        <li><a href="#evidence">Evidence</a></li>
+        <li><a href="#boundaries">Boundaries</a></li>
+        <li><a href="#glossary">Glossary</a></li>
+        <li><a href="#links">Repository links</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main id="main-content" class="wrap">
+    <section id="purpose" aria-labelledby="purpose-heading">
+      <h2 id="purpose-heading">The purpose: prove the raw source before using it</h2>
+      <div class="lede">
+        <p><strong>Plan 008</strong> establishes one narrow promise: dataset <code>23ew-n7w9</code> can be resolved from official CMS metadata, checked against a pinned dictionary and exact contract, downloaded completely without changing its bytes, and recorded as immutable evidence.</p>
+        <p>The contract is <code>cms_dialysis_facility.raw.v1</code>. It does not yet make a typed facility table. It protects that future work from silent column renames, truncated downloads, duplicate identifiers, and lost leading zeros.</p>
+      </div>
+
+      <div class="analogy">
+        <h3>A useful analogy: a sealed evidence box</h3>
+        <p>Think of the CSV as evidence placed in a sealed box. The source contract is the packing checklist. The SHA-256 hash is the tamper-evident seal. The manifest is the signed inventory describing where the box came from, when it was received, how large it was, and what checks passed. A later analyst can reopen the box and independently verify every claim.</p>
+      </div>
+    </section>
+
+    <section id="grain" aria-labelledby="grain-heading">
+      <h2 id="grain-heading">The raw grain: one snapshot and one textual CCN</h2>
+      <p><em>Grain</em> means what one row represents. Here it is <strong>source_snapshot_sha256 × CCN</strong>: one row for one <strong>CMS Certification Number (CCN)</strong> inside one exact downloaded snapshot.</p>
+
+      <div class="cards">
+        <article class="card">
+          <h3>Text, always</h3>
+          <span class="metric">1–10 digits</span>
+          <p>The dictionary declares CCN as character data. Numeric conversion is prohibited because it can erase a leading zero.</p>
+        </article>
+        <article class="card">
+          <h3>Nonblank</h3>
+          <span class="metric">No empty key</span>
+          <p>A blank or whitespace-only CCN blocks the whole snapshot. It cannot be repaired by guessing.</p>
+        </article>
+        <article class="card">
+          <h3>Unique</h3>
+          <span class="metric">One row each</span>
+          <p>A repeated CCN blocks publication. The extractor never silently deduplicates source facilities.</p>
+        </article>
+      </div>
+
+      <div class="callout boundary">
+        <p><strong>Location warning:</strong> address, city, state, ZIP, county/parish, and phone are public provider business-location strings. ZIP is not a county key. These fields do not establish patient residence or a service area.</p>
+      </div>
+    </section>
+
+    <section id="companions" aria-labelledby="companions-heading">
+      <h2 id="companions-heading">Why measure companions travel together</h2>
+      <p>A rate by itself is easy to misread. Plan 008 therefore keeps the source's period, availability, category, denominator, estimate, lower confidence limit, and upper confidence limit beside each survival, hospitalization, and readmission result. These are raw strings; interpretation belongs to a later plan.</p>
+
+      <div class="table-wrap" role="region" aria-label="Required outcome companion fields" tabindex="0">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Companion</th>
+              <th scope="col">What it preserves</th>
+              <th scope="col">Why it matters later</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Period</td><td>The dates represented by the measure.</td><td>A file release date is not the same thing as a measure period.</td></tr>
+            <tr><td>Availability</td><td>The source's data-availability code.</td><td>Unavailable is not zero; the code must be interpreted explicitly.</td></tr>
+            <tr><td>Category</td><td>The source's plain category text.</td><td>It stays traceable to the estimate instead of becoming an invented score.</td></tr>
+            <tr><td>Denominator</td><td>Patients for survival/hospitalization; hospitalizations for readmission.</td><td>The unit of observation differs across measure families.</td></tr>
+            <tr><td>Estimate</td><td>The facility value exactly as transported.</td><td>Future typing can retain the original token for audit.</td></tr>
+            <tr><td>Lower confidence limit</td><td>The lower endpoint supplied by CMS.</td><td>The estimate's uncertainty remains available.</td></tr>
+            <tr><td>Upper confidence limit</td><td>The upper endpoint supplied by CMS.</td><td>The interval stays complete rather than flattened.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>The contract includes <strong>41 required fields</strong> across identity, public business location, characteristics, the star rating and its companions, and the three seven-field outcome families. The current schema also has <strong>101 compatible additions</strong>. Additions are reported; removal, duplication, ambiguity, or incompatible drift in a required mapping blocks the snapshot.</p>
+    </section>
+
+    <section id="flow" aria-labelledby="flow-heading">
+      <h2 id="flow-heading">The complete input-to-output flow</h2>
+      <div class="flow" aria-label="Facility extraction sequence">
+        <div class="flow-step"><strong>Resolve official identity</strong><p>Begin at the official Provider Data catalog, require stable ID <code>23ew-n7w9</code>, corroborate the Listing by Facility title and landing page, and choose exactly one current complete CSV.</p></div>
+        <div class="flow-step"><strong>Validate metadata first</strong><p>Compare all ordered API fields and raw-text transport types with the 41 required mappings before downloading full content.</p></div>
+        <div class="flow-step"><strong>Stream unchanged bytes</strong><p>Write chunks to a run-scoped temporary file. Check media type, transfer length, byte count, and SHA-256 without normalizing or reserializing the CSV.</p></div>
+        <div class="flow-step"><strong>Reconcile the whole file</strong><p>Parse quoted commas and quoted newlines correctly; match the exact ordered header; require API count = CSV rows = distinct nonblank CCNs.</p></div>
+        <div class="flow-step"><strong>Publish the immutable blob</strong><p>Only a fully verified file receives its content-addressed path. Existing bytes are rehashed before reuse and are never overwritten.</p></div>
+        <div class="flow-step"><strong>Publish the canonical manifest</strong><p>Only after the blob is safe does the run manifest appear. Its stable JSON bytes record every locator, hash, count, schema detail, and no-op decision.</p></div>
+        <div class="flow-step"><strong>Reopen and verify independently</strong><p>The loader for a future plan can distrust memory: it can reread the manifest and blob from disk and reproduce all evidence with no network call.</p></div>
+      </div>
+
+      <h3>What a manifest proves</h3>
+      <p>A manifest ties source identity, release and retrieval time, ordered schema, dictionary, complete bytes, row count, distinct keys, and the safe relative blob path into one canonical record. It records a complete one-response transfer as <code>page_count: 1</code>; it makes no paginated-API claim. A second run may record <code>content_noop: true</code> when it reuses the same independently verified content.</p>
+    </section>
+
+    <section id="evidence" aria-labelledby="evidence-heading">
+      <h2 id="evidence-heading">Dated verification evidence</h2>
+      <p>Live counts are observations about one release, not timeless constants. On <strong>2026-08-15 UTC</strong>, the production extractor and a separate disk reread agreed on:</p>
+
+      <div class="cards">
+        <article class="card"><h3>Rows and keys</h3><span class="metric">7,490</span><p>API count, CSV data rows, and distinct nonblank textual CCNs all reconciled.</p></article>
+        <article class="card"><h3>Exact bytes</h3><span class="metric">7,263,788</span><p>The complete CSV's byte count. Its SHA-256 begins <code>02a7155f…</code>.</p></article>
+        <article class="card"><h3>Leading zeros</h3><span class="metric">858</span><p>CCNs retained a leading zero, demonstrating why text preservation matters.</p></article>
+      </div>
+
+      <ul class="plain-list">
+        <li>The official API schema and CSV each exposed 142 ordered fields; 41 were required and 101 were compatible additions.</li>
+        <li>Survival used raw period <code>01Jan2021-31Dec2024</code>; hospitalization and readmission used <code>01Jan2024-31Dec2024</code>.</li>
+        <li>All three outcome families contained availability tokens <code>001</code>, <code>199</code>, <code>201</code>, and <code>258</code>. This plan records tokens but does not interpret them.</li>
+        <li>A second immediate run obtained the same bytes with no retry and reused the verified blob with <code>content_noop: true</code>.</li>
+        <li>The result reconciles the earlier 7,490 examined snapshot. A planning-time display of 7,557 preceded the July release; neither count is hard-coded as a contract constant.</li>
+      </ul>
+
+      <p>The strengthened focused Plan 008 offline path passed 134 tests, including deliberate failures for schema drift, duplicate keys, malformed transport, truncated files, conflicting reruns, corrupt existing blobs, invalid UTC lineage, and contract-evidence drift. The repository's canonical locked verification then passed clean Ruff formatting and lint plus all 389 pytest tests in 951.41 seconds, protecting Plans 001–007 as well.</p>
+    </section>
+
+    <section id="boundaries" aria-labelledby="boundaries-heading">
+      <h2 id="boundaries-heading">Completed now, deliberately deferred</h2>
+      <div class="two-column">
+        <div class="callout">
+          <h3>Completed in Plan 008</h3>
+          <ul class="plain-list">
+            <li>Pinned dictionary and normalized schema evidence.</li>
+            <li>Exact raw contract and textual CCN grain.</li>
+            <li>Official metadata resolution and complete CSV streaming.</li>
+            <li>Blocking transfer, schema, key, and reconciliation checks.</li>
+            <li>Immutable blob and canonical run manifest with safe no-op reuse.</li>
+          </ul>
+        </div>
+        <div class="callout boundary">
+          <h3>Not done here</h3>
+          <ul class="plain-list">
+            <li>No date or numeric typing and no availability-code interpretation.</li>
+            <li>No facility fact, dimension, quality score, ranking, or recommendation.</li>
+            <li>No county assignment, alias match, Census Geocoder request, or unresolved-row quarantine.</li>
+            <li>No county facility aggregate or screening enrichment.</li>
+            <li>No publication pointer, Parquet mart, Airflow, CI change, or Power BI work.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="analogy">
+        <p><strong>Safety boundary:</strong> facility characteristics will become due-diligence context only. They cannot alter the Plan 007 quadrant. The screening component remains observed outpatient dialysis use among Original Medicare beneficiaries; this facility listing does not turn it into kidney disease prevalence, unmet need, disease burden, or an intervention opportunity.</p>
+      </div>
+    </section>
+
+    <section id="glossary" aria-labelledby="glossary-heading">
+      <h2 id="glossary-heading">Short glossary</h2>
+      <dl>
+        <dt><strong>Contract</strong></dt><dd>An executable checklist of required fields, mappings, types, and key rules that blocks incompatible source drift.</dd>
+        <dt><strong>CCN</strong></dt><dd>CMS Certification Number, the raw textual facility identifier in this source.</dd>
+        <dt><strong>Snapshot</strong></dt><dd>One exact set of source bytes retrieved at a point in time and identified by its content hash.</dd>
+        <dt><strong>SHA-256</strong></dt><dd>A deterministic content fingerprint. Changing even one byte produces a different identity.</dd>
+        <dt><strong>Manifest</strong></dt><dd>A canonical JSON inventory that connects official source lineage, schema, checks, and exact stored bytes.</dd>
+        <dt><strong>Content-addressed blob</strong></dt><dd>An immutable file whose path is derived from the SHA-256 of its contents.</dd>
+        <dt><strong>Compatible addition</strong></dt><dd>A newly observed source field outside the required contract. It is reported without breaking ingestion.</dd>
+      </dl>
+    </section>
+
+    <section id="links" aria-labelledby="links-heading">
+      <h2 id="links-heading">Trace the explanation to source, code, and tests</h2>
+      <ul class="plain-list">
+        <li><a href="../../specs.md">Authoritative product and engineering specification</a></li>
+        <li><a href="../../plans/008-cms-dialysis-facility-source-contract-and-ingestion.md">Plan 008 implementation record</a></li>
+        <li><a href="../source-schemas/cms_dialysis_facility.schema.json">Normalized facility schema evidence</a></li>
+        <li><a href="../source-dictionaries/cms_dialysis_facility-2026-07.pdf">Pinned July 2026 official dictionary</a></li>
+        <li><a href="../../src/kidney_care_mart/contracts/cms_dialysis_facility.py">Executable facility contract</a></li>
+        <li><a href="../../src/kidney_care_mart/extract/cms_dialysis_facility.py">Source-specific extractor and manifest</a></li>
+        <li><a href="../../tests/fixtures/cms_dialysis_facility/minimal.csv">Small synthetic facility fixture</a></li>
+        <li><a href="../../tests/unit/contracts/test_cms_dialysis_facility_contract.py">Contract and raw-grain tests</a></li>
+        <li><a href="../../tests/unit/extract/test_cms_dialysis_facility.py">Extraction, publication, and failure tests</a></li>
+        <li><a href="../../tests/unit/docs/test_plan_008_guide.py">This guide's offline accessibility and link tests</a></li>
+        <li><a href="../source-catalog.md">Operational source catalog</a> and <a href="../preflight.md">dated live preflight evidence</a></li>
+        <li><a href="../../data/README.md">Generated raw-data layout</a>, <a href="README.md">guide convention</a>, and <a href="../../README.md">repository overview</a></li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <p class="wrap">Standalone, network-free Plan 008 guide. Last reconciled with the implementation and live evidence on 2026-08-15 UTC.</p>
+  </footer>
+</body>
+</html>

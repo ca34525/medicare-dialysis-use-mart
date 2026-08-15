@@ -1,0 +1,1859 @@
+{
+  "source_id": "cms_dialysis_facility",
+  "contract_version": "cms_dialysis_facility.raw.v1",
+  "stable_dataset_id": "23ew-n7w9",
+  "provenance": {
+    "catalog_url": "https://data.cms.gov/provider-data/data.json",
+    "landing_url": "https://data.cms.gov/provider-data/dataset/23ew-n7w9",
+    "metadata_url": "https://data.cms.gov/provider-data/api/1/metastore/schemas/dataset/items/23ew-n7w9",
+    "api_schema_url": "https://data.cms.gov/provider-data/api/1/datastore/query/23ew-n7w9/0",
+    "dictionary_url": "https://data.cms.gov/provider-data/sites/default/files/data_dictionaries/dialysis/DF_Data_Dictionary.pdf"
+  },
+  "vintage": {
+    "dictionary_release": "July 2026",
+    "catalog_release_date": "2026-07-15",
+    "catalog_modified_date": "2026-06-16",
+    "catalog_next_update_date": "2026-10-28",
+    "snapshot_kind": "current quarterly snapshot"
+  },
+  "raw_grain": {
+    "grain": "source_snapshot_sha256 x ccn",
+    "ccn_dictionary_variable": "PROVFS",
+    "ccn_csv_header": "CMS Certification Number (CCN)",
+    "ccn_api_field_name": "cms_certification_number_ccn",
+    "rule": "nonblank unique 1-10 ASCII-digit text; never numerically coerced"
+  },
+  "dictionary": {
+    "local_path": "docs/source-dictionaries/cms_dialysis_facility-2026-07.pdf",
+    "release": "July 2026",
+    "byte_count": 1199186,
+    "sha256": "64348a21e3c98b9cb5b915a2243fb3a54b452ca61943c8f9f1eadf7429176fa0"
+  },
+  "observed_schema": {
+    "column_count": 142,
+    "csv_headers_in_source_order": [
+      "CMS Certification Number (CCN)",
+      "Network",
+      "Facility Name",
+      "Five Star Date",
+      "Five Star",
+      "Five Star Data Availability Code",
+      "Address Line 1",
+      "Address Line 2",
+      "City/Town",
+      "State",
+      "ZIP Code",
+      "County/Parish",
+      "Telephone Number",
+      "Profit or Non-Profit",
+      "Chain Owned",
+      "Chain Organization",
+      "Late Shift",
+      "# of Dialysis Stations",
+      "Offers in-center hemodialysis",
+      "Offers peritoneal dialysis",
+      "Offers home hemodialysis training",
+      "Certification Date",
+      "Claims Date",
+      "EQRS Date",
+      "SMR Date",
+      "Patient Survival Category Text",
+      "Patient Survival data availability code",
+      "Number of Patients included in survival summary",
+      "Mortality Rate (Facility)",
+      "Mortality Rate: Upper Confidence Limit (97.5%)",
+      "Mortality Rate: Lower Confidence Limit (2.5%)",
+      "SHR Date",
+      "Patient hospitalization category text",
+      "Patient Hospitalization data availability Code",
+      "Number of patients included in hospitalization summary",
+      "Hospitalization Rate (Facility)",
+      "Hospitalization Rate: Upper Confidence Limit (97.5%)",
+      "Hospitalization Rate: Lower Confidence Limit (2.5%)",
+      "SRR Date",
+      "Patient Hospital Readmission Category",
+      "Patient Hospital Readmission data availability Code",
+      "Number of hospitalizations included in hospital readmission summary",
+      "Readmission Rate (Facility)",
+      "Readmission Rate: Upper Confidence Limit (97.5%)",
+      "Readmission Rate: Lower Confidence Limit (2.5%)",
+      "STrR Date",
+      "Patient Transfusion category text",
+      "Patient Transfusion data availability Code",
+      "Number of patients included in the transfusion summary",
+      "Transfusion Rate (Facility)",
+      "Transfusion Rate: Upper Confidence Limit (97.5%)",
+      "Transfusion Rate: Lower Confidence Limit (2.5%)",
+      "FYSWR Date",
+      "FYSWR category text",
+      "Patient transplant waitlist data availability code",
+      "Number of patients in this facility for FYSWR",
+      "First Year Standardized Kidney Transplant Waitlist Ratio",
+      "95% C.I. (upper limit) for FYSWR",
+      "95% C.I. (lower limit) for FYSWR",
+      "PPPW category text",
+      "Patient prevalent transplant waitlist data availability code",
+      "Number of patients for PPPW",
+      "Percentage of Prevalent Patients Waitlisted for Kidney Transplant",
+      "95% C.I. (upper limit) for PPPW",
+      "95% C.I. (lower limit) for PPPW",
+      "SEDR Date",
+      "SEDR category text",
+      "Emergency Department Encounter data availability Code",
+      "Number of patients included in SEDR summary",
+      "Standardized ED visits ratio (Facility)",
+      "SEDR: Upper Confidence Limit (97.5%)",
+      "SEDR: Lower Confidence Limit (2.5%)",
+      "ED30 Date",
+      "ED30 Category text",
+      "Emergency Department Encounter Ratio Occurring within 30 Days of Hospital Discharge data availability Code",
+      "Number of hospitalizations included in ED30 summary",
+      "Standardized ED visits within 30 days of hospital discharge ratio (Facility)",
+      "ED30: Upper Confidence Limit (97.5%)",
+      "ED30: Lower Confidence Limit (2.5%)",
+      "YEARS Modality Switch BASED UPON",
+      "SMoSR: Classification Category (FACILITY)",
+      "Modality Switch Data Availability Code",
+      "SMoSR: Number of Eligible patients (FACILITY)",
+      "SMoSR: Standardized Modality Switch Ratio (FACILITY)",
+      "SMoSR: Upper Confidence Limit (FACILITY)",
+      "SMoSR: Lower Confidence Limit (FACILITY)",
+      "SIR Date",
+      "Patient Infection category text",
+      "Patient Infection Data Availability Code",
+      "Standard Infection Ratio",
+      "SIR: Upper Confidence Limit (97.5%)",
+      "SIR: Lower Confidence Limit (2.5%)",
+      "Fistula Category Text",
+      "Fistula data availability code",
+      "Number of Patients included in fistula summary",
+      "Fistula Rate (Facility)",
+      "Fistula Rate: Upper Confidence Limit (97.5%)",
+      "Fistula Rate: Lower Confidence Limit (2.5%)",
+      "HCP Vaccination Data Collection Dates",
+      "HCP Vaccination Data Availability Code",
+      "Healthcare worker COVID-19 vaccination adherence percentage",
+      "Adult HD Kt/V data availability code",
+      "Number of adult HD patients with KT/V data",
+      "Number of adult HD patient-months with Kt/V data",
+      "Percent of Adult HD patients with Kt/V >= 1.2",
+      "Adult PD Kt/V data availability code",
+      "Number of adult PD patients with KT/V data",
+      "Number of adult PD patient-months with Kt/V data",
+      "Percentage of Adult PD PTS with Kt/V >= 1.7",
+      "Pediatric HD Kt/V Data Availability Code",
+      "Number of pediatric HD patients with Kt/V data",
+      "Number of pediatric HD patient-months with KT/V data",
+      "Percentage of Pediatric HD patients with Kt/V >= 1.2",
+      "Pediatric PD Kt/V Data Availability Code",
+      "Number of pediatric PD patients with Kt/V data",
+      "Number of pediatric PD patient-months with KT/V data",
+      "Percentage of pediatric PD patients with Kt/V>=1.8",
+      "Percentage of Medicare patients with Hgb<10 g/dL",
+      "HGB<10 data availability code",
+      "Percentage of Medicare patients with Hgb>12 g/dL",
+      "Hgb > 12 data availability code",
+      "Number of Dialysis Patients with Hgb data",
+      "Hypercalcemia Data Availability Code",
+      "Number of patients in hypercalcemia summary",
+      "Number of patient-months in hypercalcemia summary",
+      "Percentage of Adult patients with hypercalcemia (serum calcium greater than 10.2 mg/dL)",
+      "Serum phosphorus Data Availability Code",
+      "Number of patients in Serum phosphorus summary",
+      "Number of patient-months in Serum phosphorus summary",
+      "Percentage of Adult patients with serum phosphorus less than 3.5 mg/dL",
+      "Percentage of Adult patients with serum phosphorus between 3.5-4.5 mg/dL",
+      "Percentage of Adult patients with serum phosphorus between 4.6-5.5 mg/dL",
+      "Percentage of Adult patients with serum phosphorus between 5.6-7.0 mg/dL",
+      "Percentage of Adult patients with serum phosphorus greater than 7.0 mg/dL",
+      "Long term catheter Data Availability Code",
+      "Number of patients in long term catheter summary",
+      "Number of patient months in long term catheter summary",
+      "Percentage of Adult patients with long term catheter in use",
+      "nPCR Data Availability Code",
+      "Number of patients in nPCR summary",
+      "Number of patient-months in nPCR summary",
+      "Percentage of pediatric HD patients with nPCR"
+    ],
+    "api_fields_in_source_order": [
+      {
+        "api_field_name": "cms_certification_number_ccn",
+        "csv_header": "CMS Certification Number (CCN)",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "network",
+        "csv_header": "Network",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "facility_name",
+        "csv_header": "Facility Name",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "five_star_date",
+        "csv_header": "Five Star Date",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "five_star",
+        "csv_header": "Five Star",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "five_star_data_availability_code",
+        "csv_header": "Five Star Data Availability Code",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "address_line_1",
+        "csv_header": "Address Line 1",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "address_line_2",
+        "csv_header": "Address Line 2",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "citytown",
+        "csv_header": "City/Town",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "state",
+        "csv_header": "State",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "zip_code",
+        "csv_header": "ZIP Code",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "countyparish",
+        "csv_header": "County/Parish",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "telephone_number",
+        "csv_header": "Telephone Number",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "profit_or_nonprofit",
+        "csv_header": "Profit or Non-Profit",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "chain_owned",
+        "csv_header": "Chain Owned",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "chain_organization",
+        "csv_header": "Chain Organization",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "late_shift",
+        "csv_header": "Late Shift",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "of_dialysis_stations",
+        "csv_header": "# of Dialysis Stations",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "offers_incenter_hemodialysis",
+        "csv_header": "Offers in-center hemodialysis",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "offers_peritoneal_dialysis",
+        "csv_header": "Offers peritoneal dialysis",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "offers_home_hemodialysis_training",
+        "csv_header": "Offers home hemodialysis training",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "certification_date",
+        "csv_header": "Certification Date",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "claims_date",
+        "csv_header": "Claims Date",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "eqrs_date",
+        "csv_header": "EQRS Date",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "smr_date",
+        "csv_header": "SMR Date",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "patient_survival_category_text",
+        "csv_header": "Patient Survival Category Text",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "patient_survival_data_availability_code",
+        "csv_header": "Patient Survival data availability code",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "number_of_patients_included_in_survival_summary",
+        "csv_header": "Number of Patients included in survival summary",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "mortality_rate_facility",
+        "csv_header": "Mortality Rate (Facility)",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "mortality_rate_upper_confidence_limit_975",
+        "csv_header": "Mortality Rate: Upper Confidence Limit (97.5%)",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "mortality_rate_lower_confidence_limit_25",
+        "csv_header": "Mortality Rate: Lower Confidence Limit (2.5%)",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "shr_date",
+        "csv_header": "SHR Date",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "patient_hospitalization_category_text",
+        "csv_header": "Patient hospitalization category text",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "patient_hospitalization_data_availability_code",
+        "csv_header": "Patient Hospitalization data availability Code",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "number_of_patients_included_in_hospitalization_summary",
+        "csv_header": "Number of patients included in hospitalization summary",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "hospitalization_rate_facility",
+        "csv_header": "Hospitalization Rate (Facility)",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "hospitalization_rate_upper_confidence_limit_975",
+        "csv_header": "Hospitalization Rate: Upper Confidence Limit (97.5%)",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "hospitalization_rate_lower_confidence_limit_25",
+        "csv_header": "Hospitalization Rate: Lower Confidence Limit (2.5%)",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "srr_date",
+        "csv_header": "SRR Date",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "patient_hospital_readmission_category",
+        "csv_header": "Patient Hospital Readmission Category",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "patient_hospital_readmission_data_availability_code",
+        "csv_header": "Patient Hospital Readmission data availability Code",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "number_of_hospitalizations_included_in_hospital_readmission_fc2b",
+        "csv_header": "Number of hospitalizations included in hospital readmission summary",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "readmission_rate_facility",
+        "csv_header": "Readmission Rate (Facility)",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "readmission_rate_upper_confidence_limit_975",
+        "csv_header": "Readmission Rate: Upper Confidence Limit (97.5%)",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "readmission_rate_lower_confidence_limit_25",
+        "csv_header": "Readmission Rate: Lower Confidence Limit (2.5%)",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "strr_date",
+        "csv_header": "STrR Date",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "patient_transfusion_category_text",
+        "csv_header": "Patient Transfusion category text",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "patient_transfusion_data_availability_code",
+        "csv_header": "Patient Transfusion data availability Code",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "number_of_patients_included_in_the_transfusion_summary",
+        "csv_header": "Number of patients included in the transfusion summary",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "transfusion_rate_facility",
+        "csv_header": "Transfusion Rate (Facility)",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "transfusion_rate_upper_confidence_limit_975",
+        "csv_header": "Transfusion Rate: Upper Confidence Limit (97.5%)",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "transfusion_rate_lower_confidence_limit_25",
+        "csv_header": "Transfusion Rate: Lower Confidence Limit (2.5%)",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "fyswr_date",
+        "csv_header": "FYSWR Date",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "fyswr_category_text",
+        "csv_header": "FYSWR category text",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "patient_transplant_waitlist_data_availability_code",
+        "csv_header": "Patient transplant waitlist data availability code",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "number_of_patients_in_this_facility_for_fyswr",
+        "csv_header": "Number of patients in this facility for FYSWR",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "first_year_standardized_kidney_transplant_waitlist_ratio",
+        "csv_header": "First Year Standardized Kidney Transplant Waitlist Ratio",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "95_ci_upper_limit_for_fyswr",
+        "csv_header": "95% C.I. (upper limit) for FYSWR",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "95_ci_lower_limit_for_fyswr",
+        "csv_header": "95% C.I. (lower limit) for FYSWR",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "pppw_category_text",
+        "csv_header": "PPPW category text",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "patient_prevalent_transplant_waitlist_data_availability_code",
+        "csv_header": "Patient prevalent transplant waitlist data availability code",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "number_of_patients_for_pppw",
+        "csv_header": "Number of patients for PPPW",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "percentage_of_prevalent_patients_waitlisted_for_kidney_tran_ecca",
+        "csv_header": "Percentage of Prevalent Patients Waitlisted for Kidney Transplant",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "95_ci_upper_limit_for_pppw",
+        "csv_header": "95% C.I. (upper limit) for PPPW",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "95_ci_lower_limit_for_pppw",
+        "csv_header": "95% C.I. (lower limit) for PPPW",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "sedr_date",
+        "csv_header": "SEDR Date",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "sedr_category_text",
+        "csv_header": "SEDR category text",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "emergency_department_encounter_data_availability_code",
+        "csv_header": "Emergency Department Encounter data availability Code",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "number_of_patients_included_in_sedr_summary",
+        "csv_header": "Number of patients included in SEDR summary",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "standardized_ed_visits_ratio_facility",
+        "csv_header": "Standardized ED visits ratio (Facility)",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "sedr_upper_confidence_limit_975",
+        "csv_header": "SEDR: Upper Confidence Limit (97.5%)",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "sedr_lower_confidence_limit_25",
+        "csv_header": "SEDR: Lower Confidence Limit (2.5%)",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "ed30_date",
+        "csv_header": "ED30 Date",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "ed30_category_text",
+        "csv_header": "ED30 Category text",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "emergency_department_encounter_ratio_occurring_within_30_da_f8e3",
+        "csv_header": "Emergency Department Encounter Ratio Occurring within 30 Days of Hospital Discharge data availability Code",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "number_of_hospitalizations_included_in_ed30_summary",
+        "csv_header": "Number of hospitalizations included in ED30 summary",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "standardized_ed_visits_within_30_days_of_hospital_discharge_6307",
+        "csv_header": "Standardized ED visits within 30 days of hospital discharge ratio (Facility)",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "ed30_upper_confidence_limit_975",
+        "csv_header": "ED30: Upper Confidence Limit (97.5%)",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "ed30_lower_confidence_limit_25",
+        "csv_header": "ED30: Lower Confidence Limit (2.5%)",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "years_modality_switch_based_upon",
+        "csv_header": "YEARS Modality Switch BASED UPON",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "smosr_classification_category_facility",
+        "csv_header": "SMoSR: Classification Category (FACILITY)",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "modality_switch_data_availability_code",
+        "csv_header": "Modality Switch Data Availability Code",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "smosr_number_of_eligible_patients_facility",
+        "csv_header": "SMoSR: Number of Eligible patients (FACILITY)",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "smosr_standardized_modality_switch_ratio_facility",
+        "csv_header": "SMoSR: Standardized Modality Switch Ratio (FACILITY)",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "smosr_upper_confidence_limit_facility",
+        "csv_header": "SMoSR: Upper Confidence Limit (FACILITY)",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "smosr_lower_confidence_limit_facility",
+        "csv_header": "SMoSR: Lower Confidence Limit (FACILITY)",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "sir_date",
+        "csv_header": "SIR Date",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "patient_infection_category_text",
+        "csv_header": "Patient Infection category text",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "patient_infection_data_availability_code",
+        "csv_header": "Patient Infection Data Availability Code",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "standard_infection_ratio",
+        "csv_header": "Standard Infection Ratio",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "sir_upper_confidence_limit_975",
+        "csv_header": "SIR: Upper Confidence Limit (97.5%)",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "sir_lower_confidence_limit_25",
+        "csv_header": "SIR: Lower Confidence Limit (2.5%)",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "fistula_category_text",
+        "csv_header": "Fistula Category Text",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "fistula_data_availability_code",
+        "csv_header": "Fistula data availability code",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "number_of_patients_included_in_fistula_summary",
+        "csv_header": "Number of Patients included in fistula summary",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "fistula_rate_facility",
+        "csv_header": "Fistula Rate (Facility)",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "fistula_rate_upper_confidence_limit_975",
+        "csv_header": "Fistula Rate: Upper Confidence Limit (97.5%)",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "fistula_rate_lower_confidence_limit_25",
+        "csv_header": "Fistula Rate: Lower Confidence Limit (2.5%)",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "hcp_vaccination_data_collection_dates",
+        "csv_header": "HCP Vaccination Data Collection Dates",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "hcp_vaccination_data_availability_code",
+        "csv_header": "HCP Vaccination Data Availability Code",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "healthcare_worker_covid19_vaccination_adherence_percentage",
+        "csv_header": "Healthcare worker COVID-19 vaccination adherence percentage",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "adult_hd_ktv_data_availability_code",
+        "csv_header": "Adult HD Kt/V data availability code",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "number_of_adult_hd_patients_with_ktv_data",
+        "csv_header": "Number of adult HD patients with KT/V data",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "number_of_adult_hd_patientmonths_with_ktv_data",
+        "csv_header": "Number of adult HD patient-months with Kt/V data",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "percent_of_adult_hd_patients_with_ktv__12",
+        "csv_header": "Percent of Adult HD patients with Kt/V >= 1.2",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "adult_pd_ktv_data_availability_code",
+        "csv_header": "Adult PD Kt/V data availability code",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "number_of_adult_pd_patients_with_ktv_data",
+        "csv_header": "Number of adult PD patients with KT/V data",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "number_of_adult_pd_patientmonths_with_ktv_data",
+        "csv_header": "Number of adult PD patient-months with Kt/V data",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "percentage_of_adult_pd_pts_with_ktv__17",
+        "csv_header": "Percentage of Adult PD PTS with Kt/V >= 1.7",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "pediatric_hd_ktv_data_availability_code",
+        "csv_header": "Pediatric HD Kt/V Data Availability Code",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "number_of_pediatric_hd_patients_with_ktv_data",
+        "csv_header": "Number of pediatric HD patients with Kt/V data",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "number_of_pediatric_hd_patientmonths_with_ktv_data",
+        "csv_header": "Number of pediatric HD patient-months with KT/V data",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "percentage_of_pediatric_hd_patients_with_ktv__12",
+        "csv_header": "Percentage of Pediatric HD patients with Kt/V >= 1.2",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "pediatric_pd_ktv_data_availability_code",
+        "csv_header": "Pediatric PD Kt/V Data Availability Code",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "number_of_pediatric_pd_patients_with_ktv_data",
+        "csv_header": "Number of pediatric PD patients with Kt/V data",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "number_of_pediatric_pd_patientmonths_with_ktv_data",
+        "csv_header": "Number of pediatric PD patient-months with KT/V data",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "percentage_of_pediatric_pd_patients_with_ktv18",
+        "csv_header": "Percentage of pediatric PD patients with Kt/V>=1.8",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "percentage_of_medicare_patients_with_hgb10_gdl",
+        "csv_header": "Percentage of Medicare patients with Hgb<10 g/dL",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "hgb10_data_availability_code",
+        "csv_header": "HGB<10 data availability code",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "percentage_of_medicare_patients_with_hgb12_gdl",
+        "csv_header": "Percentage of Medicare patients with Hgb>12 g/dL",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "hgb__12_data_availability_code",
+        "csv_header": "Hgb > 12 data availability code",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "number_of_dialysis_patients_with_hgb_data",
+        "csv_header": "Number of Dialysis Patients with Hgb data",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "hypercalcemia_data_availability_code",
+        "csv_header": "Hypercalcemia Data Availability Code",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "number_of_patients_in_hypercalcemia_summary",
+        "csv_header": "Number of patients in hypercalcemia summary",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "number_of_patientmonths_in_hypercalcemia_summary",
+        "csv_header": "Number of patient-months in hypercalcemia summary",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "percentage_of_adult_patients_with_hypercalcemia_serum_calci_044d",
+        "csv_header": "Percentage of Adult patients with hypercalcemia (serum calcium greater than 10.2 mg/dL)",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "serum_phosphorus_data_availability_code",
+        "csv_header": "Serum phosphorus Data Availability Code",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "number_of_patients_in_serum_phosphorus_summary",
+        "csv_header": "Number of patients in Serum phosphorus summary",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "number_of_patientmonths_in_serum_phosphorus_summary",
+        "csv_header": "Number of patient-months in Serum phosphorus summary",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "percentage_of_adult_patients_with_serum_phosphorus_less_tha_c222",
+        "csv_header": "Percentage of Adult patients with serum phosphorus less than 3.5 mg/dL",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "percentage_of_adult_patients_with_serum_phosphorus_between__85e8",
+        "csv_header": "Percentage of Adult patients with serum phosphorus between 3.5-4.5 mg/dL",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "percentage_of_adult_patients_with_serum_phosphorus_between__fad7",
+        "csv_header": "Percentage of Adult patients with serum phosphorus between 4.6-5.5 mg/dL",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "percentage_of_adult_patients_with_serum_phosphorus_between__ff32",
+        "csv_header": "Percentage of Adult patients with serum phosphorus between 5.6-7.0 mg/dL",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "percentage_of_adult_patients_with_serum_phosphorus_greater__d8e3",
+        "csv_header": "Percentage of Adult patients with serum phosphorus greater than 7.0 mg/dL",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "long_term_catheter_data_availability_code",
+        "csv_header": "Long term catheter Data Availability Code",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "number_of_patients_in_long_term_catheter_summary",
+        "csv_header": "Number of patients in long term catheter summary",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "number_of_patient_months_in_long_term_catheter_summary",
+        "csv_header": "Number of patient months in long term catheter summary",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "percentage_of_adult_patients_with_long_term_catheter_in_use",
+        "csv_header": "Percentage of Adult patients with long term catheter in use",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "npcr_data_availability_code",
+        "csv_header": "nPCR Data Availability Code",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "number_of_patients_in_npcr_summary",
+        "csv_header": "Number of patients in nPCR summary",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "number_of_patientmonths_in_npcr_summary",
+        "csv_header": "Number of patient-months in nPCR summary",
+        "declared_type": "text",
+        "mysql_type": "text"
+      },
+      {
+        "api_field_name": "percentage_of_pediatric_hd_patients_with_npcr",
+        "csv_header": "Percentage of pediatric HD patients with nPCR",
+        "declared_type": "text",
+        "mysql_type": "text"
+      }
+    ],
+    "api_declared_type_counts": {
+      "text": 142
+    }
+  },
+  "required_semantic_mapping": [
+    {
+      "semantic": "ccn",
+      "dictionary_variable": "PROVFS",
+      "dictionary_label": "CMS Certification Number (CCN)",
+      "dictionary_definition": "The numeric code used to identify the provider.",
+      "dictionary_declared_type": "Char",
+      "maximum_length": 10,
+      "type_family": "text",
+      "unit": "identifier",
+      "csv_header": "CMS Certification Number (CCN)",
+      "api_field_name": "cms_certification_number_ccn",
+      "availability_companion": null,
+      "outcome_family": null,
+      "outcome_role": null
+    },
+    {
+      "semantic": "facility_name",
+      "dictionary_variable": "QDFC_PROVNAME",
+      "dictionary_label": "CMS Provider Name",
+      "dictionary_definition": "The name of the facility.",
+      "dictionary_declared_type": "Char",
+      "maximum_length": 200,
+      "type_family": "text",
+      "unit": "label",
+      "csv_header": "Facility Name",
+      "api_field_name": "facility_name",
+      "availability_companion": null,
+      "outcome_family": null,
+      "outcome_role": null
+    },
+    {
+      "semantic": "address_line_1",
+      "dictionary_variable": "PHYADDR1",
+      "dictionary_label": "Address Line 1",
+      "dictionary_definition": "The first line of the public business address.",
+      "dictionary_declared_type": "Char",
+      "maximum_length": 60,
+      "type_family": "text",
+      "unit": "address",
+      "csv_header": "Address Line 1",
+      "api_field_name": "address_line_1",
+      "availability_companion": null,
+      "outcome_family": null,
+      "outcome_role": null
+    },
+    {
+      "semantic": "address_line_2",
+      "dictionary_variable": "PHYADDR2",
+      "dictionary_label": "Address Line 2",
+      "dictionary_definition": "The optional second line of the public business address.",
+      "dictionary_declared_type": "Char",
+      "maximum_length": 60,
+      "type_family": "text",
+      "unit": "address",
+      "csv_header": "Address Line 2",
+      "api_field_name": "address_line_2",
+      "availability_companion": null,
+      "outcome_family": null,
+      "outcome_role": null
+    },
+    {
+      "semantic": "city",
+      "dictionary_variable": "PHYCITY",
+      "dictionary_label": "City/Town",
+      "dictionary_definition": "The city corresponding to the facility.",
+      "dictionary_declared_type": "Char",
+      "maximum_length": 30,
+      "type_family": "text",
+      "unit": "label",
+      "csv_header": "City/Town",
+      "api_field_name": "citytown",
+      "availability_companion": null,
+      "outcome_family": null,
+      "outcome_role": null
+    },
+    {
+      "semantic": "state",
+      "dictionary_variable": "STATE",
+      "dictionary_label": "State",
+      "dictionary_definition": "The postal code for the facility state.",
+      "dictionary_declared_type": "Char",
+      "maximum_length": 2,
+      "type_family": "text",
+      "unit": "postal_code",
+      "csv_header": "State",
+      "api_field_name": "state",
+      "availability_companion": null,
+      "outcome_family": null,
+      "outcome_role": null
+    },
+    {
+      "semantic": "zip_code",
+      "dictionary_variable": "PHYZIP",
+      "dictionary_label": "Zip Code",
+      "dictionary_definition": "The postal ZIP code corresponding to the facility.",
+      "dictionary_declared_type": "Char",
+      "maximum_length": 5,
+      "type_family": "text",
+      "unit": "postal_code",
+      "csv_header": "ZIP Code",
+      "api_field_name": "zip_code",
+      "availability_companion": null,
+      "outcome_family": null,
+      "outcome_role": null
+    },
+    {
+      "semantic": "source_county",
+      "dictionary_variable": "PHYCOUNTY",
+      "dictionary_label": "County/Parish",
+      "dictionary_definition": "The source county name corresponding to the facility.",
+      "dictionary_declared_type": "Char",
+      "maximum_length": 60,
+      "type_family": "text",
+      "unit": "label",
+      "csv_header": "County/Parish",
+      "api_field_name": "countyparish",
+      "availability_companion": null,
+      "outcome_family": null,
+      "outcome_role": null
+    },
+    {
+      "semantic": "telephone",
+      "dictionary_variable": "PHONENUM",
+      "dictionary_label": "Telephone Number",
+      "dictionary_definition": "The public business telephone number for the facility.",
+      "dictionary_declared_type": "Char",
+      "maximum_length": 14,
+      "type_family": "text",
+      "unit": "telephone",
+      "csv_header": "Telephone Number",
+      "api_field_name": "telephone_number",
+      "availability_companion": null,
+      "outcome_family": null,
+      "outcome_role": null
+    },
+    {
+      "semantic": "ownership_status",
+      "dictionary_variable": "OWNTYPE",
+      "dictionary_label": "Profit or Non-Profit",
+      "dictionary_definition": "Whether the facility operates as a for-profit or non-profit business.",
+      "dictionary_declared_type": "Char",
+      "maximum_length": 50,
+      "type_family": "text",
+      "unit": "category",
+      "csv_header": "Profit or Non-Profit",
+      "api_field_name": "profit_or_nonprofit",
+      "availability_companion": null,
+      "outcome_family": null,
+      "outcome_role": null
+    },
+    {
+      "semantic": "chain_owned",
+      "dictionary_variable": "CHAINYN",
+      "dictionary_label": "Chain Owned",
+      "dictionary_definition": "Whether the facility is owned or managed by a chain organization.",
+      "dictionary_declared_type": "Char",
+      "maximum_length": 3,
+      "type_family": "text",
+      "unit": "category",
+      "csv_header": "Chain Owned",
+      "api_field_name": "chain_owned",
+      "availability_companion": null,
+      "outcome_family": null,
+      "outcome_role": null
+    },
+    {
+      "semantic": "chain_organization",
+      "dictionary_variable": "CHAINNAM",
+      "dictionary_label": "Chain Organization",
+      "dictionary_definition": "The chain organization name when applicable.",
+      "dictionary_declared_type": "Char",
+      "maximum_length": 50,
+      "type_family": "text",
+      "unit": "label",
+      "csv_header": "Chain Organization",
+      "api_field_name": "chain_organization",
+      "availability_companion": null,
+      "outcome_family": null,
+      "outcome_role": null
+    },
+    {
+      "semantic": "dialysis_stations",
+      "dictionary_variable": "TOTSTAS",
+      "dictionary_label": "# of Dialysis Stations",
+      "dictionary_definition": "The total number of dialysis stations at the facility.",
+      "dictionary_declared_type": "Int",
+      "maximum_length": null,
+      "type_family": "integer",
+      "unit": "stations",
+      "csv_header": "# of Dialysis Stations",
+      "api_field_name": "of_dialysis_stations",
+      "availability_companion": null,
+      "outcome_family": null,
+      "outcome_role": null
+    },
+    {
+      "semantic": "in_center_hemodialysis",
+      "dictionary_variable": "HD",
+      "dictionary_label": "Offers in-center hemodialysis",
+      "dictionary_definition": "Whether the facility offers in-center hemodialysis.",
+      "dictionary_declared_type": "Text",
+      "maximum_length": 5,
+      "type_family": "text",
+      "unit": "category",
+      "csv_header": "Offers in-center hemodialysis",
+      "api_field_name": "offers_incenter_hemodialysis",
+      "availability_companion": null,
+      "outcome_family": null,
+      "outcome_role": null
+    },
+    {
+      "semantic": "peritoneal_dialysis",
+      "dictionary_variable": "PD",
+      "dictionary_label": "Offers peritoneal dialysis",
+      "dictionary_definition": "Whether the facility offers peritoneal dialysis.",
+      "dictionary_declared_type": "Text",
+      "maximum_length": 5,
+      "type_family": "text",
+      "unit": "category",
+      "csv_header": "Offers peritoneal dialysis",
+      "api_field_name": "offers_peritoneal_dialysis",
+      "availability_companion": null,
+      "outcome_family": null,
+      "outcome_role": null
+    },
+    {
+      "semantic": "home_hemodialysis_training",
+      "dictionary_variable": "HOMEHD",
+      "dictionary_label": "Offers home hemodialysis training.",
+      "dictionary_definition": "Whether the facility offers home hemodialysis training.",
+      "dictionary_declared_type": "Text",
+      "maximum_length": 5,
+      "type_family": "text",
+      "unit": "category",
+      "csv_header": "Offers home hemodialysis training",
+      "api_field_name": "offers_home_hemodialysis_training",
+      "availability_companion": null,
+      "outcome_family": null,
+      "outcome_role": null
+    },
+    {
+      "semantic": "certification_date",
+      "dictionary_variable": "CERTDATE",
+      "dictionary_label": "Certification Date",
+      "dictionary_definition": "The initial or recertification date for the facility.",
+      "dictionary_declared_type": "Datetime",
+      "maximum_length": null,
+      "type_family": "date",
+      "unit": "date",
+      "csv_header": "Certification Date",
+      "api_field_name": "certification_date",
+      "availability_companion": null,
+      "outcome_family": null,
+      "outcome_role": null
+    },
+    {
+      "semantic": "five_star_period",
+      "dictionary_variable": "DATE_FIVE_STAR",
+      "dictionary_label": "Five Star Date",
+      "dictionary_definition": "The data collection period for the quality-of-care star rating.",
+      "dictionary_declared_type": "Char",
+      "maximum_length": 19,
+      "type_family": "text",
+      "unit": "period",
+      "csv_header": "Five Star Date",
+      "api_field_name": "five_star_date",
+      "availability_companion": "five_star_availability",
+      "outcome_family": null,
+      "outcome_role": null
+    },
+    {
+      "semantic": "five_star_rating",
+      "dictionary_variable": "FIVE_STAR",
+      "dictionary_label": "Five Star",
+      "dictionary_definition": "The quality-of-care star rating for the facility.",
+      "dictionary_declared_type": "Num",
+      "maximum_length": 8,
+      "type_family": "numeric",
+      "unit": "rating",
+      "csv_header": "Five Star",
+      "api_field_name": "five_star",
+      "availability_companion": "five_star_availability",
+      "outcome_family": null,
+      "outcome_role": null
+    },
+    {
+      "semantic": "five_star_availability",
+      "dictionary_variable": "FIVE_STAR_C",
+      "dictionary_label": "Five Star Data Availability Code",
+      "dictionary_definition": "Whether rating data are available or the reason they are unavailable.",
+      "dictionary_declared_type": "Char",
+      "maximum_length": 3,
+      "type_family": "text",
+      "unit": "availability_code",
+      "csv_header": "Five Star Data Availability Code",
+      "api_field_name": "five_star_data_availability_code",
+      "availability_companion": null,
+      "outcome_family": null,
+      "outcome_role": null
+    },
+    {
+      "semantic": "survival_period",
+      "dictionary_variable": "DATE_SMR",
+      "dictionary_label": "SMR Date",
+      "dictionary_definition": "The data collection period for the patient survival summary.",
+      "dictionary_declared_type": "Char",
+      "maximum_length": 19,
+      "type_family": "text",
+      "unit": "period",
+      "csv_header": "SMR Date",
+      "api_field_name": "smr_date",
+      "availability_companion": "survival_availability",
+      "outcome_family": "survival",
+      "outcome_role": "period"
+    },
+    {
+      "semantic": "survival_availability",
+      "dictionary_variable": "PTSURV_C",
+      "dictionary_label": "Patient Survival Data Availability Code",
+      "dictionary_definition": "Whether survival data are available or the reason they are unavailable.",
+      "dictionary_declared_type": "Char",
+      "maximum_length": 3,
+      "type_family": "text",
+      "unit": "availability_code",
+      "csv_header": "Patient Survival data availability code",
+      "api_field_name": "patient_survival_data_availability_code",
+      "availability_companion": null,
+      "outcome_family": "survival",
+      "outcome_role": "availability"
+    },
+    {
+      "semantic": "survival_category",
+      "dictionary_variable": "DFCMORTTEXT",
+      "dictionary_label": "Patient Survival Category Text",
+      "dictionary_definition": "Patient survival category: better, worse, or as expected.",
+      "dictionary_declared_type": "Char",
+      "maximum_length": 20,
+      "type_family": "text",
+      "unit": "category",
+      "csv_header": "Patient Survival Category Text",
+      "api_field_name": "patient_survival_category_text",
+      "availability_companion": "survival_availability",
+      "outcome_family": "survival",
+      "outcome_role": "category"
+    },
+    {
+      "semantic": "survival_denominator",
+      "dictionary_variable": "RDSMZ_F",
+      "dictionary_label": "Number Of Patients Included In Survival Summary",
+      "dictionary_definition": "The number of patients included in the facility survival summary.",
+      "dictionary_declared_type": "Num",
+      "maximum_length": 8,
+      "type_family": "numeric",
+      "unit": "patients",
+      "csv_header": "Number of Patients included in survival summary",
+      "api_field_name": "number_of_patients_included_in_survival_summary",
+      "availability_companion": "survival_availability",
+      "outcome_family": "survival",
+      "outcome_role": "denominator"
+    },
+    {
+      "semantic": "survival_estimate",
+      "dictionary_variable": "SMR_RATE_F",
+      "dictionary_label": "Mortality Rate (FACILITY)",
+      "dictionary_definition": "The facility mortality rate per 100 patient-years.",
+      "dictionary_declared_type": "Num",
+      "maximum_length": 8,
+      "type_family": "numeric",
+      "unit": "rate_per_100_patient_years",
+      "csv_header": "Mortality Rate (Facility)",
+      "api_field_name": "mortality_rate_facility",
+      "availability_companion": "survival_availability",
+      "outcome_family": "survival",
+      "outcome_role": "estimate"
+    },
+    {
+      "semantic": "survival_lower_confidence_limit",
+      "dictionary_variable": "SMR_RATE_LCI_F",
+      "dictionary_label": "Mortality Rate: Lower Confidence Limit (2.5%)",
+      "dictionary_definition": "The 2.5% lower confidence limit for the mortality rate.",
+      "dictionary_declared_type": "Num",
+      "maximum_length": 8,
+      "type_family": "numeric",
+      "unit": "rate_per_100_patient_years",
+      "csv_header": "Mortality Rate: Lower Confidence Limit (2.5%)",
+      "api_field_name": "mortality_rate_lower_confidence_limit_25",
+      "availability_companion": "survival_availability",
+      "outcome_family": "survival",
+      "outcome_role": "lower_confidence_limit"
+    },
+    {
+      "semantic": "survival_upper_confidence_limit",
+      "dictionary_variable": "SMR_RATE_UCI_F",
+      "dictionary_label": "Mortality Rate: Upper Confidence Limit (97.5%)",
+      "dictionary_definition": "The 97.5% upper confidence limit for the mortality rate.",
+      "dictionary_declared_type": "Num",
+      "maximum_length": 8,
+      "type_family": "numeric",
+      "unit": "rate_per_100_patient_years",
+      "csv_header": "Mortality Rate: Upper Confidence Limit (97.5%)",
+      "api_field_name": "mortality_rate_upper_confidence_limit_975",
+      "availability_companion": "survival_availability",
+      "outcome_family": "survival",
+      "outcome_role": "upper_confidence_limit"
+    },
+    {
+      "semantic": "hospitalization_period",
+      "dictionary_variable": "DATE_SHR",
+      "dictionary_label": "SHR Date",
+      "dictionary_definition": "The period for the patient hospitalization summary.",
+      "dictionary_declared_type": "Char",
+      "maximum_length": 19,
+      "type_family": "text",
+      "unit": "period",
+      "csv_header": "SHR Date",
+      "api_field_name": "shr_date",
+      "availability_companion": "hospitalization_availability",
+      "outcome_family": "hospitalization",
+      "outcome_role": "period"
+    },
+    {
+      "semantic": "hospitalization_availability",
+      "dictionary_variable": "PTHOSP_C",
+      "dictionary_label": "Patient Hospitalization Data Availability Code",
+      "dictionary_definition": "Whether hospitalization data are available or why they are unavailable.",
+      "dictionary_declared_type": "Char",
+      "maximum_length": 3,
+      "type_family": "text",
+      "unit": "availability_code",
+      "csv_header": "Patient Hospitalization data availability Code",
+      "api_field_name": "patient_hospitalization_data_availability_code",
+      "availability_companion": null,
+      "outcome_family": "hospitalization",
+      "outcome_role": "availability"
+    },
+    {
+      "semantic": "hospitalization_category",
+      "dictionary_variable": "DFCHOSPTEXT",
+      "dictionary_label": "Patient Hospitalization Category Text",
+      "dictionary_definition": "Patient hospitalization category: better, worse, or as expected.",
+      "dictionary_declared_type": "Char",
+      "maximum_length": 20,
+      "type_family": "text",
+      "unit": "category",
+      "csv_header": "Patient hospitalization category text",
+      "api_field_name": "patient_hospitalization_category_text",
+      "availability_companion": "hospitalization_availability",
+      "outcome_family": "hospitalization",
+      "outcome_role": "category"
+    },
+    {
+      "semantic": "hospitalization_denominator",
+      "dictionary_variable": "RDSHY4_F",
+      "dictionary_label": "Number Of Patients Included In Hospitalization Summary",
+      "dictionary_definition": "The number of patients included in the facility hospitalization summary.",
+      "dictionary_declared_type": "Num",
+      "maximum_length": 8,
+      "type_family": "numeric",
+      "unit": "patients",
+      "csv_header": "Number of patients included in hospitalization summary",
+      "api_field_name": "number_of_patients_included_in_hospitalization_summary",
+      "availability_companion": "hospitalization_availability",
+      "outcome_family": "hospitalization",
+      "outcome_role": "denominator"
+    },
+    {
+      "semantic": "hospitalization_estimate",
+      "dictionary_variable": "SHR_RATE_F",
+      "dictionary_label": "Hospitalization Rate (FACILITY)",
+      "dictionary_definition": "The facility hospitalization rate per 100 patient-years.",
+      "dictionary_declared_type": "Num",
+      "maximum_length": 8,
+      "type_family": "numeric",
+      "unit": "rate_per_100_patient_years",
+      "csv_header": "Hospitalization Rate (Facility)",
+      "api_field_name": "hospitalization_rate_facility",
+      "availability_companion": "hospitalization_availability",
+      "outcome_family": "hospitalization",
+      "outcome_role": "estimate"
+    },
+    {
+      "semantic": "hospitalization_lower_confidence_limit",
+      "dictionary_variable": "SHR_RATE_LCI_F",
+      "dictionary_label": "Hospitalization Rate: Lower Confidence Limit (2.5%)",
+      "dictionary_definition": "The 2.5% lower confidence limit for the hospitalization rate.",
+      "dictionary_declared_type": "Num",
+      "maximum_length": 8,
+      "type_family": "numeric",
+      "unit": "rate_per_100_patient_years",
+      "csv_header": "Hospitalization Rate: Lower Confidence Limit (2.5%)",
+      "api_field_name": "hospitalization_rate_lower_confidence_limit_25",
+      "availability_companion": "hospitalization_availability",
+      "outcome_family": "hospitalization",
+      "outcome_role": "lower_confidence_limit"
+    },
+    {
+      "semantic": "hospitalization_upper_confidence_limit",
+      "dictionary_variable": "SHR_RATE_UCI_F",
+      "dictionary_label": "Hospitalization Rate: Upper Confidence Limit (97.5%)",
+      "dictionary_definition": "The 97.5% upper confidence limit for the hospitalization rate.",
+      "dictionary_declared_type": "Num",
+      "maximum_length": 8,
+      "type_family": "numeric",
+      "unit": "rate_per_100_patient_years",
+      "csv_header": "Hospitalization Rate: Upper Confidence Limit (97.5%)",
+      "api_field_name": "hospitalization_rate_upper_confidence_limit_975",
+      "availability_companion": "hospitalization_availability",
+      "outcome_family": "hospitalization",
+      "outcome_role": "upper_confidence_limit"
+    },
+    {
+      "semantic": "readmission_period",
+      "dictionary_variable": "DATE_SRR",
+      "dictionary_label": "SRR Date",
+      "dictionary_definition": "The period for the patient readmission summary.",
+      "dictionary_declared_type": "Char",
+      "maximum_length": 19,
+      "type_family": "text",
+      "unit": "period",
+      "csv_header": "SRR Date",
+      "api_field_name": "srr_date",
+      "availability_companion": "readmission_availability",
+      "outcome_family": "readmission",
+      "outcome_role": "period"
+    },
+    {
+      "semantic": "readmission_availability",
+      "dictionary_variable": "PTREAD_C",
+      "dictionary_label": "Patient Hospital Readmission Data Availability Code",
+      "dictionary_definition": "Whether readmission data are available or why they are unavailable.",
+      "dictionary_declared_type": "Char",
+      "maximum_length": 3,
+      "type_family": "text",
+      "unit": "availability_code",
+      "csv_header": "Patient Hospital Readmission data availability Code",
+      "api_field_name": "patient_hospital_readmission_data_availability_code",
+      "availability_companion": null,
+      "outcome_family": "readmission",
+      "outcome_role": "availability"
+    },
+    {
+      "semantic": "readmission_category",
+      "dictionary_variable": "DFCSRRTEXT",
+      "dictionary_label": "Patient Hospital Readmission Category Text",
+      "dictionary_definition": "Patient readmission category: better, worse, or as expected.",
+      "dictionary_declared_type": "Char",
+      "maximum_length": 20,
+      "type_family": "text",
+      "unit": "category",
+      "csv_header": "Patient Hospital Readmission Category",
+      "api_field_name": "patient_hospital_readmission_category",
+      "availability_companion": "readmission_availability",
+      "outcome_family": "readmission",
+      "outcome_role": "category"
+    },
+    {
+      "semantic": "readmission_denominator",
+      "dictionary_variable": "INDEXY4_f",
+      "dictionary_label": "Number Of Hospitalizations Included In Hospital Readmission Summary",
+      "dictionary_definition": "The number of index discharges in the facility readmission summary.",
+      "dictionary_declared_type": "Num",
+      "maximum_length": 8,
+      "type_family": "numeric",
+      "unit": "index_discharges",
+      "csv_header": "Number of hospitalizations included in hospital readmission summary",
+      "api_field_name": "number_of_hospitalizations_included_in_hospital_readmission_fc2b",
+      "availability_companion": "readmission_availability",
+      "outcome_family": "readmission",
+      "outcome_role": "denominator"
+    },
+    {
+      "semantic": "readmission_estimate",
+      "dictionary_variable": "SRR_RATE_F",
+      "dictionary_label": "Readmission Rate (FACILITY)",
+      "dictionary_definition": "The facility readmission rate as a percent of hospital discharges.",
+      "dictionary_declared_type": "Num",
+      "maximum_length": 8,
+      "type_family": "numeric",
+      "unit": "percent_of_hospital_discharges",
+      "csv_header": "Readmission Rate (Facility)",
+      "api_field_name": "readmission_rate_facility",
+      "availability_companion": "readmission_availability",
+      "outcome_family": "readmission",
+      "outcome_role": "estimate"
+    },
+    {
+      "semantic": "readmission_lower_confidence_limit",
+      "dictionary_variable": "SRR_RATE_LCI_F",
+      "dictionary_label": "Readmission Rate: Lower Confidence Limit (2.5%)",
+      "dictionary_definition": "The 2.5% lower confidence limit for the readmission rate.",
+      "dictionary_declared_type": "Num",
+      "maximum_length": 8,
+      "type_family": "numeric",
+      "unit": "percent_of_hospital_discharges",
+      "csv_header": "Readmission Rate: Lower Confidence Limit (2.5%)",
+      "api_field_name": "readmission_rate_lower_confidence_limit_25",
+      "availability_companion": "readmission_availability",
+      "outcome_family": "readmission",
+      "outcome_role": "lower_confidence_limit"
+    },
+    {
+      "semantic": "readmission_upper_confidence_limit",
+      "dictionary_variable": "SRR_RATE_UCI_F",
+      "dictionary_label": "Readmission Rate: Upper Confidence Limit (97.5%)",
+      "dictionary_definition": "The 97.5% upper confidence limit for the readmission rate.",
+      "dictionary_declared_type": "Num",
+      "maximum_length": 8,
+      "type_family": "numeric",
+      "unit": "percent_of_hospital_discharges",
+      "csv_header": "Readmission Rate: Upper Confidence Limit (97.5%)",
+      "api_field_name": "readmission_rate_upper_confidence_limit_975",
+      "availability_companion": "readmission_availability",
+      "outcome_family": "readmission",
+      "outcome_role": "upper_confidence_limit"
+    }
+  ],
+  "outcome_families": {
+    "survival": [
+      {
+        "semantic": "survival_period",
+        "role": "period"
+      },
+      {
+        "semantic": "survival_availability",
+        "role": "availability"
+      },
+      {
+        "semantic": "survival_category",
+        "role": "category"
+      },
+      {
+        "semantic": "survival_denominator",
+        "role": "denominator"
+      },
+      {
+        "semantic": "survival_estimate",
+        "role": "estimate"
+      },
+      {
+        "semantic": "survival_lower_confidence_limit",
+        "role": "lower_confidence_limit"
+      },
+      {
+        "semantic": "survival_upper_confidence_limit",
+        "role": "upper_confidence_limit"
+      }
+    ],
+    "hospitalization": [
+      {
+        "semantic": "hospitalization_period",
+        "role": "period"
+      },
+      {
+        "semantic": "hospitalization_availability",
+        "role": "availability"
+      },
+      {
+        "semantic": "hospitalization_category",
+        "role": "category"
+      },
+      {
+        "semantic": "hospitalization_denominator",
+        "role": "denominator"
+      },
+      {
+        "semantic": "hospitalization_estimate",
+        "role": "estimate"
+      },
+      {
+        "semantic": "hospitalization_lower_confidence_limit",
+        "role": "lower_confidence_limit"
+      },
+      {
+        "semantic": "hospitalization_upper_confidence_limit",
+        "role": "upper_confidence_limit"
+      }
+    ],
+    "readmission": [
+      {
+        "semantic": "readmission_period",
+        "role": "period"
+      },
+      {
+        "semantic": "readmission_availability",
+        "role": "availability"
+      },
+      {
+        "semantic": "readmission_category",
+        "role": "category"
+      },
+      {
+        "semantic": "readmission_denominator",
+        "role": "denominator"
+      },
+      {
+        "semantic": "readmission_estimate",
+        "role": "estimate"
+      },
+      {
+        "semantic": "readmission_lower_confidence_limit",
+        "role": "lower_confidence_limit"
+      },
+      {
+        "semantic": "readmission_upper_confidence_limit",
+        "role": "upper_confidence_limit"
+      }
+    ]
+  },
+  "additive_csv_headers": [
+    "95% C.I. (lower limit) for FYSWR",
+    "95% C.I. (lower limit) for PPPW",
+    "95% C.I. (upper limit) for FYSWR",
+    "95% C.I. (upper limit) for PPPW",
+    "Adult HD Kt/V data availability code",
+    "Adult PD Kt/V data availability code",
+    "Claims Date",
+    "ED30 Category text",
+    "ED30 Date",
+    "ED30: Lower Confidence Limit (2.5%)",
+    "ED30: Upper Confidence Limit (97.5%)",
+    "EQRS Date",
+    "Emergency Department Encounter Ratio Occurring within 30 Days of Hospital Discharge data availability Code",
+    "Emergency Department Encounter data availability Code",
+    "FYSWR Date",
+    "FYSWR category text",
+    "First Year Standardized Kidney Transplant Waitlist Ratio",
+    "Fistula Category Text",
+    "Fistula Rate (Facility)",
+    "Fistula Rate: Lower Confidence Limit (2.5%)",
+    "Fistula Rate: Upper Confidence Limit (97.5%)",
+    "Fistula data availability code",
+    "HCP Vaccination Data Availability Code",
+    "HCP Vaccination Data Collection Dates",
+    "HGB<10 data availability code",
+    "Healthcare worker COVID-19 vaccination adherence percentage",
+    "Hgb > 12 data availability code",
+    "Hypercalcemia Data Availability Code",
+    "Late Shift",
+    "Long term catheter Data Availability Code",
+    "Modality Switch Data Availability Code",
+    "Network",
+    "Number of Dialysis Patients with Hgb data",
+    "Number of Patients included in fistula summary",
+    "Number of adult HD patient-months with Kt/V data",
+    "Number of adult HD patients with KT/V data",
+    "Number of adult PD patient-months with Kt/V data",
+    "Number of adult PD patients with KT/V data",
+    "Number of hospitalizations included in ED30 summary",
+    "Number of patient months in long term catheter summary",
+    "Number of patient-months in Serum phosphorus summary",
+    "Number of patient-months in hypercalcemia summary",
+    "Number of patient-months in nPCR summary",
+    "Number of patients for PPPW",
+    "Number of patients in Serum phosphorus summary",
+    "Number of patients in hypercalcemia summary",
+    "Number of patients in long term catheter summary",
+    "Number of patients in nPCR summary",
+    "Number of patients in this facility for FYSWR",
+    "Number of patients included in SEDR summary",
+    "Number of patients included in the transfusion summary",
+    "Number of pediatric HD patient-months with KT/V data",
+    "Number of pediatric HD patients with Kt/V data",
+    "Number of pediatric PD patient-months with KT/V data",
+    "Number of pediatric PD patients with Kt/V data",
+    "PPPW category text",
+    "Patient Infection Data Availability Code",
+    "Patient Infection category text",
+    "Patient Transfusion category text",
+    "Patient Transfusion data availability Code",
+    "Patient prevalent transplant waitlist data availability code",
+    "Patient transplant waitlist data availability code",
+    "Pediatric HD Kt/V Data Availability Code",
+    "Pediatric PD Kt/V Data Availability Code",
+    "Percent of Adult HD patients with Kt/V >= 1.2",
+    "Percentage of Adult PD PTS with Kt/V >= 1.7",
+    "Percentage of Adult patients with hypercalcemia (serum calcium greater than 10.2 mg/dL)",
+    "Percentage of Adult patients with long term catheter in use",
+    "Percentage of Adult patients with serum phosphorus between 3.5-4.5 mg/dL",
+    "Percentage of Adult patients with serum phosphorus between 4.6-5.5 mg/dL",
+    "Percentage of Adult patients with serum phosphorus between 5.6-7.0 mg/dL",
+    "Percentage of Adult patients with serum phosphorus greater than 7.0 mg/dL",
+    "Percentage of Adult patients with serum phosphorus less than 3.5 mg/dL",
+    "Percentage of Medicare patients with Hgb<10 g/dL",
+    "Percentage of Medicare patients with Hgb>12 g/dL",
+    "Percentage of Pediatric HD patients with Kt/V >= 1.2",
+    "Percentage of Prevalent Patients Waitlisted for Kidney Transplant",
+    "Percentage of pediatric HD patients with nPCR",
+    "Percentage of pediatric PD patients with Kt/V>=1.8",
+    "SEDR Date",
+    "SEDR category text",
+    "SEDR: Lower Confidence Limit (2.5%)",
+    "SEDR: Upper Confidence Limit (97.5%)",
+    "SIR Date",
+    "SIR: Lower Confidence Limit (2.5%)",
+    "SIR: Upper Confidence Limit (97.5%)",
+    "SMoSR: Classification Category (FACILITY)",
+    "SMoSR: Lower Confidence Limit (FACILITY)",
+    "SMoSR: Number of Eligible patients (FACILITY)",
+    "SMoSR: Standardized Modality Switch Ratio (FACILITY)",
+    "SMoSR: Upper Confidence Limit (FACILITY)",
+    "STrR Date",
+    "Serum phosphorus Data Availability Code",
+    "Standard Infection Ratio",
+    "Standardized ED visits ratio (Facility)",
+    "Standardized ED visits within 30 days of hospital discharge ratio (Facility)",
+    "Transfusion Rate (Facility)",
+    "Transfusion Rate: Lower Confidence Limit (2.5%)",
+    "Transfusion Rate: Upper Confidence Limit (97.5%)",
+    "YEARS Modality Switch BASED UPON",
+    "nPCR Data Availability Code"
+  ],
+  "retrieval": {
+    "observed_at_utc": "2026-08-15T18:42:57Z",
+    "api_count": 7490,
+    "csv_row_count": 7490,
+    "distinct_ccn_count": 7490,
+    "leading_zero_ccn_count": 858,
+    "csv_byte_count": 7263788,
+    "csv_sha256": "02a7155f9797fe3194f220e765eb8ac511cbc1402e286c3e235a3157ba7cee5f",
+    "note": "Dated live evidence; counts and bytes are not timeless contract constants."
+  },
+  "schema_sha256": "e87cf25487005a81c8af015b4256da6a0da4205a369c2406cb3ff9b399ceec0f"
+}

@@ -94,6 +94,7 @@ class DownloadResult:
     byte_count: int
     etag: str | None
     last_modified: str | None
+    content_type: str | None
     attempt_count: int
 
     @property
@@ -219,6 +220,7 @@ def stream_download(
                     byte_count=byte_count,
                     etag=_header(response.headers, "ETag"),
                     last_modified=_header(response.headers, "Last-Modified"),
+                    content_type=_header(response.headers, "Content-Type"),
                     attempt_count=attempt,
                 )
         except HTTPError as error:

@@ -31,6 +31,8 @@ Current guides:
   `plans/006-cms-dimensional-facts-and-geography-reconciliation.md`.
 - `007-county-screening-explained.html` corresponds to
   `plans/007-transparent-county-screening-mart.md`.
+- `008-facility-source-and-ingestion-explained.html` corresponds to
+  `plans/008-cms-dialysis-facility-source-contract-and-ingestion.md`.
 
 ## Required content
 

@@ -24,6 +24,30 @@ under its SHA-256 identity. A run manifest is published only after its blob is
 verified. Existing blobs and manifests are never overwritten; identical source
 content is reused and recorded as a content no-op.
 
+The CMS Dialysis Facility extractor shares the content-addressed CSV blob
+directory and uses its own source-specific manifest namespace:
+
+```text
+data/raw/
+|-- blobs/
+|   `-- sha256/
+|       `-- <content-sha256>.csv
+|-- manifests/
+|   `-- cms_dialysis_facility/
+|       `-- <pipeline-run-id>.json
+`-- .tmp/
+    `-- <pipeline-run-id>/
+```
+
+Its one-response full-file manifest records `page_count: 1`, the official
+catalog/dataset/schema/dictionary lineage, ordered API and CSV fields, exact
+schema and header hashes, compatible additions, byte and logical row counts,
+distinct textual CCNs, leading-zero CCNs, and the safe relative blob path. The
+manifest is not visible until the unchanged CSV bytes, ordered header, raw CCN
+grain, API count, and all hashes reconcile. An identical later source snapshot
+reuses the verified blob; it does not overwrite either run's immutable
+manifest. Plan 008 creates no DuckDB relation or mart publication pointer.
+
 The CDC/ATSDR SVI extractor uses the same generated-data boundary but retains
 each exact ArcGIS response page separately:
 

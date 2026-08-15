@@ -1,0 +1,46 @@
+{
+  "@id": "https://data.cms.gov/provider-data/data.json",
+  "dataset": [
+    {
+      "accessLevel": "public",
+      "identifier": "23ew-n7w9",
+      "title": "Dialysis Facility - Listing by Facility",
+      "description": "A list of all dialysis facilities registered with Medicare that includes addresses and phone numbers, as well as services and quality of care provided.",
+      "landingPage": "https://data.cms.gov/provider-data/dataset/23ew-n7w9",
+      "modified": "2026-06-16",
+      "released": "2026-07-15",
+      "nextUpdateDate": "2026-10-28",
+      "theme": ["Dialysis facilities"],
+      "distribution": [
+        {
+          "downloadURL": "https://data.cms.gov/provider-data/sites/default/files/resources/fixture/DFC_FACILITY.csv",
+          "mediaType": "text/csv",
+          "describedBy": "https://data.cms.gov/provider-data/sites/default/files/data_dictionaries/dialysis/DF_Data_Dictionary.pdf",
+          "describedByType": "application/pdf"
+        }
+      ]
+    },
+    {
+      "identifier": "2fpu-cgbb",
+      "title": "Dialysis Facility - State Averages",
+      "landingPage": "https://data.cms.gov/provider-data/dataset/2fpu-cgbb",
+      "distribution": [
+        {
+          "downloadURL": "https://data.cms.gov/provider-data/sites/default/files/resources/fixture/DFC_STATE.csv",
+          "mediaType": "text/csv"
+        }
+      ]
+    },
+    {
+      "identifier": "59mq-zhts",
+      "title": "Patient survey (ICH CAHPS) - Facility",
+      "landingPage": "https://data.cms.gov/provider-data/dataset/59mq-zhts",
+      "distribution": [
+        {
+          "downloadURL": "https://data.cms.gov/provider-data/sites/default/files/resources/fixture/ICH_CAHPS_FACILITY.csv",
+          "mediaType": "text/csv"
+        }
+      ]
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 # Environment and source preflight
 
-**Record date:** 2026-08-14
-**Status:** Gate 0 sources in progress; local bootstrap and CMS/SVI dimensional path verified
+**Record date:** 2026-08-15
+**Status:** Gate 0 sources in progress; local bootstrap, CMS/SVI dimensional path, and facility raw ingestion verified
 
 This record distinguishes facts observed in the initial workspace from checks that still need to run on the implementation machine. A specification or configuration file is not evidence that its corresponding tool or integration works.
 
@@ -35,9 +35,64 @@ The specification's research review found these public services feasible, but ea
 | Source | Required? | Status | Pass evidence to record |
 |---|---:|---|---|
 | CMS Original Medicare Geographic Variation | Yes | Verified 2026-08-13 | A read-only request to `data.cms.gov/data.json` resolved exactly one intended dataset, stable ID `6219697b-8f6c-4164-bed4-cd9317c58ebc`, modified 2026-05-15. The stable data-viewer endpoint with `size=1&offset=0` reported 36,994 rows and 246 columns (242 `NUMERIC`, four `TEXT`) without authentication. Bounded filtered `data` requests returned the 2024 National All row and the 2024 County All row for raw code `01001`, preserving the leading zero; a bounded `UNKNOWN` query confirmed pseudo-county code `01000`. The National code is an empty raw string, with the contract exception documented in the source catalog. The 14-page official 2014-2024 dictionary downloaded successfully as a 563,924-byte PDF and is pinned at SHA-256 `75a8d4bef07d1900a50732c78a2aec688ba3ca132dad1dc6cab1a9243d55109f`. Exact labels, types, definitions, schema provenance, and the bounded-sample limitation are recorded in `docs/source-schemas/cms_om_gv.schema.json`; no full CSV or response dump was retained. |
-| CMS Dialysis Facility Listing | Yes | Pending | Official metadata resolves and a paginated sample or full CSV succeeds without an API key; pagination is complete and CCNs reconcile. |
+| CMS Dialysis Facility Listing | Yes | Verified 2026-08-15 | Official Provider Data dataset `23ew-n7w9`, its July 2026 dictionary, 142-field API schema, and one complete current CSV resolved without authentication. The immutable full-file extractor and an independent disk reread reconciled the API count, 7,490 CSV rows, and 7,490 distinct textual CCNs; a second run reused the verified blob. Exact hashes and limits are recorded below and in `docs/source-catalog.md`. |
 | CDC/ATSDR SVI 2022 U.S. county data | Yes | Verified 2026-08-14 | The public ArcGIS service resolved item `f2af3fd35858443293b75d5f73c7d4d3`, county layer 1 `SVI2022 US county`, and object ID `GRASP_ID` without authentication. The production extractor saved two exact attribute-only pages with 2,000 and 1,144 rows, reconciled 3,144 unique county FIPS and object IDs, preserved DC `11001`, excluded territories, and published immutable page and snapshot hashes. A manifest-driven local load and SVI dbt selection produced 3,144 rows in the raw relation, typed stage, county dimension, and SVI fact with 73 passing model/test results. A second run reused both verified pages and recorded a content no-op. The official documentation remains pinned at 542,647 bytes and SHA-256 `5636ae52e13ec201b90f4a31b55d12959d55784469e8c11662b64c03f09424fc`. Generated pages, manifests, and databases are ignored. |
 | Census Geocoder | Conditional | Pending | A sample or batch request succeeds for unresolved public facility business addresses. |
+
+## CMS Dialysis Facility source-contract and ingestion check
+
+On 2026-08-15 UTC, a read-only live check resolved exactly Provider Data
+dataset `23ew-n7w9`, corroborated the expected Dialysis Facility - Listing by
+Facility identity and official landing page, and found one current complete
+CSV. The catalog described a release date of 2026-07-15, modification date of
+2026-06-16, and next update date of 2026-10-28. The public Provider Data API
+schema returned 142 raw-text fields and a count of 7,490 before the CSV was
+downloaded.
+
+The official 57-page July 2026 dictionary is committed as a 1,199,186-byte PDF
+at SHA-256
+`64348a21e3c98b9cb5b915a2243fb3a54b452ca61943c8f9f1eadf7429176fa0`.
+Its labels, definitions, character/numeric/date declarations, maximum lengths,
+units, and companion relationships reconcile to the 41-field executable
+contract. The normalized evidence records all 142 ordered API/CSV fields, 101
+compatible additions, ordered-header SHA-256
+`f3e5a27bf8724f7ac4d20f415eedd399dbb78ccc178fa7f5de29a577d1a292cf`,
+API-schema SHA-256
+`9740947ff6269ff4e433cd8e0755855efcfd78ed74407965dda947183d69d2fd`,
+and canonical schema-evidence SHA-256
+`e87cf25487005a81c8af015b4256da6a0da4205a369c2406cb3ff9b399ceec0f`.
+
+After the focused and then-current full offline suites passed, the explicit
+extractor streamed the complete CSV unchanged into ignored storage. The file
+was 7,263,788 bytes at SHA-256
+`02a7155f9797fe3194f220e765eb8ac511cbc1402e286c3e235a3157ba7cee5f`.
+An independent standard-library reread reparsed the canonical manifest and
+blob and reproduced the byte/hash/header evidence, 7,490 logical data rows,
+7,490 distinct nonblank CCNs, and 858 textual CCNs with a leading zero. The
+survival period token was `01Jan2021-31Dec2024`; hospitalization and readmission
+used `01Jan2024-31Dec2024`; all three outcome families contained availability
+tokens `001`, `199`, `201`, and `258`. A second run under a new ID obtained the
+same source bytes, required no retry, reused the verified blob, and recorded
+`content_noop: true`.
+
+The current 7,490-row result reconciles the earlier examined 7,490 snapshot in
+`specs.md`; a planning-time catalog display of 7,557 preceded the July 2026
+release. These are dated observations, not fixed acceptance counts. Git checks
+confirmed the full CSV, manifests, temporary files, and response evidence are
+ignored and absent from tracked content. The check preserves provider public
+business location only: it performs no typing, county assignment, Census
+Geocoder request, facility aggregate, screening enrichment, or mart
+publication. The Census Geocoder preflight therefore remains Pending.
+
+The strengthened Plan 008 offline loop passed 134 tests. The final canonical
+locked loop completed `uv sync --locked`, clean Ruff format and lint checks,
+and 389 passing pytest tests in 951.41 seconds. The final code independently
+reread both live manifests and reproduced the 7,490-row/hash evidence and the
+second run's content no-op. Automated HTML, accessibility, link, contrast,
+responsive-rule, print-rule, and reduced-motion-rule checks passed. On
+2026-08-15, the user confirmed rendered desktop/narrow, light/dark,
+keyboard/focus, overflow, print, and reduced-motion QA for the standalone Plan
+008 guide.
 
 ## CDC/ATSDR SVI county source-contract check
 

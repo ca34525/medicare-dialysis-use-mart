@@ -56,8 +56,26 @@ Use Python 3.12 and `uv`, and keep `uv.lock` committed. Dependency changes requi
 
 ## Handoff and commits
 
-- Include a proposed commit message in the closing response for every completed repository change, even when the user does not ask for one explicitly.
-- Make the proposed message ready to use, concise, imperative, and representative of the complete change set.
+- Include a proposed commit message only in the closing response for a
+  repository change that is actually complete. For a numbered plan, wait until
+  the plan is marked `Completed`, its guide and documentation are current, and
+  all required checks pass. Do not propose a commit message during planning,
+  status reporting, review-only work, partial implementation, or a blocked
+  handoff.
+- Derive the message from the completed diff—or the staged diff when the user
+  asks about staged changes—not from intended or unfinished work.
+- Match the established project style: use a Conventional Commit subject such
+  as `feat:`, `fix:`, `docs:`, `test:`, or `chore:`; keep it imperative,
+  specific, free of a trailing period, and preferably no longer than 72
+  characters.
+- Follow the subject with a blank line and a useful body. Use three to five
+  concise bullets or short paragraphs to explain the material behavior, data
+  or safety decisions, tests, and documentation delivered. Mention a check or
+  live result only when it actually ran, and never include secrets, transient
+  source URLs, or generated artifact paths.
+- Make the complete message ready to paste and representative of the whole
+  completed change set; avoid vague subjects such as `update files` or
+  `miscellaneous changes`.
 - Do not create a commit or push changes unless the user explicitly requests it.
 
 ## Canonical bootstrap verification

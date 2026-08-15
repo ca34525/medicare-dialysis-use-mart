@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A beginner-friendly explanation of Plan 007: a fixed national Medicare-use percentile, an inclusive SVI boundary, transparent county quadrants, missing-data handling, and audit reconciliation.">
+  <title>Plan 007 · Transparent county screening</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --page: #f6f3ea;
+      --surface: #ffffff;
+      --ink: #172426;
+      --muted: #4b5d60;
+      --accent: #005f62;
+      --accent-ink: #ffffff;
+      --warm: #f4dfb4;
+      --line: #b8c6c6;
+      --good: #17643a;
+      --bad: #8a2735;
+      --shadow: rgba(23, 36, 38, 0.12);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --page: #121a1c;
+        --surface: #1c282b;
+        --ink: #f2f6f4;
+        --muted: #c2cdca;
+        --accent: #8ad8d2;
+        --accent-ink: #102022;
+        --warm: #3c3323;
+        --line: #526467;
+        --good: #8bd8a7;
+        --bad: #ffadb9;
+        --shadow: rgba(0, 0, 0, 0.3);
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--page);
+      color: var(--ink);
+      font-family: "Segoe UI", system-ui, sans-serif;
+      font-size: 1rem;
+      line-height: 1.62;
+    }
+    a { color: var(--accent); text-underline-offset: 0.18em; }
+    a:hover { text-decoration-thickness: 0.16em; }
+    :focus-visible { outline: 0.2rem solid var(--accent); outline-offset: 0.2rem; }
+    code { overflow-wrap: anywhere; font-family: Consolas, "Courier New", monospace; font-size: 0.92em; }
+    .skip-link {
+      position: absolute;
+      left: 1rem;
+      top: -5rem;
+      z-index: 20;
+      padding: 0.7rem 1rem;
+      background: var(--accent);
+      color: var(--accent-ink);
+      border-radius: 0.4rem;
+    }
+    .skip-link:focus { top: 1rem; }
+    .shell { width: min(72rem, calc(100% - 2rem)); margin-inline: auto; }
+    header {
+      padding: 4.5rem 0 3.2rem;
+      background:
+        linear-gradient(135deg, color-mix(in srgb, var(--accent) 16%, transparent), transparent 52%),
+        var(--surface);
+      border-bottom: 1px solid var(--line);
+    }
+    .eyebrow {
+      margin: 0 0 0.5rem;
+      color: var(--accent);
+      font-size: 0.82rem;
+      font-weight: 750;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    h1, h2, h3 { line-height: 1.15; text-wrap: balance; }
+    h1 { max-width: 18ch; margin: 0; font-size: clamp(2.3rem, 7vw, 5.2rem); letter-spacing: -0.055em; }
+    h2 { margin: 0 0 1rem; font-size: clamp(1.65rem, 4vw, 2.55rem); letter-spacing: -0.025em; }
+    h3 { margin-top: 0; font-size: 1.1rem; }
+    .lede { max-width: 47rem; margin: 1.4rem 0 0; color: var(--muted); font-size: 1.16rem; }
+    nav { border-bottom: 1px solid var(--line); background: var(--surface); }
+    nav ul { display: flex; gap: 0.35rem 1.1rem; flex-wrap: wrap; margin: 0; padding: 0.8rem 0; list-style: none; }
+    nav a { font-weight: 650; text-decoration: none; }
+    main section { padding: 3.4rem 0; border-bottom: 1px solid var(--line); }
+    .prose { max-width: 38rem; }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+    .card, .callout, details {
+      min-width: 0;
+      padding: 1.15rem;
+      border: 1px solid var(--line);
+      border-radius: 0.8rem;
+      background: var(--surface);
+      box-shadow: 0 0.45rem 1.4rem var(--shadow);
+    }
+    .card p, .card ul { margin-bottom: 0; }
+    .analogy { background: var(--warm); }
+    .callout { max-width: 52rem; margin-top: 1.2rem; box-shadow: none; }
+    .callout strong { color: var(--accent); }
+    .flow { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.75rem; margin-top: 1.4rem; }
+    .flow article { padding: 1rem; border: 1px solid var(--line); border-radius: 0.7rem; background: var(--surface); }
+    .flow .number { display: block; color: var(--accent); font-weight: 800; }
+    .metric-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-top: 1.3rem; }
+    .metric { padding: 1rem; border-left: 0.28rem solid var(--accent); background: var(--surface); }
+    .metric strong { display: block; font-size: 1.7rem; line-height: 1; }
+    .metric span { color: var(--muted); font-size: 0.9rem; }
+    .table-wrap { max-width: 100%; overflow-x: auto; margin-top: 1.2rem; border: 1px solid var(--line); border-radius: 0.7rem; }
+    table { width: 100%; min-width: 43rem; border-collapse: collapse; background: var(--surface); }
+    th, td { padding: 0.8rem; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-size: 0.84rem; letter-spacing: 0.04em; text-transform: uppercase; }
+    .status { font-weight: 750; color: var(--good); }
+    .failure { color: var(--bad); }
+    .boundary { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .boundary ul { padding-left: 1.2rem; }
+    details { margin-top: 1rem; box-shadow: none; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 750; }
+    dl { display: grid; grid-template-columns: max-content 1fr; gap: 0.5rem 1rem; }
+    dt { font-weight: 750; }
+    dd { margin: 0; color: var(--muted); }
+    footer { padding: 2.4rem 0 4rem; color: var(--muted); }
+
+    @media (max-width: 54rem) {
+      .grid, .flow, .metric-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 38rem) {
+      .shell { width: min(100% - 1.25rem, 72rem); }
+      header { padding-top: 3.5rem; }
+      .grid, .flow, .metric-strip, .boundary { grid-template-columns: 1fr; }
+      dl { grid-template-columns: 1fr; gap: 0.1rem; }
+      dd { margin-bottom: 0.65rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
+    @media print {
+      :root { --page: #ffffff; --surface: #ffffff; --ink: #000000; --muted: #333333; --accent: #174f51; --line: #777777; --warm: #f3f3f3; }
+      nav, .skip-link { display: none; }
+      header, main section { padding-block: 1.2rem; }
+      .card, .callout, details { box-shadow: none; break-inside: avoid; }
+      a { color: inherit; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to the explanation</a>
+  <header>
+    <div class="shell">
+      <p class="eyebrow">Plan 007 · completed transparent screen</p>
+      <h1>Two clear boundaries, five honest outcomes</h1>
+      <p class="lede">How one fixed national Medicare-use percentile and one published social-vulnerability boundary create an auditable county screen—while missing data remain visible and no score or recommendation is invented.</p>
+    </div>
+  </header>
+  <nav aria-label="Guide sections">
+    <div class="shell">
+      <ul>
+        <li><a href="#why">Why</a></li>
+        <li><a href="#flow">Flow</a></li>
+        <li><a href="#thresholds">Boundaries</a></li>
+        <li><a href="#outcomes">Outcomes</a></li>
+        <li><a href="#checks">Checks</a></li>
+        <li><a href="#limits">Limits</a></li>
+        <li><a href="#links">Links</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main id="main-content">
+    <section id="why">
+      <div class="shell">
+        <p class="eyebrow">The purpose</p>
+        <h2>A screen should show its work</h2>
+        <p class="prose">Plan 007 puts two already-governed county facts side by side. The Medicare component is <strong>observed outpatient dialysis use among Original Medicare beneficiaries</strong>. The social component is CDC/ATSDR's overall SVI county percentile. The result is an investigation aid, not a clinical conclusion.</p>
+        <div class="grid">
+          <article class="card analogy"><h3>Think of graph paper</h3><p>Draw one vertical line and one horizontal line. Every county with both coordinates lands in one of four visible boxes. If either coordinate is missing, leave the point off the graph and say why.</p></article>
+          <article class="card"><h3>No secret recipe</h3><p>There is no weighting, score, model, or ranking. The contract identity <code>county_screening.v1</code> records the two named rules.</p></article>
+          <article class="card"><h3>One declared grain</h3><p>“Grain” means what one row represents: one candidate build × latest CMS year × current reconciled five-character county FIPS.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="flow">
+      <div class="shell">
+        <p class="eyebrow">Input to output</p>
+        <h2>Five guarded steps make the classification</h2>
+        <div class="flow" aria-label="Five-step transparent county screening flow">
+          <article><span class="number">01</span><strong>Prove one run</strong><p>Accept exactly one paired CMS/SVI input audit and its immutable lineage.</p></article>
+          <article><span class="number">02</span><strong>Select candidates</strong><p>Keep the latest governed CMS year and current counties that passed Plan 006 reconciliation.</p></article>
+          <article><span class="number">03</span><strong>Freeze P75</strong><p>Calculate the national continuous county percentile once from eligible Medicare values.</p></article>
+          <article><span class="number">04</span><strong>Classify rows</strong><p>Apply both inclusive boundaries, or preserve a precise insufficient-data state.</p></article>
+          <article><span class="number">05</span><strong>Reconcile totals</strong><p>Emit all five categories, even when one has a count of zero, and prove they sum to the candidates.</p></article>
+        </div>
+        <p class="callout"><strong>Lineage</strong> is the receipt trail from an output back to its exact inputs. Every threshold, county row, and audit total carries the paired input-set hash and both source identities.</p>
+      </div>
+    </section>
+
+    <section id="thresholds">
+      <div class="shell">
+        <p class="eyebrow">The two components</p>
+        <h2>Both boundaries are inclusive and fixed</h2>
+        <div class="boundary">
+          <article class="card">
+            <h3>Medicare-use boundary</h3>
+            <ul>
+              <li>Field: <code>BENES_OP_DLYS_PCT</code>.</li>
+              <li>Denominator: the CMS source-defined Original Medicare beneficiary denominator.</li>
+              <li>Population: latest-year, current, reported, nonnull county values nationally.</li>
+              <li>Method: continuous P75, <code>continuous_linear_type_7</code>.</li>
+              <li>Rule: value <strong>at or above</strong> P75 is higher use.</li>
+            </ul>
+          </article>
+          <article class="card">
+            <h3>Social-vulnerability boundary</h3>
+            <ul>
+              <li>Field: <code>RPL_THEMES</code>.</li>
+              <li>Vintage: static CDC/ATSDR SVI 2022.</li>
+              <li>Scale: U.S.-based county percentile rank from 0 to 1.</li>
+              <li>Boundary: exactly <code>0.75</code>.</li>
+              <li>Rule: value <strong>at or above</strong> 0.75 is higher SVI.</li>
+            </ul>
+          </article>
+        </div>
+        <div class="callout">
+          <strong>What “continuous” means:</strong> the percentile may fall between two observed county values. In the deterministic four-value fixture—<code>0.0100000000</code>, <code>0.0200000000</code>, <code>0.0300000000</code>, and <code>0.0400000000</code>—P75 is <code>0.0325000000</code>. Equality is deliberately placed on the higher side, so tied boundary rows behave consistently.
+        </div>
+        <p class="prose">The national P75 is calculated once and copied unchanged onto every row. It is not recalculated for a state or dashboard filter, and it is not the source-published CMS National benchmark. Reported numeric zero remains eligible; suppression, blanks, <code>NA</code>, unavailable values, and nulls never become zero.</p>
+      </div>
+    </section>
+
+    <section id="outcomes">
+      <div class="shell">
+        <p class="eyebrow">The result</p>
+        <h2>Four complete quadrants plus insufficient data</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th scope="col">Medicare-use band</th><th scope="col">SVI band</th><th scope="col">Stored category</th><th scope="col">Pinned counties</th></tr></thead>
+            <tbody>
+              <tr><td>Higher</td><td>Higher</td><td><code>higher_use_higher_vulnerability</code></td><td>354</td></tr>
+              <tr><td>Higher</td><td>Lower</td><td><code>higher_use_lower_vulnerability</code></td><td>188</td></tr>
+              <tr><td>Lower</td><td>Higher</td><td><code>lower_use_higher_vulnerability</code></td><td>259</td></tr>
+              <tr><td>Lower</td><td>Lower</td><td><code>lower_use_lower_vulnerability</code></td><td>1,347</td></tr>
+              <tr><td>Unavailable</td><td>One or both unavailable</td><td><code>insufficient_data</code></td><td>996</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="metric-strip" aria-label="Pinned Plan 007 result summary">
+          <div class="metric"><strong>3,144</strong><span>current candidate counties</span></div>
+          <div class="metric"><strong>2,148</strong><span>both components reported</span></div>
+          <div class="metric"><strong>996</strong><span>explicitly insufficient</span></div>
+          <div class="metric"><strong>0.0086000000</strong><span>fixed national P75</span></div>
+        </div>
+        <p class="prose">An incomplete row also states whether Medicare alone, SVI alone, or both components are unavailable. Its component booleans are null—not false—because “not known” is different from “known to be below the boundary.”</p>
+      </div>
+    </section>
+
+    <section id="checks">
+      <div class="shell">
+        <p class="eyebrow">Evidence and failure behavior</p>
+        <h2>The mart fails closed when its story cannot reconcile</h2>
+        <div class="grid">
+          <article class="card"><h3>T-016 · threshold</h3><p>Proves the national P75 uses only latest, current, reported, nonnull county values and remains fixed across the mart.</p></article>
+          <article class="card"><h3>T-017 · categories</h3><p>Proves the four complete quadrants plus insufficient data equal the full candidate county count.</p></article>
+          <article class="card"><h3>T-020 · lineage</h3><p>Proves each published metric retains grain, denominator, vintage, and source lineage.</p></article>
+        </div>
+        <p class="callout"><strong class="failure">Publication-blocking examples:</strong> two “latest” years, historical-county leakage, duplicate run audits, a source-lineage mismatch, a threshold outside 0–1, threshold drift between county rows, a component flag that disagrees with its value, or an audit total that does not reconcile.</p>
+        <details>
+          <summary>Reproducibility evidence from 2026-08-15 UTC</summary>
+          <p>Two independent builds from the same pinned input set reproduced P75 <code>0.0086000000</code>, all five counts, and the same ordered semantic SHA-256 values. The threshold, county mart, and audit summary hashes begin <code>3df5e14c</code>, <code>5fffc53a</code>, and <code>1796d8d4</code>. These are dated snapshot results, not timeless county-count promises.</p>
+          <p>A separate deterministic fixture reproduced P75 <code>0.0325000000</code> and exercises reported zero, equality on both boundaries, every quadrant, every insufficient-data reason, and named failure injections without network access.</p>
+        </details>
+      </div>
+    </section>
+
+    <section id="limits">
+      <div class="shell">
+        <p class="eyebrow">Safety boundaries</p>
+        <h2>What the screen does not say or do</h2>
+        <div class="boundary">
+          <article class="card">
+            <h3>Completed in Plan 007</h3>
+            <ul>
+              <li>Fixed and governed national P75.</li>
+              <li>Inclusive Medicare and SVI component flags.</li>
+              <li>One transparent category per current county.</li>
+              <li>Explicit missingness and five-category reconciliation.</li>
+              <li>Run and source lineage on every output.</li>
+            </ul>
+          </article>
+          <article class="card">
+            <h3>Deferred or prohibited</h3>
+            <ul>
+              <li>Facility ingestion, geography assignment, and due-diligence context.</li>
+              <li>Parquet publication, Airflow, Power BI, hosting, and optional AWS.</li>
+              <li>Patient-level data, PHI, clinical or causal claims.</li>
+              <li>Opaque scores, automated decisions, provider rankings, or final site-selection, partnership, or contracting recommendations.</li>
+            </ul>
+          </article>
+        </div>
+        <p class="callout"><strong>Facility rule:</strong> future facility characteristics may help an analyst investigate a county, but they can never change its screening quadrant.</p>
+      </div>
+    </section>
+
+    <section id="links">
+      <div class="shell">
+        <p class="eyebrow">Read the implementation</p>
+        <h2>Authority, code, tests, and operations</h2>
+        <div class="grid">
+          <article class="card"><h3>Authority</h3><ul><li><a href="../../specs.md">Authoritative specification</a></li><li><a href="../../plans/007-transparent-county-screening-mart.md">Plan 007</a></li><li><a href="../metric-dictionary.md">Metric dictionary</a></li><li><a href="../source-catalog.md">Source catalog</a></li></ul></article>
+          <article class="card"><h3>Models</h3><ul><li><a href="../../analytics/models/intermediate/screening/int_county_screening_threshold.sql">Threshold SQL</a></li><li><a href="../../analytics/models/marts/screening/mart_county_screening.sql">County mart SQL</a></li><li><a href="../../analytics/models/audit/audit_screening_quadrant_summary.sql">Audit summary SQL</a></li></ul></article>
+          <article class="card"><h3>Evidence</h3><ul><li><a href="../../tests/integration/test_county_screening_dbt.py">Fixture and pinned integration tests</a></li><li><a href="../preflight.md">Dated verification log</a></li><li><a href="006-cms-facts-and-geography-explained.html">Plan 006 input foundation</a></li></ul></article>
+        </div>
+        <h3>Short glossary</h3>
+        <dl>
+          <dt>Candidate</dt><dd>A current, reconciled county row eligible to appear in the screen, even when a component is unavailable.</dd>
+          <dt>Denominator</dt><dd>The population used under a measure; the CMS percentage retains its source-defined Original Medicare beneficiary denominator.</dd>
+          <dt>Percentile</dt><dd>A boundary describing position within an ordered population; P75 marks the 75th-percentile boundary.</dd>
+          <dt>Quadrant</dt><dd>One of four boxes formed by crossing two higher/lower component flags.</dd>
+          <dt>Lineage</dt><dd>The identities and hashes that trace a result back to the exact governed inputs.</dd>
+        </dl>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="shell">Plan 007 guide · Dated implementation evidence: 2026-08-15 UTC · Network-free and useful without JavaScript.</div>
+  </footer>
+</body>
+</html>

@@ -181,6 +181,31 @@ def add_cms_fixture_to_database(tmp_path: Path, database_path: Path) -> None:
             """
         )
         connection.execute("detach cms_fixture")
+        connection.execute(
+            """
+            create table raw.build_input_audit as
+            select
+                1::integer as build_format_version,
+                'plan-005-combined-fixture-001'::varchar as build_id,
+                repeat('d', 64)::varchar as input_set_sha256,
+                cms.source_id::varchar as cms_source_id,
+                cms.source_manifest_run_id::varchar as cms_manifest_run_id,
+                'cms_om_gv.raw.v2'::varchar as cms_contract_version,
+                cms.content_sha256::varchar as cms_content_sha256,
+                cms.source_retrieved_at_utc::varchar as cms_retrieved_at_utc,
+                1::bigint as cms_page_count,
+                (select count(*) from raw.cms_om_gv)::bigint as cms_row_count,
+                svi.source_id::varchar as svi_source_id,
+                svi.source_manifest_run_id::varchar as svi_manifest_run_id,
+                'cdc_svi_county_2022.raw.v1'::varchar as svi_contract_version,
+                svi.snapshot_sha256::varchar as svi_snapshot_sha256,
+                svi.source_retrieved_at_utc::varchar as svi_retrieved_at_utc,
+                svi.page_count::bigint as svi_page_count,
+                svi.row_count::bigint as svi_row_count
+            from raw.cms_om_gv_load_audit as cms
+            cross join raw.cdc_svi_county_2022_load_audit as svi
+            """
+        )
 
 
 def profiles_dir(tmp_path: Path) -> Path:

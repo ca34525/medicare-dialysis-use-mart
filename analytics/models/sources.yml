@@ -8,6 +8,63 @@ sources:
       transport grains and lineage without analytical interpretation.
     schema: raw
     tables:
+      - name: build_input_audit
+        description: >-
+          Exactly one row identifying the verified CMS/SVI input pair in this
+          run-scoped DuckDB database. This is candidate-build lineage, not a
+          publication audit or latest-successful pointer.
+        columns:
+          - name: build_format_version
+            description: Version of the canonical combined-input identity format.
+            data_tests: [not_null]
+          - name: build_id
+            description: User-supplied identifier for the run-scoped input build.
+            data_tests: [not_null, unique]
+          - name: input_set_sha256
+            description: SHA-256 of the canonical ordered CMS/SVI input set.
+            data_tests: [not_null, unique]
+          - name: cms_source_id
+            description: Expected logical CMS source identifier.
+            data_tests: [not_null]
+          - name: cms_manifest_run_id
+            description: Verified CMS v2 manifest run ID.
+            data_tests: [not_null]
+          - name: cms_contract_version
+            description: Governed CMS raw-contract version.
+            data_tests: [not_null]
+          - name: cms_content_sha256
+            description: SHA-256 of the immutable CMS CSV.
+            data_tests: [not_null]
+          - name: cms_retrieved_at_utc
+            description: CMS retrieval timestamp from the verified manifest.
+            data_tests: [not_null]
+          - name: cms_page_count
+            description: Verified CMS transport response count.
+            data_tests: [not_null]
+          - name: cms_row_count
+            description: Verified raw CMS row count.
+            data_tests: [not_null]
+          - name: svi_source_id
+            description: Expected logical SVI source identifier.
+            data_tests: [not_null]
+          - name: svi_manifest_run_id
+            description: Verified SVI manifest run ID.
+            data_tests: [not_null]
+          - name: svi_contract_version
+            description: Governed SVI raw-contract version.
+            data_tests: [not_null]
+          - name: svi_snapshot_sha256
+            description: SHA-256 of the canonical ordered SVI page set.
+            data_tests: [not_null]
+          - name: svi_retrieved_at_utc
+            description: SVI retrieval timestamp from the verified manifest.
+            data_tests: [not_null]
+          - name: svi_page_count
+            description: Verified SVI page count.
+            data_tests: [not_null]
+          - name: svi_row_count
+            description: Verified raw SVI row count.
+            data_tests: [not_null]
       - name: cms_om_gv
         description: >-
           Required CMS Original Medicare Geographic Variation fields preserved

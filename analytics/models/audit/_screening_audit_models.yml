@@ -1,0 +1,126 @@
+version: 2
+
+models:
+  - name: audit_screening_quadrant_summary
+    description: >-
+      Five neutral screening categories per candidate run, including explicit
+      zero-count categories. Counts reconcile to the row-level mart and do not
+      imply an ordinal ranking or recommendation.
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: screening_definition_version
+        data_type: varchar
+        description: Stable version of the screening rules.
+        data_tests: [not_null]
+      - name: screening_run_id
+        data_type: varchar
+        description: Candidate screening run ID.
+        data_tests: [not_null]
+      - name: input_set_sha256
+        data_type: varchar
+        description: Deterministic CMS/SVI input-set identity.
+        data_tests: [not_null]
+      - name: cms_year
+        data_type: integer
+        description: Derived latest CMS year.
+        data_tests: [not_null]
+      - name: svi_vintage
+        data_type: integer
+        description: Static SVI release vintage.
+        data_tests: [not_null]
+      - name: category_display_order
+        data_type: integer
+        description: Neutral stable layout order; not a priority rank.
+        data_tests: [not_null, unique]
+      - name: screening_quadrant
+        data_type: varchar
+        description: One of four complete-data quadrants or insufficient_data.
+        data_tests: [not_null, unique]
+      - name: screening_row_count
+        data_type: bigint
+        description: Mart rows in this category; zero is emitted explicitly.
+        data_tests: [not_null]
+      - name: total_screening_row_count
+        data_type: bigint
+        description: All current screening rows in the candidate run.
+        data_tests: [not_null]
+      - name: complete_data_count
+        data_type: bigint
+        description: Rows with both components reported and nonnull.
+        data_tests: [not_null]
+      - name: insufficient_data_count
+        data_type: bigint
+        description: Rows missing one or both screening components.
+        data_tests: [not_null]
+      - name: higher_use_count
+        data_type: bigint
+        description: Complete or incomplete rows with a reported CMS value at/above P75.
+        data_tests: [not_null]
+      - name: lower_use_count
+        data_type: bigint
+        description: Complete or incomplete rows with a reported CMS value below P75.
+        data_tests: [not_null]
+      - name: higher_vulnerability_count
+        data_type: bigint
+        description: Rows with a reported SVI rank at/above 0.75.
+        data_tests: [not_null]
+      - name: lower_vulnerability_count
+        data_type: bigint
+        description: Rows with a reported SVI rank below 0.75.
+        data_tests: [not_null]
+      - name: dialysis_use_p75_threshold
+        data_type: decimal(38, 10)
+        description: Fixed national county continuous 75th percentile.
+        data_tests: [not_null]
+      - name: threshold_eligible_count
+        data_type: bigint
+        description: Current counties used in P75.
+        data_tests: [not_null]
+      - name: threshold_excluded_count
+        data_type: bigint
+        description: Current counties excluded from P75 for missing CMS data.
+        data_tests: [not_null]
+      - name: cms_source_manifest_run_id
+        data_type: varchar
+        description: Verified CMS v2 manifest run ID.
+        data_tests: [not_null]
+      - name: cms_source_content_sha256
+        data_type: varchar
+        description: Immutable CMS CSV identity.
+        data_tests: [not_null]
+      - name: svi_source_manifest_run_id
+        data_type: varchar
+        description: Verified SVI manifest run ID.
+        data_tests: [not_null]
+      - name: svi_source_snapshot_sha256
+        data_type: varchar
+        description: Immutable ordered SVI page-set identity.
+        data_tests: [not_null]
+
+unit_tests:
+  - name: screening_summary_emits_all_categories_and_zero_counts
+    description: >-
+      Every approved category appears once, including a missing complete-data
+      quadrant whose count is explicitly zero; repeated marginal totals remain
+      tied to the same run and threshold.
+    model: audit_screening_quadrant_summary
+    given:
+      - input: ref('int_county_screening_threshold')
+        rows:
+          - {screening_definition_version: county_screening.v1, screening_run_id: screening-fixture, input_set_sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, cms_year: 2024, svi_vintage: 2022, dialysis_use_p75_threshold: 0.03, threshold_eligible_count: 4, threshold_excluded_count: 1, cms_source_manifest_run_id: cms-fixture, cms_source_content_sha256: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb, svi_source_manifest_run_id: svi-fixture, svi_source_snapshot_sha256: cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc}
+      - input: ref('mart_county_screening')
+        rows:
+          - {screening_quadrant: higher_use_higher_vulnerability, screening_data_status: complete, is_higher_observed_dialysis_use: true, is_higher_social_vulnerability: true}
+          - {screening_quadrant: higher_use_higher_vulnerability, screening_data_status: complete, is_higher_observed_dialysis_use: true, is_higher_social_vulnerability: true}
+          - {screening_quadrant: higher_use_lower_vulnerability, screening_data_status: complete, is_higher_observed_dialysis_use: true, is_higher_social_vulnerability: false}
+          - {screening_quadrant: lower_use_higher_vulnerability, screening_data_status: complete, is_higher_observed_dialysis_use: false, is_higher_social_vulnerability: true}
+          - {screening_quadrant: insufficient_data, screening_data_status: insufficient_data, is_higher_observed_dialysis_use: null, is_higher_social_vulnerability: false}
+    expect:
+      rows:
+        - {category_display_order: 1, screening_quadrant: higher_use_higher_vulnerability, screening_row_count: 2, total_screening_row_count: 5, complete_data_count: 4, insufficient_data_count: 1, higher_use_count: 3, lower_use_count: 1, higher_vulnerability_count: 3, lower_vulnerability_count: 2}
+        - {category_display_order: 2, screening_quadrant: higher_use_lower_vulnerability, screening_row_count: 1, total_screening_row_count: 5, complete_data_count: 4, insufficient_data_count: 1, higher_use_count: 3, lower_use_count: 1, higher_vulnerability_count: 3, lower_vulnerability_count: 2}
+        - {category_display_order: 3, screening_quadrant: lower_use_higher_vulnerability, screening_row_count: 1, total_screening_row_count: 5, complete_data_count: 4, insufficient_data_count: 1, higher_use_count: 3, lower_use_count: 1, higher_vulnerability_count: 3, lower_vulnerability_count: 2}
+        - {category_display_order: 4, screening_quadrant: lower_use_lower_vulnerability, screening_row_count: 0, total_screening_row_count: 5, complete_data_count: 4, insufficient_data_count: 1, higher_use_count: 3, lower_use_count: 1, higher_vulnerability_count: 3, lower_vulnerability_count: 2}
+        - {category_display_order: 5, screening_quadrant: insufficient_data, screening_row_count: 1, total_screening_row_count: 5, complete_data_count: 4, insufficient_data_count: 1, higher_use_count: 3, lower_use_count: 1, higher_vulnerability_count: 3, lower_vulnerability_count: 2}

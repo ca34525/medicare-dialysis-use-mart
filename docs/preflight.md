@@ -92,10 +92,11 @@ verified page blobs, needed no retry, and recorded `content_noop: true`.
 
 These are dated observations about the examined static 2022 snapshot, not
 timeless row-count guarantees. The generated responses, manifests, and
-database remain under ignored paths. CMS-to-SVI reconciliation T-014 and all
-screening thresholds, quadrants, rankings, and recommendations remain
-deferred. The final locked offline handoff completed `uv sync --locked`, clean
-Ruff format and lint checks, and 252 passing pytest tests.
+database remain under ignored paths. Plan 006 later completed CMS-to-SVI
+reconciliation T-014, and Plan 007 later added the transparent threshold and
+quadrants. Rankings and recommendations remain prohibited. The locked Plan 005
+handoff completed `uv sync --locked`, clean Ruff format and lint checks, and
+252 passing pytest tests.
 
 ## CMS Geographic Variation full-file ingestion check
 
@@ -164,6 +165,43 @@ The first ordered semantic hashes were `60a5de80…d26b6c` (`dim_year`),
 from the same two manifests reproduced the same input-set hash, row counts,
 214-result green dbt build, and all five complete semantic hashes. Full raw
 rows, manifests, DuckDB databases, and dbt artifacts remain ignored.
+
+## Plan 007 transparent county screening check
+
+On 2026-08-15 UTC, the verified Plan 006 input set was rebuilt twice at fresh
+database paths. Both builds derived the same fixed national continuous P75 for
+`BENES_OP_DLYS_PCT`: `0.0086000000`. The calculation used the latest governed
+CMS year, current reconciled counties, and only reported nonnull values; it did
+not use the source-published CMS National benchmark.
+
+Each build produced 3,144 screening rows. Of those, 2,148 had both reported
+components and 996 were `insufficient_data`. The complete-data categories
+reconciled as follows:
+
+| Screening category | County count |
+|---|---:|
+| Higher use / higher SVI | 354 |
+| Higher use / lower SVI | 188 |
+| Lower use / higher SVI | 259 |
+| Lower use / lower SVI | 1,347 |
+| Insufficient data | 996 |
+
+The ordered semantic SHA-256 values matched across both paths:
+`3df5e14cfa6ce24e5161bf6ac67ce52397a7a762b816e0aa5f5935ee0e6945ac`
+for `int_county_screening_threshold`,
+`5fffc53ae6392119d445bf65b1d6d91dedddadd58e13ab75d445bd7531275166`
+for `mart_county_screening`, and
+`1796d8d4002818a4ffc81386040e29f08421289000c9ba978eec50a6e51eacf1`
+for `audit_screening_quadrant_summary`. A separate four-value fixture verified
+DuckDB continuous interpolation as `0.0325000000`; boundary fixtures verified
+that equality to P75 and equality to SVI `0.75` are both classified on the
+higher side. Failure injection covered lineage mismatch, latest-year ambiguity,
+historical leakage, threshold drift, component-flag inconsistency, invalid
+thresholds, and summary drift.
+
+These are dated pinned-snapshot observations, not timeless population counts.
+The screen is transparent classification only. Facility context, publication,
+Airflow, Power BI, and any ranking or recommendation remain outside Plan 007.
 
 ## Deferred or not required
 

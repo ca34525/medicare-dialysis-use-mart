@@ -211,8 +211,10 @@ denominators:
 These percentages are contextual measures with different denominators. They
 must not be summed, averaged into a new score, used to alter the screening
 quadrant, or interpreted as clinical or causal evidence. `RPL_THEMES` is the
-transparent social-vulnerability component for a later screening model; this
-contract does not classify its `0.75` boundary.
+transparent social-vulnerability component used by the Plan 007 screening
+model. This source contract does not classify its `0.75` boundary; the
+downstream screen classifies a reported value at or above the boundary as
+higher social vulnerability.
 
 ### Paginated extraction and immutable lineage
 
@@ -323,7 +325,34 @@ reused both pages and recorded a content no-op. These are dated observations,
 not timeless constants. No full source rows, geometry, manifest, or generated
 database are committed.
 
-Plan 006 now completes pinned CMS-to-SVI geography reconciliation T-014 and the
-CMS fact/benchmark models. The `RPL_THEMES >= 0.75` screening component remains
-deferred. This source fact does not itself classify, rank, or recommend
-counties.
+Plan 006 completes pinned CMS-to-SVI geography reconciliation T-014 and the CMS
+fact/benchmark models. Plan 007 applies the `RPL_THEMES >= 0.75` component only
+after the source fact passes its own contracts. This source fact does not
+itself classify, rank, or recommend counties.
+
+## Derived transparent county screening mart
+
+Plan 007 adds a derived, run-scoped screening layer without changing either
+source contract. Its candidate grain is one row per build input set × latest
+CMS year × current reconciled county FIPS. It uses exactly two components:
+
+| Component | Denominator and vintage | Fixed boundary |
+|---|---|---|
+| `BENES_OP_DLYS_PCT` | CMS source-defined Original Medicare beneficiary denominator; latest governed CMS year | National continuous county P75 among current, reported, nonnull county values; equality is higher use |
+| `RPL_THEMES` | CDC/ATSDR SVI 2022 static U.S. county percentile rank | `0.75`; equality is higher social vulnerability |
+
+The P75 is not an official CMS State or National benchmark and is never
+recalculated after a user filters the mart. Suppressed, unavailable, or invalid
+inputs never become zero. Rows with both components map to exactly one of
+`higher_use_higher_vulnerability`, `higher_use_lower_vulnerability`,
+`lower_use_higher_vulnerability`, or `lower_use_lower_vulnerability`; all other rows are
+`insufficient_data` with a coarse source-availability reason. The five-category
+audit summary reconciles to the candidate county total, including zero-count
+categories.
+
+This layer describes observed outpatient dialysis use among Original Medicare
+beneficiaries alongside social-vulnerability context. It is not a clinical or
+causal measure, prevalence estimate, composite score, rank, recommendation, or
+automated decision. Facility data, once added, are due-diligence context only
+and may not change these classifications. Exact metric definitions and dated
+pinned results are in [`metric-dictionary.md`](metric-dictionary.md).

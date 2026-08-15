@@ -1,0 +1,239 @@
+version: 2
+
+models:
+  - name: mart_county_screening
+    description: >-
+      One current county per candidate screening run. It transparently combines
+      observed outpatient dialysis use among Original Medicare beneficiaries
+      with static SVI 2022 context; it is not a score, ranking, prevalence
+      estimate, recommendation, or automated decision.
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: screening_definition_version
+        data_type: varchar
+        description: Stable version of the screening rules.
+        data_tests: [not_null]
+      - name: screening_run_id
+        data_type: varchar
+        description: Candidate run ID from the verified combined build.
+        data_tests: [not_null]
+      - name: input_set_sha256
+        data_type: varchar
+        description: Deterministic identity of the exact CMS/SVI input pair.
+        data_tests: [not_null]
+      - name: county_fips
+        data_type: varchar
+        description: Current five-character county FIPS.
+        data_tests:
+          - not_null
+          - unique
+          - relationships:
+              arguments:
+                to: ref('dim_county')
+                field: county_fips
+      - name: state_fips
+        data_type: varchar
+        description: Two-character State FIPS.
+        data_tests: [not_null]
+      - name: state_name
+        data_type: varchar
+        description: Current SVI-backed State name.
+        data_tests: [not_null]
+      - name: state_abbreviation
+        data_type: varchar
+        description: Current SVI-backed State abbreviation.
+        data_tests: [not_null]
+      - name: county_name
+        data_type: varchar
+        description: Current SVI-backed county name.
+        data_tests: [not_null]
+      - name: geography_status
+        data_type: varchar
+        description: Must be current_in_scope for every screening row.
+        data_tests: [not_null]
+      - name: boundary_discontinuity_warning
+        data_type: varchar
+        description: Geography caveat; null for the current identity surface.
+      - name: reconciliation_status
+        data_type: varchar
+        description: Must be matched in the latest CMS/SVI reconciliation.
+        data_tests: [not_null]
+      - name: cms_reconciliation_row_count
+        data_type: bigint
+        description: Latest-year CMS rows for this current county; must be one.
+        data_tests: [not_null]
+      - name: svi_reconciliation_row_count
+        data_type: bigint
+        description: Current SVI rows for this county; must be one.
+        data_tests: [not_null]
+      - name: cms_year
+        data_type: integer
+        description: Derived latest CMS calendar year.
+        data_tests: [not_null]
+      - name: svi_vintage
+        data_type: integer
+        description: Static SVI release vintage, currently 2022.
+        data_tests: [not_null]
+      - name: acs_period_start
+        data_type: integer
+        description: First ACS period year underlying the SVI release.
+        data_tests: [not_null]
+      - name: acs_period_end
+        data_type: integer
+        description: Last ACS period year underlying the SVI release.
+        data_tests: [not_null]
+      - name: benes_om_cnt
+        data_type: decimal(38, 0)
+        description: Source-reported Original Medicare beneficiary denominator.
+      - name: benes_om_cnt_status
+        data_type: varchar
+        description: Availability status of the beneficiary denominator.
+        data_tests: [not_null]
+      - name: benes_op_dlys_pct
+        data_type: decimal(38, 10)
+        description: >-
+          Observed outpatient dialysis use among Original Medicare
+          beneficiaries, expressed as a source-reported 0-to-1 proportion.
+      - name: benes_op_dlys_pct_status
+        data_type: varchar
+        description: Exact governed CMS availability status.
+        data_tests: [not_null]
+      - name: dialysis_use_p75_threshold
+        data_type: decimal(38, 10)
+        description: Fixed national county continuous 75th percentile.
+        data_tests: [not_null]
+      - name: threshold_eligible_count
+        data_type: bigint
+        description: Counties contributing to the fixed threshold.
+        data_tests: [not_null]
+      - name: is_dialysis_use_threshold_eligible
+        data_type: boolean
+        description: True only for a reported nonnull CMS component.
+        data_tests: [not_null]
+      - name: is_higher_observed_dialysis_use
+        data_type: boolean
+        description: >-
+          Nullable component flag; true at or above P75, false below, null when
+          the component is unavailable.
+      - name: dialysis_use_band
+        data_type: varchar
+        description: higher_use, lower_use, or insufficient_data.
+        data_tests: [not_null]
+      - name: rpl_themes
+        data_type: decimal(18, 10)
+        description: Source U.S.-based county SVI percentile rank, 0 to 1.
+      - name: rpl_themes_status
+        data_type: varchar
+        description: Exact governed SVI availability status.
+        data_tests: [not_null]
+      - name: is_higher_social_vulnerability
+        data_type: boolean
+        description: >-
+          Nullable component flag; true at or above 0.75, false below, null
+          when the component is unavailable.
+      - name: social_vulnerability_band
+        data_type: varchar
+        description: higher_vulnerability, lower_vulnerability, or insufficient_data.
+        data_tests: [not_null]
+      - name: screening_data_status
+        data_type: varchar
+        description: complete or insufficient_data.
+        data_tests: [not_null]
+      - name: screening_insufficient_reason
+        data_type: varchar
+        description: >-
+          Null for complete rows; otherwise identifies the unavailable
+          dialysis-use component, social-vulnerability component, or both.
+      - name: screening_quadrant
+        data_type: varchar
+        description: One of four transparent complete-data quadrants or insufficient_data.
+        data_tests: [not_null]
+      - name: cms_source_manifest_run_id
+        data_type: varchar
+        description: Verified CMS v2 manifest run ID.
+        data_tests: [not_null]
+      - name: cms_source_content_sha256
+        data_type: varchar
+        description: Immutable CMS CSV identity.
+        data_tests: [not_null]
+      - name: cms_source_retrieved_at_utc
+        data_type: varchar
+        description: Verified CMS retrieval timestamp.
+        data_tests: [not_null]
+      - name: cms_source_modified_at
+        data_type: varchar
+        description: Upstream CMS modified date.
+      - name: svi_source_manifest_run_id
+        data_type: varchar
+        description: Verified SVI manifest run ID.
+        data_tests: [not_null]
+      - name: svi_source_snapshot_sha256
+        data_type: varchar
+        description: Immutable ordered SVI page-set identity.
+        data_tests: [not_null]
+      - name: svi_source_retrieved_at_utc
+        data_type: varchar
+        description: Verified SVI retrieval timestamp.
+        data_tests: [not_null]
+      - name: svi_source_modified_at
+        data_type: varchar
+        description: Upstream SVI layer edit timestamp.
+
+unit_tests:
+  - name: screening_quadrants_boundaries_and_missingness_are_explicit
+    description: >-
+      Equality is higher, reported zero is data, all four complete quadrants
+      are represented, and three incomplete-data reasons preserve nullable
+      component flags.
+    model: mart_county_screening
+    given:
+      - input: ref('int_county_screening_threshold')
+        rows:
+          - {screening_definition_version: county_screening.v1, screening_run_id: screening-fixture, input_set_sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, cms_year: 2024, svi_vintage: 2022, dialysis_use_p75_threshold: 0.03, threshold_eligible_count: 6}
+      - input: ref('dim_county')
+        rows:
+          - {county_fips: '01001', state_fips: '01', state_name: Synthetic Alabama, state_abbreviation: AL, county_name: Boundary County, geography_status: current_in_scope, is_current_county: true, boundary_discontinuity_warning: null}
+          - {county_fips: '01003', state_fips: '01', state_name: Synthetic Alabama, state_abbreviation: AL, county_name: Higher Use County, geography_status: current_in_scope, is_current_county: true, boundary_discontinuity_warning: null}
+          - {county_fips: '02013', state_fips: '02', state_name: Synthetic Alaska, state_abbreviation: AK, county_name: Higher Vulnerability County, geography_status: current_in_scope, is_current_county: true, boundary_discontinuity_warning: null}
+          - {county_fips: '11001', state_fips: '11', state_name: District of Columbia, state_abbreviation: DC, county_name: Zero County, geography_status: current_in_scope, is_current_county: true, boundary_discontinuity_warning: null}
+          - {county_fips: '04001', state_fips: '04', state_name: Synthetic Arizona, state_abbreviation: AZ, county_name: CMS Missing County, geography_status: current_in_scope, is_current_county: true, boundary_discontinuity_warning: null}
+          - {county_fips: '05001', state_fips: '05', state_name: Synthetic Arkansas, state_abbreviation: AR, county_name: SVI Missing County, geography_status: current_in_scope, is_current_county: true, boundary_discontinuity_warning: null}
+          - {county_fips: '06001', state_fips: '06', state_name: Synthetic California, state_abbreviation: CA, county_name: Both Missing County, geography_status: current_in_scope, is_current_county: true, boundary_discontinuity_warning: null}
+      - input: ref('fct_medicare_county_year')
+        rows:
+          - {county_fips: '01001', year: 2024, benes_om_cnt: 100, benes_om_cnt_status: reported, benes_op_dlys_pct: 0.03, benes_op_dlys_pct_status: reported, source_manifest_run_id: cms-fixture, source_content_sha256: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb, source_retrieved_at_utc: '2026-08-15T01:50:00Z', source_modified_at: '2026-05-15'}
+          - {county_fips: '01003', year: 2024, benes_om_cnt: 100, benes_om_cnt_status: reported, benes_op_dlys_pct: 0.04, benes_op_dlys_pct_status: reported, source_manifest_run_id: cms-fixture, source_content_sha256: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb, source_retrieved_at_utc: '2026-08-15T01:50:00Z', source_modified_at: '2026-05-15'}
+          - {county_fips: '02013', year: 2024, benes_om_cnt: 100, benes_om_cnt_status: reported, benes_op_dlys_pct: 0.02, benes_op_dlys_pct_status: reported, source_manifest_run_id: cms-fixture, source_content_sha256: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb, source_retrieved_at_utc: '2026-08-15T01:50:00Z', source_modified_at: '2026-05-15'}
+          - {county_fips: '11001', year: 2024, benes_om_cnt: 0, benes_om_cnt_status: reported, benes_op_dlys_pct: 0, benes_op_dlys_pct_status: reported, source_manifest_run_id: cms-fixture, source_content_sha256: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb, source_retrieved_at_utc: '2026-08-15T01:50:00Z', source_modified_at: '2026-05-15'}
+          - {county_fips: '04001', year: 2024, benes_om_cnt: 100, benes_om_cnt_status: reported, benes_op_dlys_pct: null, benes_op_dlys_pct_status: suppressed, source_manifest_run_id: cms-fixture, source_content_sha256: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb, source_retrieved_at_utc: '2026-08-15T01:50:00Z', source_modified_at: '2026-05-15'}
+          - {county_fips: '05001', year: 2024, benes_om_cnt: 100, benes_om_cnt_status: reported, benes_op_dlys_pct: 0.04, benes_op_dlys_pct_status: reported, source_manifest_run_id: cms-fixture, source_content_sha256: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb, source_retrieved_at_utc: '2026-08-15T01:50:00Z', source_modified_at: '2026-05-15'}
+          - {county_fips: '06001', year: 2024, benes_om_cnt: null, benes_om_cnt_status: unavailable_na, benes_op_dlys_pct: null, benes_op_dlys_pct_status: unavailable_na, source_manifest_run_id: cms-fixture, source_content_sha256: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb, source_retrieved_at_utc: '2026-08-15T01:50:00Z', source_modified_at: '2026-05-15'}
+      - input: ref('fct_svi_county')
+        rows:
+          - {county_fips: '01001', svi_vintage: 2022, acs_period_start: 2018, acs_period_end: 2022, rpl_themes: 0.75, rpl_themes_status: reported, source_manifest_run_id: svi-fixture, source_snapshot_sha256: cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc, source_retrieved_at_utc: '2026-08-14T19:46:25Z', source_modified_at: '2024-12-18T21:12:51Z'}
+          - {county_fips: '01003', svi_vintage: 2022, acs_period_start: 2018, acs_period_end: 2022, rpl_themes: 0.5, rpl_themes_status: reported, source_manifest_run_id: svi-fixture, source_snapshot_sha256: cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc, source_retrieved_at_utc: '2026-08-14T19:46:25Z', source_modified_at: '2024-12-18T21:12:51Z'}
+          - {county_fips: '02013', svi_vintage: 2022, acs_period_start: 2018, acs_period_end: 2022, rpl_themes: 0.8, rpl_themes_status: reported, source_manifest_run_id: svi-fixture, source_snapshot_sha256: cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc, source_retrieved_at_utc: '2026-08-14T19:46:25Z', source_modified_at: '2024-12-18T21:12:51Z'}
+          - {county_fips: '11001', svi_vintage: 2022, acs_period_start: 2018, acs_period_end: 2022, rpl_themes: 0, rpl_themes_status: reported, source_manifest_run_id: svi-fixture, source_snapshot_sha256: cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc, source_retrieved_at_utc: '2026-08-14T19:46:25Z', source_modified_at: '2024-12-18T21:12:51Z'}
+          - {county_fips: '04001', svi_vintage: 2022, acs_period_start: 2018, acs_period_end: 2022, rpl_themes: 0.8, rpl_themes_status: reported, source_manifest_run_id: svi-fixture, source_snapshot_sha256: cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc, source_retrieved_at_utc: '2026-08-14T19:46:25Z', source_modified_at: '2024-12-18T21:12:51Z'}
+          - {county_fips: '05001', svi_vintage: 2022, acs_period_start: 2018, acs_period_end: 2022, rpl_themes: null, rpl_themes_status: unavailable_sentinel, source_manifest_run_id: svi-fixture, source_snapshot_sha256: cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc, source_retrieved_at_utc: '2026-08-14T19:46:25Z', source_modified_at: '2024-12-18T21:12:51Z'}
+          - {county_fips: '06001', svi_vintage: 2022, acs_period_start: 2018, acs_period_end: 2022, rpl_themes: null, rpl_themes_status: unavailable_null, source_manifest_run_id: svi-fixture, source_snapshot_sha256: cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc, source_retrieved_at_utc: '2026-08-14T19:46:25Z', source_modified_at: '2024-12-18T21:12:51Z'}
+      - input: ref('audit_cms_svi_county_reconciliation')
+        rows:
+          - {county_fips: '01001', reconciliation_status: matched, cms_row_count: 1, svi_row_count: 1}
+          - {county_fips: '01003', reconciliation_status: matched, cms_row_count: 1, svi_row_count: 1}
+          - {county_fips: '02013', reconciliation_status: matched, cms_row_count: 1, svi_row_count: 1}
+          - {county_fips: '11001', reconciliation_status: matched, cms_row_count: 1, svi_row_count: 1}
+          - {county_fips: '04001', reconciliation_status: matched, cms_row_count: 1, svi_row_count: 1}
+          - {county_fips: '05001', reconciliation_status: matched, cms_row_count: 1, svi_row_count: 1}
+          - {county_fips: '06001', reconciliation_status: matched, cms_row_count: 1, svi_row_count: 1}
+    expect:
+      rows:
+        - {county_fips: '01001', is_dialysis_use_threshold_eligible: true, is_higher_observed_dialysis_use: true, dialysis_use_band: higher_use, is_higher_social_vulnerability: true, social_vulnerability_band: higher_vulnerability, screening_data_status: complete, screening_insufficient_reason: null, screening_quadrant: higher_use_higher_vulnerability}
+        - {county_fips: '01003', is_dialysis_use_threshold_eligible: true, is_higher_observed_dialysis_use: true, dialysis_use_band: higher_use, is_higher_social_vulnerability: false, social_vulnerability_band: lower_vulnerability, screening_data_status: complete, screening_insufficient_reason: null, screening_quadrant: higher_use_lower_vulnerability}
+        - {county_fips: '02013', is_dialysis_use_threshold_eligible: true, is_higher_observed_dialysis_use: false, dialysis_use_band: lower_use, is_higher_social_vulnerability: true, social_vulnerability_band: higher_vulnerability, screening_data_status: complete, screening_insufficient_reason: null, screening_quadrant: lower_use_higher_vulnerability}
+        - {county_fips: '11001', is_dialysis_use_threshold_eligible: true, is_higher_observed_dialysis_use: false, dialysis_use_band: lower_use, is_higher_social_vulnerability: false, social_vulnerability_band: lower_vulnerability, screening_data_status: complete, screening_insufficient_reason: null, screening_quadrant: lower_use_lower_vulnerability}
+        - {county_fips: '04001', is_dialysis_use_threshold_eligible: false, is_higher_observed_dialysis_use: null, dialysis_use_band: insufficient_data, is_higher_social_vulnerability: true, social_vulnerability_band: higher_vulnerability, screening_data_status: insufficient_data, screening_insufficient_reason: dialysis_use_component_unavailable, screening_quadrant: insufficient_data}
+        - {county_fips: '05001', is_dialysis_use_threshold_eligible: true, is_higher_observed_dialysis_use: true, dialysis_use_band: higher_use, is_higher_social_vulnerability: null, social_vulnerability_band: insufficient_data, screening_data_status: insufficient_data, screening_insufficient_reason: social_vulnerability_component_unavailable, screening_quadrant: insufficient_data}
+        - {county_fips: '06001', is_dialysis_use_threshold_eligible: false, is_higher_observed_dialysis_use: null, dialysis_use_band: insufficient_data, is_higher_social_vulnerability: null, social_vulnerability_band: insufficient_data, screening_data_status: insufficient_data, screening_insufficient_reason: both_components_unavailable, screening_quadrant: insufficient_data}

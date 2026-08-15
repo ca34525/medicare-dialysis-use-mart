@@ -6,7 +6,7 @@ It is not a clinical tool, prevalence estimate, opaque opportunity score, or fin
 
 ## Current status
 
-The locked Python 3.12 environment and offline quality checks are verified. CMS contract v2 and the CDC/ATSDR SVI 2022 path now assemble atomically into one run-scoped DuckDB input. dbt produces governed CMS county-year facts, source-published State/National benchmarks, a year dimension, a current-plus-historical county dimension, the static SVI fact, and a blocking latest-year CMS/SVI geography reconciliation. The pinned build has 3,144 current counties on both sides, all matched; 11 reviewed historical CMS identities remain separate and inactive. Raw missingness, five-character FIPS, grain, vintage, and lineage remain explicit. The screening quadrant, facility context, publication, Airflow DAG, and Power BI report remain deferred; dated evidence is in [`docs/preflight.md`](docs/preflight.md).
+The locked Python 3.12 environment and offline quality checks are verified. CMS contract v2 and the CDC/ATSDR SVI 2022 path assemble atomically into one run-scoped DuckDB input. dbt now produces governed source facts, a fixed national continuous P75 threshold, a one-row-per-current-county transparent screening mart, and a five-category reconciliation audit. In the pinned 2026-08-15 snapshot, 2,148 of 3,144 counties have both components, 996 are explicitly insufficient, and the P75 for observed outpatient dialysis use among Original Medicare beneficiaries is `0.0086000000`. Facility context, publication, Airflow, and Power BI remain deferred; dated evidence is in [`docs/preflight.md`](docs/preflight.md).
 
 ## Human guides
 
@@ -14,8 +14,9 @@ The locked Python 3.12 environment and offline quality checks are verified. CMS 
 - [Plan 002 — What is an ingestion manifest?](docs/guides/002-cms-ingestion-manifest-explained.html) explains raw downloads, bytes, blobs, hashes, manifests, atomic publication, and safe reruns at the same introductory level.
 - [Plan 003 — How does raw CMS data become a typed county stage?](docs/guides/003-cms-staging-explained.html) explains manifest verification, raw-string loading, suppression and unavailability, county filtering, dbt tests, and deterministic reruns.
 - [Plan 004 — How does the SVI county source contract protect the mart?](docs/guides/004-svi-source-contract-explained.html) explains the official layer identity, required fields, county grain, source-defined denominators, unavailable sentinel, dated live evidence, and safety boundaries.
-- [Plan 005 — How do paginated SVI responses become trusted county facts?](docs/guides/005-svi-source-to-fact-explained.html) explains exact API pages, immutable hashes and manifests, raw-token typing, the county dimension, the SVI fact, and the boundaries that keep this context out of screening decisions for now.
+- [Plan 005 — How do paginated SVI responses become trusted county facts?](docs/guides/005-svi-source-to-fact-explained.html) explains exact API pages, immutable hashes and manifests, raw-token typing, the county dimension, the SVI fact, and the boundary between source preparation and downstream classification.
 - [Plan 006 — How do verified CMS and SVI inputs become governed facts?](docs/guides/006-cms-facts-and-geography-explained.html) explains atomic two-source assembly, CMS facts and benchmarks, the DC county-equivalent rule, historical identities, and full-outer current-county reconciliation.
+- [Plan 007 — How does the transparent county screen work?](docs/guides/007-county-screening-explained.html) explains the fixed national percentile, inclusive boundaries, missing-data behavior, four quadrants, audit totals, and the decisions this screen does not make.
 
 Open any downloaded HTML file in a web browser. The numbering follows the matching files in [`plans/`](plans/); the authoring and review convention is in [`docs/guides/README.md`](docs/guides/README.md).
 
@@ -123,6 +124,31 @@ The builder re-verifies both manifests and every referenced byte, records a
 deterministic input-set hash, and publishes only after both raw relations and
 their audits reconcile. A CMS v1 manifest is intentionally rejected on this
 path. Generated databases, manifests, profiles, and dbt artifacts stay ignored.
+
+## Transparent county screening quick start
+
+The Plan 007 fixture exercises percentile interpolation, both inclusive
+boundaries, all four complete-data quadrants, explicit insufficient-data
+reasons, failure injection, and independent fresh-path reproducibility:
+
+```powershell
+uv run pytest tests/integration/test_county_screening_dbt.py
+```
+
+To build the screen from an already assembled Plan 006 database, run the full
+dbt project. The screening threshold is calculated once from the current
+national county population and then copied unchanged to every candidate row:
+
+```powershell
+$env:KIDNEY_CARE_DUCKDB_PATH = (Resolve-Path `
+  "data/staging/<build-id>.duckdb").Path
+uv run dbt build --project-dir analytics --profiles-dir analytics
+uv run dbt docs generate --project-dir analytics --profiles-dir analytics
+```
+
+The output is a reproducible screening aid, not a prevalence estimate, opaque
+score, ranking, recommendation, or automated decision. Facility context will
+be added later for due diligence and cannot alter a screening quadrant.
 
 ## Bootstrap quick start
 

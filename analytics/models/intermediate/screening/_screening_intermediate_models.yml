@@ -1,0 +1,135 @@
+version: 2
+
+models:
+  - name: int_county_screening_threshold
+    description: >-
+      One fixed national county threshold per candidate screening run. The
+      continuous 75th percentile gives every current county with a reported
+      latest-year BENES_OP_DLYS_PCT equal weight; it is not a beneficiary-
+      weighted or source-published National benchmark.
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: screening_definition_version
+        data_type: varchar
+        description: Stable version of the transparent screening rules.
+        data_tests: [not_null, unique]
+      - name: screening_run_id
+        data_type: varchar
+        description: Candidate run ID copied from raw.build_input_audit.
+        data_tests: [not_null, unique]
+      - name: input_set_sha256
+        data_type: varchar
+        description: Deterministic identity of the exact CMS/SVI input pair.
+        data_tests: [not_null, unique]
+      - name: build_format_version
+        data_type: integer
+        description: Combined-input canonical identity format version.
+        data_tests: [not_null]
+      - name: cms_year
+        data_type: integer
+        description: Latest CMS year derived from dim_year.
+        data_tests: [not_null]
+      - name: svi_vintage
+        data_type: integer
+        description: Static SVI release vintage used by the candidate run.
+        data_tests: [not_null]
+      - name: threshold_metric
+        data_type: varchar
+        description: Source field BENES_OP_DLYS_PCT.
+        data_tests: [not_null]
+      - name: threshold_quantile
+        data_type: decimal(3, 2)
+        description: Continuous quantile probability, exactly 0.75.
+        data_tests: [not_null]
+      - name: threshold_method
+        data_type: varchar
+        description: Continuous inclusive linear interpolation.
+        data_tests: [not_null]
+      - name: dialysis_use_p75_threshold
+        data_type: decimal(38, 10)
+        description: >-
+          National county 75th percentile among current latest-year rows whose
+          dialysis-use proportion is reported and nonnull.
+        data_tests: [not_null]
+      - name: current_county_count
+        data_type: bigint
+        description: Current latest-year counties considered by the run.
+        data_tests: [not_null]
+      - name: threshold_eligible_count
+        data_type: bigint
+        description: Reported nonnull county values used in the percentile.
+        data_tests: [not_null]
+      - name: threshold_excluded_count
+        data_type: bigint
+        description: Current counties excluded because the metric is unavailable.
+        data_tests: [not_null]
+      - name: cms_source_manifest_run_id
+        data_type: varchar
+        description: Verified CMS v2 manifest run ID.
+        data_tests: [not_null]
+      - name: cms_source_content_sha256
+        data_type: varchar
+        description: Immutable CMS CSV identity.
+        data_tests: [not_null]
+      - name: cms_source_retrieved_at_utc
+        data_type: varchar
+        description: CMS retrieval timestamp from the verified manifest.
+        data_tests: [not_null]
+      - name: cms_source_modified_at
+        data_type: varchar
+        description: Upstream CMS modified date.
+      - name: svi_source_manifest_run_id
+        data_type: varchar
+        description: Verified SVI manifest run ID.
+        data_tests: [not_null]
+      - name: svi_source_snapshot_sha256
+        data_type: varchar
+        description: Immutable ordered SVI page-set identity.
+        data_tests: [not_null]
+      - name: svi_source_retrieved_at_utc
+        data_type: varchar
+        description: SVI retrieval timestamp from the verified manifest.
+        data_tests: [not_null]
+      - name: svi_source_modified_at
+        data_type: varchar
+        description: Upstream SVI layer edit timestamp.
+
+unit_tests:
+  - name: screening_threshold_uses_only_reported_latest_current_counties
+    description: >-
+      Four equally weighted reported values use continuous interpolation;
+      suppression, an older year, and a historical identity are excluded.
+    model: int_county_screening_threshold
+    given:
+      - input: source('raw', 'build_input_audit')
+        rows:
+          - {build_format_version: 1, build_id: screening-fixture, input_set_sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, cms_source_id: cms_om_gv, cms_manifest_run_id: cms-fixture, cms_contract_version: cms_om_gv.raw.v2, cms_content_sha256: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb, cms_retrieved_at_utc: '2026-08-15T01:50:00Z', cms_page_count: 1, cms_row_count: 8, svi_source_id: cdc_svi_county_2022, svi_manifest_run_id: svi-fixture, svi_contract_version: cdc_svi_county_2022.raw.v1, svi_snapshot_sha256: cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc, svi_retrieved_at_utc: '2026-08-14T19:46:25Z', svi_page_count: 2, svi_row_count: 5}
+      - input: ref('dim_year')
+        rows:
+          - {year: 2023, is_latest_cms_year: false}
+          - {year: 2024, is_latest_cms_year: true}
+      - input: ref('dim_county')
+        rows:
+          - {county_fips: '01001', is_current_county: true}
+          - {county_fips: '01003', is_current_county: true}
+          - {county_fips: '01005', is_current_county: true}
+          - {county_fips: '01007', is_current_county: true}
+          - {county_fips: '01009', is_current_county: true}
+          - {county_fips: '09001', is_current_county: false}
+      - input: ref('fct_medicare_county_year')
+        rows:
+          - {county_fips: '01001', year: 2023, benes_op_dlys_pct: 0.99, benes_op_dlys_pct_status: reported, source_manifest_run_id: cms-fixture, source_content_sha256: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb, source_retrieved_at_utc: '2026-08-15T01:50:00Z', source_modified_at: '2026-05-15'}
+          - {county_fips: '01001', year: 2024, benes_op_dlys_pct: 0.01, benes_op_dlys_pct_status: reported, source_manifest_run_id: cms-fixture, source_content_sha256: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb, source_retrieved_at_utc: '2026-08-15T01:50:00Z', source_modified_at: '2026-05-15'}
+          - {county_fips: '01003', year: 2024, benes_op_dlys_pct: 0.02, benes_op_dlys_pct_status: reported, source_manifest_run_id: cms-fixture, source_content_sha256: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb, source_retrieved_at_utc: '2026-08-15T01:50:00Z', source_modified_at: '2026-05-15'}
+          - {county_fips: '01005', year: 2024, benes_op_dlys_pct: 0.03, benes_op_dlys_pct_status: reported, source_manifest_run_id: cms-fixture, source_content_sha256: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb, source_retrieved_at_utc: '2026-08-15T01:50:00Z', source_modified_at: '2026-05-15'}
+          - {county_fips: '01007', year: 2024, benes_op_dlys_pct: 0.04, benes_op_dlys_pct_status: reported, source_manifest_run_id: cms-fixture, source_content_sha256: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb, source_retrieved_at_utc: '2026-08-15T01:50:00Z', source_modified_at: '2026-05-15'}
+          - {county_fips: '01009', year: 2024, benes_op_dlys_pct: null, benes_op_dlys_pct_status: suppressed, source_manifest_run_id: cms-fixture, source_content_sha256: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb, source_retrieved_at_utc: '2026-08-15T01:50:00Z', source_modified_at: '2026-05-15'}
+          - {county_fips: '09001', year: 2024, benes_op_dlys_pct: 1, benes_op_dlys_pct_status: reported, source_manifest_run_id: cms-fixture, source_content_sha256: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb, source_retrieved_at_utc: '2026-08-15T01:50:00Z', source_modified_at: '2026-05-15'}
+      - input: ref('fct_svi_county')
+        rows:
+          - {county_fips: '01001', svi_vintage: 2022, source_manifest_run_id: svi-fixture, source_snapshot_sha256: cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc, source_retrieved_at_utc: '2026-08-14T19:46:25Z', source_modified_at: '2024-12-18T21:12:51Z'}
+    expect:
+      rows:
+        - {screening_definition_version: county_screening.v1, screening_run_id: screening-fixture, cms_year: 2024, svi_vintage: 2022, threshold_metric: BENES_OP_DLYS_PCT, threshold_quantile: 0.75, threshold_method: continuous_linear_type_7, dialysis_use_p75_threshold: 0.0325, current_county_count: 5, threshold_eligible_count: 4, threshold_excluded_count: 1}

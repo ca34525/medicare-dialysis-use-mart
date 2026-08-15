@@ -29,6 +29,8 @@ Current guides:
   `plans/005-cdc-svi-source-to-fact.md`.
 - `006-cms-facts-and-geography-explained.html` corresponds to
   `plans/006-cms-dimensional-facts-and-geography-reconciliation.md`.
+- `007-county-screening-explained.html` corresponds to
+  `plans/007-transparent-county-screening-mart.md`.
 
 ## Required content
 

@@ -200,14 +200,16 @@ def build_fixture_database(tmp_path: Path, database_name: str) -> tuple[Path, Pa
 
 
 def assert_dbt_build(database_path: Path, profile_dir: Path) -> None:
-    result = invoke_dbt("build", profile_dir)
+    result = invoke_dbt(
+        ("build", "--exclude", "stg_cms_dialysis_facility+"), profile_dir
+    )
     assert result.success, result.exception
 
 
 def assert_pinned_screening_build(profile_dir: Path) -> None:
     seed = invoke_dbt("seed", profile_dir)
     assert seed.success, seed.exception
-    models = invoke_dbt("run", profile_dir)
+    models = invoke_dbt(("run", "--exclude", "stg_cms_dialysis_facility+"), profile_dir)
     assert models.success, models.exception
     tests = invoke_dbt(
         ("test", "--select", "int_county_screening_threshold+"),
@@ -393,7 +395,9 @@ def test_screening_quality_failures_block_with_named_evidence(
         connection.execute(mutation)
     monkeypatch.setenv("KIDNEY_CARE_DUCKDB_PATH", str(database_path))
 
-    result = invoke_dbt("build", profile_dir)
+    result = invoke_dbt(
+        ("build", "--exclude", "stg_cms_dialysis_facility+"), profile_dir
+    )
 
     assert not result.success
     assert expected_failure in result_failures(result)

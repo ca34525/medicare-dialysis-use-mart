@@ -282,7 +282,9 @@ def test_combined_fixture_build_types_svi_and_rebuilds_deterministically(
     monkeypatch.setenv("KIDNEY_CARE_DUCKDB_PATH", str(database_path))
     profile_dir = profiles_dir(tmp_path)
 
-    first_build = invoke_dbt("build", profile_dir)
+    first_build = invoke_dbt(
+        ("build", "--exclude", "stg_cms_dialysis_facility+"), profile_dir
+    )
 
     assert first_build.success, first_build.exception
     docs = invoke_dbt(("docs", "generate"), profile_dir)
@@ -324,7 +326,9 @@ def test_combined_fixture_build_types_svi_and_rebuilds_deterministically(
     assert rows["02013"][21:24] == (None, None, "unavailable_null")
     assert rows["02013"][30:33] == ("-999", None, "unavailable_sentinel")
 
-    second_build = invoke_dbt("build", profile_dir)
+    second_build = invoke_dbt(
+        ("build", "--exclude", "stg_cms_dialysis_facility+"), profile_dir
+    )
 
     assert second_build.success, second_build.exception
     with duckdb.connect(str(database_path)) as connection:

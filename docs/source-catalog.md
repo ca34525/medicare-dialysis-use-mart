@@ -171,7 +171,8 @@ equality between a count and a rounded reported share.
 
 **Contract status:** Raw contract v1 and immutable full-file ingestion verified
 2026-08-15 UTC against the official Provider Data catalog, API schema, full
-current CSV, and July 2026 dictionary.
+current CSV, and July 2026 dictionary. Manifest-driven raw loading and typed
+facility stage, dimension, and quality snapshot fact verified 2026-08-18.
 
 | Attribute | Contract |
 |---|---|
@@ -215,11 +216,12 @@ The denominator is source-specific: patients for survival and hospitalization,
 and hospitalizations for readmission. The source-defined availability codes
 observed for all three families were `001`, `199`, `201`, and `258`.
 
-This raw boundary does not interpret those codes, type numbers or dates, assess
-range or interval consistency, average outcomes into a quality score, or treat
-missing values as zero. The star rating likewise keeps its period and
-availability companion. Facility characteristics and quality measures are
-future due-diligence context only and cannot alter the screening quadrant.
+The Plan 008 raw boundary does not interpret those codes, type numbers or
+dates, assess range or interval consistency, average outcomes into a quality
+score, or treat missing values as zero. The Plan 009 typed boundary below does
+interpret the governed fields while retaining every raw token. Facility
+characteristics and quality measures are due-diligence context only and cannot
+alter the screening quadrant.
 
 ### Full-file extraction and immutable lineage
 
@@ -270,9 +272,9 @@ This reconciles the earlier 7,490 examined snapshot in `specs.md`. A
 planning-time catalog display showed 7,557 rows before the July 2026 release;
 the current official CSV and API now agree on 7,490. Both are dated source
 observations, not timeless constants. Generated CSVs, manifests, and response
-evidence remain ignored. No typed facility relation, facility fact, county
-assignment, Census remediation, facility aggregate, screen enrichment, mart
-publication, Airflow, or Power BI behavior is implemented by this contract.
+evidence remain ignored. This raw contract alone does not implement a typed
+facility relation, county assignment, Census remediation, facility aggregate,
+screen enrichment, mart publication, Airflow, or Power BI behavior.
 
 Implementation and verification are in
 `src/kidney_care_mart/contracts/cms_dialysis_facility.py`,
@@ -280,6 +282,58 @@ Implementation and verification are in
 `tests/fixtures/cms_dialysis_facility/`,
 `tests/unit/contracts/test_cms_dialysis_facility_contract.py`, and
 `tests/unit/extract/test_cms_dialysis_facility.py`.
+
+### Manifest-driven loading and typed facility models
+
+Plan 009 re-verifies an already-published facility manifest and its exact blob
+without contacting CMS. It loads all 41 governed source fields as strings into
+`raw.cms_dialysis_facility`, records one reconciled
+`raw.cms_dialysis_facility_load_audit` row, and includes the facility contract,
+manifest, content hash, row count, and page count in build-input format v2 and
+the three-source `input_set_sha256`.
+
+The typed path declares these grains and metric semantics:
+
+| Model | Grain | Denominator, unit, and lineage |
+|---|---|---|
+| `stg_cms_dialysis_facility` | Textual CCN x source snapshot | Raw tokens beside typed identity, characteristics, periods, availability, denominators, estimates, intervals, and complete source lineage |
+| `dim_facility` | One current row per textual CCN | Identity and public business-location context; no derived denominator; facility snapshot and manifest lineage |
+| `fct_facility_quality_snapshot` | Textual CCN x source-snapshot SHA-256 | Star rating has no outcome denominator; survival and hospitalization are rates per 100 patient-years using source patient counts; readmission is percent of hospital discharges using source index discharges |
+
+Availability code `001` means a value is available. Documented unavailable
+codes remain explicit as `not_available` with a stable reason; an unknown or
+measure-incompatible code blocks dbt. An available numeric zero remains zero.
+An unavailable raw token remains auditable but its typed reported value is
+null. Outcome category text is preserved and normalized without scoring to
+`better_than_expected`, `as_expected`, or `worse_than_expected`.
+
+On the pinned 2026-08-15 facility snapshot, the raw relation, stage, dimension,
+and fact each contained 7,490 rows. Available counts were 6,999 star ratings,
+7,176 survival outcomes, 7,231 hospitalization outcomes, and 7,054 readmission
+outcomes. The full three-source dbt build completed 380 results with zero
+errors. An immediate rebuild reproduced ordered semantic SHA-256 values:
+
+| Relation | SHA-256 |
+|---|---|
+| `stg_cms_dialysis_facility` | `843f143074ab2a31e31ee2a88a2fd4a65977f2a6ffcf46c07e8f827a2c7d22b3` |
+| `dim_facility` | `e9c2189f2359e9bbc866d6d35174a9716ec8d506ac4738f127420692447d5d30` |
+| `fct_facility_quality_snapshot` | `77bba47594e2d2332b55123a8553b67744e135d6f52490248be213d088eb8a27` |
+
+These are dated pinned-snapshot observations, not timeless counts or provider
+comparisons. T-012 enforces reported star ratings from 1 through 5. T-013
+enforces valid periods and complete ordered confidence intervals. Geography is
+deliberately deferred: `dim_facility` uses
+`geography_match_status = 'not_attempted'`, leaves county FIPS null, and treats
+the public business address as neither patient residence nor service catchment.
+The Census Geocoder, quarantine, coverage gates, county aggregates, screening
+context, scores, rankings, and recommendations remain outside this plan.
+
+Implementation and verification are in
+`src/kidney_care_mart/stage/cms_dialysis_facility.py`,
+`analytics/models/staging/cms_dialysis_facility/`,
+`analytics/models/marts/core/dim_facility.sql`,
+`analytics/models/marts/core/fct_facility_quality_snapshot.sql`, and
+`tests/integration/test_cms_dialysis_facility_dbt.py`.
 
 ## `cdc_svi_county_2022` - CDC/ATSDR SVI 2022 U.S. county data
 

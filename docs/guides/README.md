@@ -33,6 +33,8 @@ Current guides:
   `plans/007-transparent-county-screening-mart.md`.
 - `008-facility-source-and-ingestion-explained.html` corresponds to
   `plans/008-cms-dialysis-facility-source-contract-and-ingestion.md`.
+- `009-facility-models-explained.html` corresponds to
+  `plans/009-facility-staging-dimension-and-quality-fact.md`.
 
 ## Required content
 

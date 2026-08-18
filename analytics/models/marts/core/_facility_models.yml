@@ -1,0 +1,95 @@
+version: 2
+
+models:
+  - name: dim_facility
+    description: >-
+      One current identity and characteristic row per textual CCN. Public
+      business-location strings are retained, while county assignment fields
+      explicitly remain not_attempted until the audited geography cascade runs.
+    config: {contract: {enforced: true}}
+    columns:
+      - {name: ccn, data_type: varchar, description: "Textual CCN business key.", data_tests: [not_null, unique]}
+      - {name: facility_name, data_type: varchar, description: "Current source facility name.", data_tests: [not_null]}
+      - {name: address_line_1, data_type: varchar, description: "Public business address line one."}
+      - {name: address_line_2, data_type: varchar, description: "Public business address line two."}
+      - {name: city, data_type: varchar, description: "Public business city."}
+      - {name: state, data_type: varchar, description: "Public business state postal code."}
+      - {name: zip_code, data_type: varchar, description: "Source ZIP text; never a county key."}
+      - {name: source_county, data_type: varchar, description: "Unmapped source county/parish label."}
+      - {name: telephone, data_type: varchar, description: "Public business telephone."}
+      - {name: ownership_status, data_type: varchar, description: "Source ownership category."}
+      - {name: chain_owned, data_type: boolean, description: "Typed chain-owned flag."}
+      - {name: chain_organization, data_type: varchar, description: "Source chain name when present."}
+      - {name: dialysis_stations, data_type: integer, description: "Nonnegative station count."}
+      - {name: in_center_hemodialysis, data_type: boolean, description: "In-center hemodialysis offered."}
+      - {name: peritoneal_dialysis, data_type: boolean, description: "Peritoneal dialysis offered."}
+      - {name: home_hemodialysis_training, data_type: boolean, description: "Home hemodialysis training offered."}
+      - {name: certification_date, data_type: date, description: "Typed source certification date."}
+      - {name: county_fips, data_type: varchar, description: "Deferred canonical county FIPS; always null in Plan 009."}
+      - {name: geography_match_status, data_type: varchar, description: "Always not_attempted until county assignment.", data_tests: [not_null]}
+      - {name: geography_match_method, data_type: varchar, description: "Deferred match method; null in Plan 009."}
+      - {name: geography_resolution_date, data_type: date, description: "Deferred resolution date; null in Plan 009."}
+      - {name: geography_provenance, data_type: varchar, description: "Explicit statement that geography work is deferred.", data_tests: [not_null]}
+      - {name: source_id, data_type: varchar, description: "Logical source ID.", data_tests: [not_null]}
+      - {name: source_manifest_run_id, data_type: varchar, description: "Facility manifest run ID.", data_tests: [not_null]}
+      - {name: source_snapshot_sha256, data_type: varchar, description: "Facility snapshot SHA-256.", data_tests: [not_null]}
+      - {name: source_retrieved_at_utc, data_type: varchar, description: "Snapshot retrieval timestamp.", data_tests: [not_null]}
+      - {name: source_release, data_type: varchar, description: "Quarterly source release."}
+      - {name: source_modified_at, data_type: varchar, description: "Upstream modified date."}
+
+  - name: fct_facility_quality_snapshot
+    description: >-
+      One row per textual CCN and source snapshot. Star rating, survival,
+      hospitalization, and readmission measures retain distinct periods,
+      availability codes, eligible denominators, categories, estimates, and
+      confidence intervals. This is due-diligence context, not a quality score.
+    config: {contract: {enforced: true}}
+    columns:
+      - name: ccn
+        data_type: varchar
+        description: Textual facility foreign key.
+        data_tests:
+          - not_null
+          - relationships: {arguments: {to: "ref('dim_facility')", field: ccn}}
+      - {name: source_snapshot_sha256, data_type: varchar, description: "Facility snapshot SHA-256.", data_tests: [not_null]}
+      - {name: five_star_period_start, data_type: date, description: "Star-rating period start."}
+      - {name: five_star_period_end, data_type: date, description: "Star-rating period end."}
+      - {name: five_star_rating, data_type: integer, description: "Reported integer rating 1 through 5."}
+      - {name: five_star_availability_code, data_type: varchar, description: "Raw CMS star availability code.", data_tests: [not_null]}
+      - {name: five_star_availability_status, data_type: varchar, description: "Interpreted star availability.", data_tests: [not_null]}
+      - {name: five_star_unavailability_reason, data_type: varchar, description: "Source-defined star unavailability reason."}
+      - {name: survival_period_start, data_type: date, description: "Survival period start."}
+      - {name: survival_period_end, data_type: date, description: "Survival period end."}
+      - {name: survival_availability_code, data_type: varchar, description: "Raw CMS survival availability code.", data_tests: [not_null]}
+      - {name: survival_availability_status, data_type: varchar, description: "Interpreted survival availability.", data_tests: [not_null]}
+      - {name: survival_unavailability_reason, data_type: varchar, description: "Source-defined survival unavailability reason."}
+      - {name: survival_category, data_type: varchar, description: "Reported survival category."}
+      - {name: survival_denominator, data_type: bigint, description: "Patients in the survival summary."}
+      - {name: survival_estimate, data_type: "decimal(18,10)", description: "Mortality rate per 100 patient-years."}
+      - {name: survival_lower_confidence_limit, data_type: "decimal(18,10)", description: "Survival lower confidence limit."}
+      - {name: survival_upper_confidence_limit, data_type: "decimal(18,10)", description: "Survival upper confidence limit."}
+      - {name: hospitalization_period_start, data_type: date, description: "Hospitalization period start."}
+      - {name: hospitalization_period_end, data_type: date, description: "Hospitalization period end."}
+      - {name: hospitalization_availability_code, data_type: varchar, description: "Raw CMS hospitalization availability code.", data_tests: [not_null]}
+      - {name: hospitalization_availability_status, data_type: varchar, description: "Interpreted hospitalization availability.", data_tests: [not_null]}
+      - {name: hospitalization_unavailability_reason, data_type: varchar, description: "Source-defined hospitalization unavailability reason."}
+      - {name: hospitalization_category, data_type: varchar, description: "Reported hospitalization category."}
+      - {name: hospitalization_denominator, data_type: bigint, description: "Patients in the hospitalization summary."}
+      - {name: hospitalization_estimate, data_type: "decimal(18,10)", description: "Hospitalization rate per 100 patient-years."}
+      - {name: hospitalization_lower_confidence_limit, data_type: "decimal(18,10)", description: "Hospitalization lower confidence limit."}
+      - {name: hospitalization_upper_confidence_limit, data_type: "decimal(18,10)", description: "Hospitalization upper confidence limit."}
+      - {name: readmission_period_start, data_type: date, description: "Readmission period start."}
+      - {name: readmission_period_end, data_type: date, description: "Readmission period end."}
+      - {name: readmission_availability_code, data_type: varchar, description: "Raw CMS readmission availability code.", data_tests: [not_null]}
+      - {name: readmission_availability_status, data_type: varchar, description: "Interpreted readmission availability.", data_tests: [not_null]}
+      - {name: readmission_unavailability_reason, data_type: varchar, description: "Source-defined readmission unavailability reason."}
+      - {name: readmission_category, data_type: varchar, description: "Reported readmission category."}
+      - {name: readmission_denominator, data_type: bigint, description: "Index discharges in the readmission summary."}
+      - {name: readmission_estimate, data_type: "decimal(18,10)", description: "Readmission percent of hospital discharges."}
+      - {name: readmission_lower_confidence_limit, data_type: "decimal(18,10)", description: "Readmission lower confidence limit."}
+      - {name: readmission_upper_confidence_limit, data_type: "decimal(18,10)", description: "Readmission upper confidence limit."}
+      - {name: source_id, data_type: varchar, description: "Logical source ID.", data_tests: [not_null]}
+      - {name: source_manifest_run_id, data_type: varchar, description: "Facility manifest run ID.", data_tests: [not_null]}
+      - {name: source_retrieved_at_utc, data_type: varchar, description: "Snapshot retrieval timestamp.", data_tests: [not_null]}
+      - {name: source_release, data_type: varchar, description: "Quarterly source release."}
+      - {name: source_modified_at, data_type: varchar, description: "Upstream modified date."}

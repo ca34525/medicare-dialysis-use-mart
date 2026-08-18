@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A beginner-friendly explanation of Plan 009 facility staging, availability rules, dimensions, quality facts, and safety boundaries.">
+  <title>Plan 009 explained: trusted facility models</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --page: #f5f7f4;
+      --surface: #ffffff;
+      --ink: #17211b;
+      --muted: #485a50;
+      --line: #b8c8be;
+      --accent: #0b6046;
+      --accent-ink: #ffffff;
+      --warm: #fff2d6;
+      --good: #dff4e8;
+      --stop: #fbe2df;
+      --shadow: 0 0.6rem 1.8rem rgba(24, 52, 38, 0.1);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --page: #111814;
+        --surface: #19221d;
+        --ink: #f0f5f1;
+        --muted: #c4d2c8;
+        --line: #4c6154;
+        --accent: #82d6b5;
+        --accent-ink: #102119;
+        --warm: #3b301c;
+        --good: #17392a;
+        --stop: #452725;
+        --shadow: none;
+      }
+    }
+    :root:has(#dark-preview:checked) {
+      --page: #111814;
+      --surface: #19221d;
+      --ink: #f0f5f1;
+      --muted: #c4d2c8;
+      --line: #4c6154;
+      --accent: #82d6b5;
+      --accent-ink: #102119;
+      --warm: #3b301c;
+      --good: #17392a;
+      --stop: #452725;
+      --shadow: none;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--page);
+      color: var(--ink);
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      line-height: 1.65;
+    }
+    a { color: var(--accent); text-underline-offset: 0.18em; }
+    a:hover { text-decoration-thickness: 0.14em; }
+    a:focus-visible, summary:focus-visible, input:focus-visible {
+      outline: 0.2rem solid var(--accent);
+      outline-offset: 0.2rem;
+      border-radius: 0.15rem;
+    }
+    .skip-link {
+      position: absolute;
+      left: 1rem;
+      top: -5rem;
+      z-index: 10;
+      padding: 0.65rem 0.9rem;
+      background: var(--accent);
+      color: var(--accent-ink);
+    }
+    .skip-link:focus { top: 1rem; }
+    header {
+      background: linear-gradient(135deg, var(--surface), var(--good));
+      border-bottom: 1px solid var(--line);
+      padding: 3.3rem 1.25rem 2.5rem;
+    }
+    .wrap { width: min(72rem, calc(100% - 2.5rem)); margin-inline: auto; }
+    .eyebrow {
+      color: var(--accent);
+      font-weight: 750;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+    }
+    h1 { max-width: 18ch; margin: 0.25rem 0 0.8rem; font-size: clamp(2.1rem, 7vw, 4.6rem); line-height: 1.02; }
+    h2 { margin-top: 0; font-size: clamp(1.45rem, 4vw, 2.2rem); line-height: 1.18; }
+    h3 { margin-bottom: 0.35rem; line-height: 1.25; }
+    .lede { max-width: 68ch; color: var(--muted); font-size: 1.12rem; }
+    nav { border-bottom: 1px solid var(--line); background: var(--surface); }
+    nav .wrap { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.2rem 1rem; }
+    nav ul { display: flex; flex: 1 1 auto; flex-wrap: wrap; gap: 0.6rem 1.2rem; list-style: none; margin: 0; padding: 0.8rem 0; }
+    nav a { font-weight: 700; }
+    .theme-preview { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--muted); font-size: 0.9rem; font-weight: 700; white-space: nowrap; }
+    .theme-preview input { width: 1.1rem; height: 1.1rem; accent-color: var(--accent); }
+    main { padding-block: 2rem 4rem; }
+    section {
+      margin-block: 1.2rem;
+      padding: clamp(1.15rem, 3vw, 2rem);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 1rem;
+      box-shadow: var(--shadow);
+    }
+    .callout { background: var(--warm); border-left: 0.45rem solid var(--accent); }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+    .card { padding: 1rem; border: 1px solid var(--line); border-radius: 0.75rem; background: var(--page); }
+    .card p { margin-bottom: 0; }
+    .flow { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.6rem; align-items: stretch; }
+    .step {
+      position: relative;
+      padding: 0.9rem;
+      border: 1px solid var(--line);
+      border-radius: 0.7rem;
+      background: var(--page);
+      min-height: 8.5rem;
+    }
+    .step strong { display: block; color: var(--accent); margin-bottom: 0.35rem; }
+    .step:not(:last-child)::after { content: "→"; position: absolute; right: -0.55rem; top: 42%; z-index: 2; font-weight: 900; }
+    .table-scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 42rem; }
+    th, td { padding: 0.7rem; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { background: var(--page); }
+    code { padding: 0.08rem 0.3rem; border-radius: 0.25rem; background: var(--page); font-size: 0.92em; }
+    .status { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 999px; font-weight: 750; }
+    .available { background: var(--good); }
+    .unavailable { background: var(--stop); }
+    .boundary { border-left: 0.45rem solid #9d3d34; background: var(--stop); }
+    details { border: 1px solid var(--line); border-radius: 0.7rem; padding: 0.8rem 1rem; background: var(--page); }
+    summary { cursor: pointer; font-weight: 750; }
+    footer { padding: 2rem 1.25rem 3rem; color: var(--muted); border-top: 1px solid var(--line); }
+    @media (max-width: 56rem) {
+      .flow { grid-template-columns: 1fr 1fr; }
+      .step:not(:last-child)::after { content: "↓"; right: 0.7rem; top: auto; bottom: -0.85rem; }
+    }
+    @media (max-width: 38rem) {
+      .wrap { width: min(100% - 1.25rem, 72rem); }
+      header { padding-top: 2.6rem; }
+      .grid, .flow { grid-template-columns: 1fr; }
+      section { border-radius: 0.65rem; padding: 1rem; }
+      nav ul { display: grid; grid-template-columns: 1fr 1fr; }
+      .step { min-height: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+    }
+    @media print {
+      :root { --page: #fff; --surface: #fff; --ink: #000; --muted: #222; --line: #777; --accent: #064c37; --warm: #fff; --good: #fff; --stop: #fff; --shadow: none; }
+      nav, .skip-link, .theme-preview { display: none; }
+      header, main, footer { padding: 0; }
+      section { break-inside: avoid; box-shadow: none; }
+      a { color: #000; }
+      a[href]::after { content: " (" attr(href) ")"; font-size: 0.8em; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to the explanation</a>
+  <header>
+    <div class="wrap">
+      <div class="eyebrow">Plan 009 · completed facility modeling slice</div>
+      <h1>From trusted CSV to honest facility facts</h1>
+      <p class="lede">A CMS facility row contains an identity, business-location details, capacity, modalities, and several measures with different time windows and denominators. Plan 009 turns raw contract <code>cms_dialysis_facility.raw.v1</code> into governed models without flattening the rows into a score or pretending a facility location is patient residence.</p>
+    </div>
+  </header>
+  <nav aria-label="Guide sections">
+    <div class="wrap">
+      <ul>
+        <li><a href="#why">Why</a></li>
+        <li><a href="#flow">Flow</a></li>
+        <li><a href="#availability">Availability</a></li>
+        <li><a href="#models">Models</a></li>
+        <li><a href="#checks">Checks</a></li>
+        <li><a href="#boundaries">Boundaries</a></li>
+      </ul>
+      <label class="theme-preview"><input id="dark-preview" type="checkbox"> Dark preview</label>
+    </div>
+  </nav>
+  <main id="main-content" class="wrap">
+    <section id="why">
+      <h2>Why this step exists</h2>
+      <p>Plan 008 proved which bytes came from CMS and that every textual CMS Certification Number (CCN) was unique. That is like verifying a sealed shipment and its packing list. Plan 009 opens that verified shipment in a controlled room: it keeps the original labels, converts only fields with declared rules, and rejects anything that does not reconcile.</p>
+      <div class="grid">
+        <div class="card">
+          <h3>CCN stays text</h3>
+          <p><code>012345</code> is an identifier, not the number 12,345. Leading zeros survive the manifest, DuckDB load, stage, dimension, and fact.</p>
+        </div>
+        <div class="card">
+          <h3>Every measure keeps its context</h3>
+          <p>Period, availability, category, denominator, estimate, lower confidence limit, and upper confidence limit travel together.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="flow">
+      <h2>The input-to-output flow</h2>
+      <div class="flow" role="list" aria-label="Five-step facility modeling flow">
+        <div class="step" role="listitem"><strong>1. Verify</strong>Rehash the immutable CSV and reconcile its canonical Plan 008 manifest.</div>
+        <div class="step" role="listitem"><strong>2. Load raw</strong>Bulk-load the 41 governed fields as strings, preserving empty text and zero.</div>
+        <div class="step" role="listitem"><strong>3. Type</strong>Parse dates, periods, counts, flags, ratings, estimates, and confidence limits.</div>
+        <div class="step" role="listitem"><strong>4. Model</strong>Create one CCN dimension and one CCN-by-snapshot quality fact.</div>
+        <div class="step" role="listitem"><strong>5. Block or pass</strong>Run grain, lineage, availability, T-012, T-013, and reconciliation checks.</div>
+      </div>
+      <p class="callout">The current combined-input identity is format version 2: its SHA-256 includes the CMS Geographic Variation snapshot, SVI snapshot, and facility snapshot. The facility source is not allowed to change the Plan 007 screening quadrant.</p>
+    </section>
+
+    <section id="availability">
+      <h2>An availability code is a traffic signal</h2>
+      <p>A blank estimate is ambiguous by itself. CMS supplies a companion code that says whether the measure is available or why it is not. Plan 009 uses the code before exposing a typed value.</p>
+      <div class="table-scroll" tabindex="0" aria-label="Scrollable availability-code table">
+        <table>
+          <thead><tr><th scope="col">Code</th><th scope="col">Status</th><th scope="col">Meaning used by the model</th></tr></thead>
+          <tbody>
+            <tr><td><code>001</code></td><td><span class="status available">available</span></td><td>Companions must parse and pass their bounds.</td></tr>
+            <tr><td><code>199</code></td><td><span class="status unavailable">not available</span></td><td>Not enough patients to report.</td></tr>
+            <tr><td><code>201</code></td><td><span class="status unavailable">not available</span></td><td>Data not reported.</td></tr>
+            <tr><td><code>255</code></td><td><span class="status unavailable">not available</span></td><td>CMS determined the reported measure was inaccurate.</td></tr>
+            <tr><td><code>258</code></td><td><span class="status unavailable">not available</span></td><td>The facility lacked enough operating history.</td></tr>
+            <tr><td><code>270</code></td><td><span class="status unavailable">not available</span></td><td>Natural-disaster suppression.</td></tr>
+            <tr><td><code>280</code></td><td><span class="status unavailable">not available</span></td><td>Factors outside the provider's control.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Star-rating codes <code>260</code>, <code>261</code>, and <code>281</code> add star-specific reasons. A code documented for a different survey, modality, or pediatric measure is not accepted here. Unknown or incompatible codes block the build.</p>
+      <p><strong>Important:</strong> an unavailable raw <code>0</code> remains visible as raw evidence but does not become a typed reported value. A zero paired with <code>001</code> remains a real zero.</p>
+    </section>
+
+    <section id="models">
+      <h2>Three grains, three jobs</h2>
+      <div class="table-scroll" tabindex="0" aria-label="Scrollable model-grain table">
+        <table>
+          <thead><tr><th scope="col">Model</th><th scope="col">Grain</th><th scope="col">What it answers</th></tr></thead>
+          <tbody>
+            <tr><td><code>stg_cms_dialysis_facility</code></td><td>CCN × source snapshot</td><td>What did the source say, and how did each governed token type?</td></tr>
+            <tr><td><code>dim_facility</code></td><td>One row per CCN</td><td>What is the current facility identity and source characteristic context?</td></tr>
+            <tr><td><code>fct_facility_quality_snapshot</code></td><td>CCN × source-snapshot SHA-256</td><td>Which rating and outcome companions belong to this exact quarterly snapshot?</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Survival and hospitalization use patient denominators and rates per 100 patient-years. Readmission uses index discharges and a percent of hospital discharges. These denominators and units are not interchangeable.</p>
+      <p>Source categories are preserved as raw text and normalized to <code>better_than_expected</code>, <code>as_expected</code>, or <code>worse_than_expected</code>. They are never assigned points or averaged into a quality score.</p>
+    </section>
+
+    <section id="checks">
+      <h2>What must be true before the models pass</h2>
+      <div class="grid">
+        <div class="card"><h3>T-012 · star rating</h3><p>A reported star value is an integer from 1 through 5. An unavailable rating remains null in the typed field.</p></div>
+        <div class="card"><h3>T-013 · periods and intervals</h3><p>Period start is not after period end, and lower confidence limit ≤ estimate ≤ upper confidence limit.</p></div>
+        <div class="card"><h3>Companion completeness</h3><p>An available outcome needs a valid period, category, source-specific denominator, estimate, and both confidence limits.</p></div>
+        <div class="card"><h3>Reconciliation</h3><p>7,490 pinned raw rows reconcile to 7,490 stage rows, 7,490 dimension rows, and 7,490 fact rows.</p></div>
+      </div>
+      <p>On the pinned 2026-08-15 snapshot, the full three-source dbt build completed 380 results with zero errors after the source-category normalization. Immediate rebuilds reproduced the same ordered semantic SHA-256 for all three facility models.</p>
+      <details>
+        <summary>See the pinned availability counts</summary>
+        <ul>
+          <li>Five-star rating: 6,999 available; 491 not available.</li>
+          <li>Survival: 7,176 available; 314 not available.</li>
+          <li>Hospitalization: 7,231 available; 259 not available.</li>
+          <li>Readmission: 7,054 available; 436 not available.</li>
+        </ul>
+        <p>These are dated source-snapshot observations, not timeless facility counts and not evidence of care quality by themselves.</p>
+      </details>
+    </section>
+
+    <section id="boundaries" class="boundary">
+      <h2>The guardrail is part of the product</h2>
+      <p><code>dim_facility</code> deliberately sets <code>geography_match_status</code> to <code>not_attempted</code> and leaves county FIPS null. The source county name and ZIP have not been accepted as county identity.</p>
+      <p>This plan does not call the Census Geocoder, create <code>quarantine_facility_geography</code>, calculate mapping coverage, aggregate stations to counties, or add facility context to the screening mart. Facility business location is not patient residence or service catchment.</p>
+      <p>The screen still means exactly what it meant in Plan 007: a transparent combination of observed outpatient dialysis use among Original Medicare beneficiaries and static SVI 2022 context. It is not prevalence, unmet need, disease burden, an intervention opportunity, a provider ranking, or a final site-selection recommendation.</p>
+    </section>
+
+    <section id="glossary">
+      <h2>Short glossary</h2>
+      <dl>
+        <dt><strong>CCN</strong></dt><dd>CMS Certification Number, stored as text and used as the facility identity key.</dd>
+        <dt><strong>Grain</strong></dt><dd>What one row represents.</dd>
+        <dt><strong>Dimension</strong></dt><dd>A table describing an entity, here one current facility identity.</dd>
+        <dt><strong>Fact</strong></dt><dd>A table of observations at a declared grain, here facility measures in one source snapshot.</dd>
+        <dt><strong>Confidence interval</strong></dt><dd>A lower and upper range published with an estimate; Plan 009 checks that the estimate lies inside it.</dd>
+        <dt><strong>Lineage</strong></dt><dd>The manifest, hash, dates, and source identity that show where a row came from.</dd>
+      </dl>
+    </section>
+
+    <section id="references">
+      <h2>Follow the evidence</h2>
+      <ul>
+        <li><a href="../../specs.md">Authoritative product and engineering specification</a></li>
+        <li><a href="../../plans/009-facility-staging-dimension-and-quality-fact.md">Plan 009 implementation record</a></li>
+        <li><a href="../../src/kidney_care_mart/stage/cms_dialysis_facility.py">Manifest-driven facility loader</a></li>
+        <li><a href="../../analytics/models/staging/cms_dialysis_facility/stg_cms_dialysis_facility.sql">Typed facility stage</a></li>
+        <li><a href="../../analytics/models/marts/core/dim_facility.sql">Facility dimension</a></li>
+        <li><a href="../../analytics/models/marts/core/fct_facility_quality_snapshot.sql">Facility quality snapshot fact</a></li>
+        <li><a href="../../tests/integration/test_cms_dialysis_facility_dbt.py">Fixture and failure-injection acceptance tests</a></li>
+        <li><a href="../source-catalog.md">Source catalog and dated evidence</a></li>
+        <li><a href="../metric-dictionary.md">Metric and denominator contract</a></li>
+        <li><a href="../../README.md">Repository quick starts</a></li>
+      </ul>
+    </section>
+  </main>
+  <footer>
+    <div class="wrap">Plan 009 guide · dated 2026-08-18 · standalone, network-free, and useful without JavaScript.</div>
+  </footer>
+</body>
+</html>

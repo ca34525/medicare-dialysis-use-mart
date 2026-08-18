@@ -1,4 +1,4 @@
-"""Atomically assemble verified CMS and SVI snapshots in one DuckDB input."""
+"""Atomically assemble verified CMS, SVI, and facility snapshots in DuckDB."""
 
 from __future__ import annotations
 
@@ -15,6 +15,9 @@ import duckdb
 from kidney_care_mart.contracts.cdc_svi_county_2022 import (
     CONTRACT_VERSION as SVI_CONTRACT_VERSION,
 )
+from kidney_care_mart.contracts.cms_dialysis_facility import (
+    CONTRACT_VERSION as FACILITY_CONTRACT_VERSION,
+)
 from kidney_care_mart.contracts.cms_om_gv import (
     CONTRACT_VERSION as CMS_CONTRACT_VERSION,
 )
@@ -23,12 +26,17 @@ from kidney_care_mart.stage.cdc_svi_county_2022 import (
     SviStageLoadError,
     load_cdc_svi_county_2022_snapshot,
 )
+from kidney_care_mart.stage.cms_dialysis_facility import (
+    FacilityStageLoadError,
+    load_cms_dialysis_facility_snapshot,
+)
 from kidney_care_mart.stage.cms_om_gv import (
     StageLoadError,
     load_cms_om_gv_snapshot,
 )
 
-BUILD_FORMAT_VERSION: Final = 1
+LEGACY_BUILD_FORMAT_VERSION: Final = 1
+CURRENT_BUILD_FORMAT_VERSION: Final = 2
 RAW_SCHEMA: Final = "raw"
 AUDIT_TABLE: Final = "build_input_audit"
 
@@ -75,6 +83,7 @@ class BuildInputResult:
     input_set_sha256: str
     cms_row_count: int
     svi_row_count: int
+    facility_row_count: int | None
     database_noop: bool
 
 
@@ -97,7 +106,8 @@ def _cms_declared_contract(manifest_path: Path) -> str | None:
 def _source_audits(
     cms_database: Path,
     svi_database: Path,
-) -> tuple[SourceAudit, SourceAudit]:
+    facility_database: Path | None = None,
+) -> tuple[SourceAudit, ...]:
     with duckdb.connect(str(cms_database), read_only=True) as connection:
         cms_row = connection.execute(
             """
@@ -141,13 +151,43 @@ def _source_audits(
         row_count=svi_row[4],
         page_count=svi_row[5],
     )
-    return cms, svi
+    if facility_database is None:
+        return cms, svi
+    with duckdb.connect(str(facility_database), read_only=True) as connection:
+        facility_row = connection.execute(
+            """
+            select source_id,
+                   source_manifest_run_id,
+                   source_snapshot_sha256,
+                   source_retrieved_at_utc,
+                   row_count,
+                   page_count
+            from raw.cms_dialysis_facility_load_audit
+            """
+        ).fetchone()
+    if facility_row is None:
+        raise BuildInputError("facility source load audit is missing")
+    facility = SourceAudit(
+        source_id=facility_row[0],
+        manifest_run_id=facility_row[1],
+        contract_version=FACILITY_CONTRACT_VERSION,
+        snapshot_sha256=facility_row[2],
+        retrieved_at_utc=facility_row[3],
+        row_count=facility_row[4],
+        page_count=facility_row[5],
+    )
+    return cms, svi, facility
 
 
 def _input_set_sha256(audits: tuple[SourceAudit, ...]) -> str:
     ordered = sorted(audits, key=lambda item: item.source_id)
+    build_format_version = (
+        CURRENT_BUILD_FORMAT_VERSION
+        if len(audits) == 3
+        else LEGACY_BUILD_FORMAT_VERSION
+    )
     payload = {
-        "build_format_version": BUILD_FORMAT_VERSION,
+        "build_format_version": build_format_version,
         "sources": [item.hash_payload() for item in ordered],
     }
     return hashlib.sha256(canonical_json_bytes(payload)).hexdigest()
@@ -165,48 +205,91 @@ def _verify_existing_database(
     input_set_sha256: str,
     cms: SourceAudit,
     svi: SourceAudit,
+    facility: SourceAudit | None,
 ) -> None:
     try:
         with duckdb.connect(str(database_path), read_only=True) as connection:
-            audit = connection.execute(
-                """
-                select build_id,
-                       input_set_sha256,
-                       cms_manifest_run_id,
-                       cms_content_sha256,
-                       cms_row_count,
-                       svi_manifest_run_id,
-                       svi_snapshot_sha256,
-                       svi_page_count,
-                       svi_row_count
-                from raw.build_input_audit
-                """
-            ).fetchall()
-            counts = connection.execute(
-                """
-                select
-                    (select count(*) from raw.cms_om_gv),
-                    (select count(*) from raw.cdc_svi_county_2022)
-                """
-            ).fetchone()
+            if facility is None:
+                audit = connection.execute(
+                    """
+                    select build_id,
+                           input_set_sha256,
+                           cms_manifest_run_id,
+                           cms_content_sha256,
+                           cms_row_count,
+                           svi_manifest_run_id,
+                           svi_snapshot_sha256,
+                           svi_page_count,
+                           svi_row_count
+                    from raw.build_input_audit
+                    """
+                ).fetchall()
+                counts = connection.execute(
+                    """
+                    select
+                        (select count(*) from raw.cms_om_gv),
+                        (select count(*) from raw.cdc_svi_county_2022)
+                    """
+                ).fetchone()
+            else:
+                audit = connection.execute(
+                    """
+                    select build_id,
+                           input_set_sha256,
+                           cms_manifest_run_id,
+                           cms_content_sha256,
+                           cms_row_count,
+                           svi_manifest_run_id,
+                           svi_snapshot_sha256,
+                           svi_page_count,
+                           svi_row_count,
+                           facility_manifest_run_id,
+                           facility_snapshot_sha256,
+                           facility_page_count,
+                           facility_row_count
+                    from raw.build_input_audit
+                    """
+                ).fetchall()
+                counts = connection.execute(
+                    """
+                    select
+                        (select count(*) from raw.cms_om_gv),
+                        (select count(*) from raw.cdc_svi_county_2022),
+                        (select count(*) from raw.cms_dialysis_facility)
+                    """
+                ).fetchone()
     except (duckdb.Error, OSError) as error:
         raise BuildInputConflictError(
             "existing database is not a valid combined build input"
         ) from error
+    common_expected = (
+        build_id,
+        input_set_sha256,
+        cms.manifest_run_id,
+        cms.snapshot_sha256,
+        cms.row_count,
+        svi.manifest_run_id,
+        svi.snapshot_sha256,
+        svi.page_count,
+        svi.row_count,
+    )
     expected = [
-        (
-            build_id,
-            input_set_sha256,
-            cms.manifest_run_id,
-            cms.snapshot_sha256,
-            cms.row_count,
-            svi.manifest_run_id,
-            svi.snapshot_sha256,
-            svi.page_count,
-            svi.row_count,
+        common_expected
+        if facility is None
+        else (
+            *common_expected,
+            facility.manifest_run_id,
+            facility.snapshot_sha256,
+            facility.page_count,
+            facility.row_count,
         )
     ]
-    if audit != expected or counts != (cms.row_count, svi.row_count):
+    expected_counts = (
+        (cms.row_count, svi.row_count)
+        if facility is None
+        else (cms.row_count, svi.row_count, facility.row_count)
+    )
+    if audit != expected or counts != expected_counts:
         raise BuildInputConflictError(
             "existing database represents a different build or inputs"
         )
@@ -219,8 +302,10 @@ def _copy_verified_sources(
     input_set_sha256: str,
     cms_database: Path,
     svi_database: Path,
+    facility_database: Path | None,
     cms: SourceAudit,
     svi: SourceAudit,
+    facility: SourceAudit | None,
 ) -> None:
     connection = duckdb.connect(str(path))
     try:
@@ -231,6 +316,11 @@ def _copy_verified_sources(
         connection.execute(
             f"attach {_sql_string(str(svi_database))} as svi_input (read_only)"
         )
+        if facility_database is not None:
+            connection.execute(
+                f"attach {_sql_string(str(facility_database))} "
+                "as facility_input (read_only)"
+            )
         connection.execute(
             "create table raw.cms_om_gv as select * from cms_input.raw.cms_om_gv"
         )
@@ -252,8 +342,34 @@ def _copy_verified_sources(
             select * from svi_input.raw.cdc_svi_county_2022_load_audit
             """
         )
-        connection.execute(
+        if facility_database is not None:
+            connection.execute(
+                """
+                create table raw.cms_dialysis_facility as
+                select * from facility_input.raw.cms_dialysis_facility
+                """
+            )
+            connection.execute(
+                """
+                create table raw.cms_dialysis_facility_load_audit as
+                select * from facility_input.raw.cms_dialysis_facility_load_audit
+                """
+            )
+        facility_audit_columns = (
             """
+                , facility_source_id varchar
+                , facility_manifest_run_id varchar
+                , facility_contract_version varchar
+                , facility_snapshot_sha256 varchar
+                , facility_retrieved_at_utc varchar
+                , facility_page_count bigint
+                , facility_row_count bigint
+            """
+            if facility is not None
+            else ""
+        )
+        connection.execute(
+            f"""
             create table raw.build_input_audit (
                 build_format_version integer not null,
                 build_id varchar not null,
@@ -272,47 +388,82 @@ def _copy_verified_sources(
                 svi_retrieved_at_utc varchar not null,
                 svi_page_count bigint not null,
                 svi_row_count bigint not null
+                {facility_audit_columns}
             )
             """
         )
-        connection.execute(
-            """
-            insert into raw.build_input_audit values (
-                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+        common_audit_values = [
+            CURRENT_BUILD_FORMAT_VERSION
+            if facility is not None
+            else LEGACY_BUILD_FORMAT_VERSION,
+            build_id,
+            input_set_sha256,
+            cms.source_id,
+            cms.manifest_run_id,
+            cms.contract_version,
+            cms.snapshot_sha256,
+            cms.retrieved_at_utc,
+            cms.page_count,
+            cms.row_count,
+            svi.source_id,
+            svi.manifest_run_id,
+            svi.contract_version,
+            svi.snapshot_sha256,
+            svi.retrieved_at_utc,
+            svi.page_count,
+            svi.row_count,
+        ]
+        if facility is None:
+            connection.execute(
+                "insert into raw.build_input_audit values "
+                "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                common_audit_values,
             )
-            """,
-            [
-                BUILD_FORMAT_VERSION,
-                build_id,
-                input_set_sha256,
-                cms.source_id,
-                cms.manifest_run_id,
-                cms.contract_version,
-                cms.snapshot_sha256,
-                cms.retrieved_at_utc,
-                cms.page_count,
-                cms.row_count,
-                svi.source_id,
-                svi.manifest_run_id,
-                svi.contract_version,
-                svi.snapshot_sha256,
-                svi.retrieved_at_utc,
-                svi.page_count,
-                svi.row_count,
-            ],
+        else:
+            connection.execute(
+                """
+                insert into raw.build_input_audit values (
+                    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                    ?, ?, ?, ?, ?, ?, ?
+                )
+                """,
+                [
+                    *common_audit_values,
+                    facility.source_id,
+                    facility.manifest_run_id,
+                    facility.contract_version,
+                    facility.snapshot_sha256,
+                    facility.retrieved_at_utc,
+                    facility.page_count,
+                    facility.row_count,
+                ],
+            )
+        facility_count_sql = (
+            "(select count(*) from raw.cms_dialysis_facility)"
+            if facility is not None
+            else "null::bigint"
         )
         counts = connection.execute(
-            """
+            f"""
             select
                 (select count(*) from raw.cms_om_gv),
                 (select count(*) from raw.cdc_svi_county_2022),
+                {facility_count_sql},
                 (select count(*) from raw.build_input_audit)
             """
         ).fetchone()
-        if counts != (cms.row_count, svi.row_count, 1):
+        expected_counts = (
+            cms.row_count,
+            svi.row_count,
+            facility.row_count if facility else None,
+            1,
+        )
+        if counts != expected_counts:
             raise BuildInputError("combined raw relations do not reconcile")
         connection.execute("detach cms_input")
         connection.execute("detach svi_input")
+        if facility_database is not None:
+            connection.execute("detach facility_input")
         connection.execute("checkpoint")
     finally:
         connection.close()
@@ -323,10 +474,15 @@ def build_input_database(
     build_id: str,
     cms_manifest_path: Path,
     svi_manifest_path: Path,
+    facility_manifest_path: Path | None = None,
     raw_root: Path,
     database_path: Path,
 ) -> BuildInputResult:
-    """Verify two immutable sources and atomically publish one input database."""
+    """Verify immutable sources and atomically publish one input database.
+
+    ``facility_manifest_path`` remains optional only for rebuilding completed
+    pre-Plan-009 fixture paths. The CLI and current canonical build require it.
+    """
     try:
         validate_run_id(build_id)
     except ValueError as error:
@@ -349,6 +505,11 @@ def build_input_database(
     working_directory.mkdir()
     cms_database = working_directory / "cms.duckdb"
     svi_database = working_directory / "svi.duckdb"
+    facility_database = (
+        working_directory / "facility.duckdb"
+        if facility_manifest_path is not None
+        else None
+    )
     try:
         try:
             load_cms_om_gv_snapshot(
@@ -367,8 +528,22 @@ def build_input_database(
         except SviStageLoadError as error:
             raise BuildInputError(f"SVI input verification failed: {error}") from error
 
-        cms, svi = _source_audits(cms_database, svi_database)
-        input_set_sha256 = _input_set_sha256((cms, svi))
+        if facility_manifest_path is not None and facility_database is not None:
+            try:
+                load_cms_dialysis_facility_snapshot(
+                    facility_manifest_path,
+                    raw_root,
+                    facility_database,
+                )
+            except FacilityStageLoadError as error:
+                raise BuildInputError(
+                    f"facility input verification failed: {error}"
+                ) from error
+
+        audits = _source_audits(cms_database, svi_database, facility_database)
+        cms, svi = audits[0], audits[1]
+        facility = audits[2] if len(audits) == 3 else None
+        input_set_sha256 = _input_set_sha256(audits)
         if final_database.exists():
             _verify_existing_database(
                 final_database,
@@ -376,6 +551,7 @@ def build_input_database(
                 input_set_sha256=input_set_sha256,
                 cms=cms,
                 svi=svi,
+                facility=facility,
             )
             return BuildInputResult(
                 status="database_noop",
@@ -384,6 +560,7 @@ def build_input_database(
                 input_set_sha256=input_set_sha256,
                 cms_row_count=cms.row_count,
                 svi_row_count=svi.row_count,
+                facility_row_count=facility.row_count if facility else None,
                 database_noop=True,
             )
 
@@ -393,8 +570,10 @@ def build_input_database(
             input_set_sha256=input_set_sha256,
             cms_database=cms_database,
             svi_database=svi_database,
+            facility_database=facility_database,
             cms=cms,
             svi=svi,
+            facility=facility,
         )
         try:
             os.link(temporary_database, final_database)
@@ -413,6 +592,9 @@ def build_input_database(
         Path(f"{cms_database}.wal").unlink(missing_ok=True)
         svi_database.unlink(missing_ok=True)
         Path(f"{svi_database}.wal").unlink(missing_ok=True)
+        if facility_database is not None:
+            facility_database.unlink(missing_ok=True)
+            Path(f"{facility_database}.wal").unlink(missing_ok=True)
         working_directory.rmdir()
 
     return BuildInputResult(
@@ -422,17 +604,21 @@ def build_input_database(
         input_set_sha256=input_set_sha256,
         cms_row_count=cms.row_count,
         svi_row_count=svi.row_count,
+        facility_row_count=facility.row_count if facility else None,
         database_noop=False,
     )
 
 
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Verify CMS v2 and SVI manifests into one local DuckDB input."
+        description=(
+            "Verify CMS v2, SVI, and facility manifests into one local DuckDB input."
+        )
     )
     parser.add_argument("--build-id", required=True)
     parser.add_argument("--cms-manifest", required=True, type=Path)
     parser.add_argument("--svi-manifest", required=True, type=Path)
+    parser.add_argument("--facility-manifest", required=True, type=Path)
     parser.add_argument("--raw-root", required=True, type=Path)
     parser.add_argument("--database", required=True, type=Path)
     return parser
@@ -444,6 +630,7 @@ def main(argv: list[str] | None = None) -> int:
         build_id=arguments.build_id,
         cms_manifest_path=arguments.cms_manifest,
         svi_manifest_path=arguments.svi_manifest,
+        facility_manifest_path=arguments.facility_manifest,
         raw_root=arguments.raw_root,
         database_path=arguments.database,
     )
@@ -454,6 +641,7 @@ def main(argv: list[str] | None = None) -> int:
                 "cms_row_count": result.cms_row_count,
                 "database_noop": result.database_noop,
                 "database_path": str(result.database_path),
+                "facility_row_count": result.facility_row_count,
                 "input_set_sha256": result.input_set_sha256,
                 "status": result.status,
                 "svi_row_count": result.svi_row_count,

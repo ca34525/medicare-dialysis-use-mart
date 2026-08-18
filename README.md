@@ -6,7 +6,7 @@ It is not a clinical tool, prevalence estimate, opaque opportunity score, or fin
 
 ## Current status
 
-The locked Python 3.12 environment and offline quality checks are verified. CMS contract v2 and the CDC/ATSDR SVI 2022 path assemble atomically into one run-scoped DuckDB input. dbt now produces governed source facts, a fixed national continuous P75 threshold, a one-row-per-current-county transparent screening mart, and a five-category reconciliation audit. In the pinned 2026-08-15 snapshot, 2,148 of 3,144 counties have both components, 996 are explicitly insufficient, and the P75 for observed outpatient dialysis use among Original Medicare beneficiaries is `0.0086000000`. The CMS Dialysis Facility Listing now has a verified raw contract and immutable full-file ingestion path. Typed facility facts, county assignment, screening context, publication, Airflow, and Power BI remain deferred; dated evidence is in [`docs/preflight.md`](docs/preflight.md).
+The locked Python 3.12 environment and offline quality checks are verified. CMS contract v2, CDC/ATSDR SVI 2022, and the CMS Dialysis Facility Listing now assemble atomically into one run-scoped DuckDB input. dbt produces governed county facts, a fixed national continuous P75 threshold, a transparent screening mart, and typed facility dimensions and quality snapshots. In the pinned 2026-08-15 sources, all 7,490 facility rows reconcile through stage, dimension, and fact while county assignment remains visibly `not_attempted`. Facility-to-county mapping, county facility aggregates, screening context, publication, Airflow, and Power BI remain deferred; dated evidence is in [`docs/preflight.md`](docs/preflight.md).
 
 ## Human guides
 
@@ -18,6 +18,7 @@ The locked Python 3.12 environment and offline quality checks are verified. CMS 
 - [Plan 006 — How do verified CMS and SVI inputs become governed facts?](docs/guides/006-cms-facts-and-geography-explained.html) explains atomic two-source assembly, CMS facts and benchmarks, the DC county-equivalent rule, historical identities, and full-outer current-county reconciliation.
 - [Plan 007 — How does the transparent county screen work?](docs/guides/007-county-screening-explained.html) explains the fixed national percentile, inclusive boundaries, missing-data behavior, four quadrants, audit totals, and the decisions this screen does not make.
 - [Plan 008 — How does a facility CSV become trusted raw evidence?](docs/guides/008-facility-source-and-ingestion-explained.html) explains textual CCN grain, dictionary and schema mapping, complete full-file checks, immutable blobs and manifests, measure companions, dated live evidence, and the work intentionally deferred.
+- [Plan 009 — How do trusted facility rows become typed models?](docs/guides/009-facility-models-explained.html) explains manifest re-verification, raw-string preservation, availability codes, typed characteristics, model grains, quality companions, blocking tests, and the geography work intentionally deferred.
 
 Open any downloaded HTML file in a web browser. The numbering follows the matching files in [`plans/`](plans/); the authoring and review convention is in [`docs/guides/README.md`](docs/guides/README.md).
 
@@ -94,7 +95,7 @@ Generated pages, manifests, DuckDB files, profiles, dbt logs, and dbt targets
 are ignored. These models provide static 2022 social vulnerability context;
 they do not calculate a screening quadrant or recommendation.
 
-## CMS Dialysis Facility raw-ingestion quick start
+## CMS Dialysis Facility source and model quick start
 
 The committed synthetic fixtures verify the 41-field raw contract, textual
 CCN grain, complete CSV reconciliation, immutable publication, safe reruns,
@@ -103,7 +104,9 @@ and failure injection without network access:
 ```powershell
 uv run pytest `
   tests/unit/contracts/test_cms_dialysis_facility_contract.py `
-  tests/unit/extract/test_cms_dialysis_facility.py
+  tests/unit/extract/test_cms_dialysis_facility.py `
+  tests/unit/stage/test_cms_dialysis_facility_stage.py `
+  tests/integration/test_cms_dialysis_facility_dbt.py
 ```
 
 Run the separate live extractor only when current-source validation is
@@ -116,29 +119,34 @@ uv run python -m kidney_care_mart.extract.cms_dialysis_facility `
   --output-root data/raw
 ```
 
-The unchanged CSV publishes beneath a content SHA-256 and the run manifest
-under `data/raw/manifests/cms_dialysis_facility/`; both are ignored. This path
-creates no DuckDB model, county assignment, facility aggregate, screening
-change, or latest-mart pointer.
+The live extractor publishes the unchanged CSV beneath a content SHA-256 and
+its run manifest under `data/raw/manifests/cms_dialysis_facility/`; both are
+ignored. The network-free Plan 009 loader then re-verifies those exact bytes,
+preserves all 41 governed fields as raw strings, and dbt builds the facility
+stage, dimension, and quality snapshot fact. It does not assign a county,
+aggregate facilities, change the screen, or update a latest-mart pointer.
 
 ## Combined dimensional build quick start
 
-The Plan 006 fixtures cover atomic two-source input, governed dimensions and
+The fixtures cover atomic three-source input, governed county and facility
 facts, failure injection, reconciliation, and deterministic fresh-path
 checksums without network access:
 
 ```powershell
 uv run pytest tests/unit/stage/test_build_inputs.py
 uv run pytest tests/integration/test_cms_dimensional_dbt.py
+uv run pytest tests/integration/test_cms_dialysis_facility_dbt.py
 ```
 
-To build from two already downloaded, verified manifests:
+To build from three already downloaded, verified manifests:
 
 ```powershell
 uv run python -m kidney_care_mart.stage.build_inputs `
   --build-id <build-id> `
   --cms-manifest data/raw/manifests/cms_om_gv/<v2-run-id>.json `
   --svi-manifest data/raw/manifests/cdc_svi_county_2022/<run-id>.json `
+  --facility-manifest `
+    data/raw/manifests/cms_dialysis_facility/<run-id>.json `
   --raw-root data/raw `
   --database data/staging/<build-id>.duckdb
 Copy-Item analytics/profiles.example.yml analytics/profiles.yml
@@ -148,10 +156,11 @@ uv run dbt build --project-dir analytics --profiles-dir analytics
 uv run dbt docs generate --project-dir analytics --profiles-dir analytics
 ```
 
-The builder re-verifies both manifests and every referenced byte, records a
-deterministic input-set hash, and publishes only after both raw relations and
-their audits reconcile. A CMS v1 manifest is intentionally rejected on this
-path. Generated databases, manifests, profiles, and dbt artifacts stay ignored.
+The builder re-verifies all three manifests and every referenced byte, records
+a deterministic input-set hash, and publishes only after all raw relations and
+their audits reconcile. Build-input format v2 requires the facility manifest
+at the CLI. A CMS v1 manifest is intentionally rejected. Generated databases,
+manifests, profiles, and dbt artifacts stay ignored.
 
 ## Transparent county screening quick start
 

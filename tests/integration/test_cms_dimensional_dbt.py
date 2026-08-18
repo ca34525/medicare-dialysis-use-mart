@@ -195,7 +195,9 @@ def test_dimensions_facts_and_current_reconciliation_are_deterministic(
     database_path, profile_dir = build_database(tmp_path, "first.duckdb")
     monkeypatch.setenv("KIDNEY_CARE_DUCKDB_PATH", str(database_path))
 
-    first = invoke_dbt("build", profile_dir)
+    first = invoke_dbt(
+        ("build", "--exclude", "stg_cms_dialysis_facility+"), profile_dir
+    )
 
     assert first.success, first.exception
     docs = invoke_dbt(("docs", "generate"), profile_dir)
@@ -297,7 +299,9 @@ def test_dimensions_facts_and_current_reconciliation_are_deterministic(
         database_path=second_path,
     )
     monkeypatch.setenv("KIDNEY_CARE_DUCKDB_PATH", str(second_path))
-    second = invoke_dbt("build", profile_dir)
+    second = invoke_dbt(
+        ("build", "--exclude", "stg_cms_dialysis_facility+"), profile_dir
+    )
 
     assert second.success, second.exception
     assert semantic_checksums(second_path) == first_checksums
@@ -346,7 +350,9 @@ def test_dimensional_quality_failures_block_with_named_evidence(
         connection.execute(mutation)
     monkeypatch.setenv("KIDNEY_CARE_DUCKDB_PATH", str(database_path))
 
-    result = invoke_dbt("build", profile_dir)
+    result = invoke_dbt(
+        ("build", "--exclude", "stg_cms_dialysis_facility+"), profile_dir
+    )
 
     assert not result.success
     assert expected_failure in result_failures(result)

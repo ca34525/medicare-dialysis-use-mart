@@ -1,7 +1,7 @@
 # Environment and source preflight
 
-**Record date:** 2026-08-15
-**Status:** Gate 0 sources in progress; local bootstrap, CMS/SVI dimensional path, and facility raw ingestion verified
+**Record date:** 2026-08-18
+**Status:** Gate 0 sources in progress; local bootstrap, county screen, facility raw ingestion, and typed facility models verified
 
 This record distinguishes facts observed in the initial workspace from checks that still need to run on the implementation machine. A specification or configuration file is not evidence that its corresponding tool or integration works.
 
@@ -93,6 +93,54 @@ responsive-rule, print-rule, and reduced-motion-rule checks passed. On
 2026-08-15, the user confirmed rendered desktop/narrow, light/dark,
 keyboard/focus, overflow, print, and reduced-motion QA for the standalone Plan
 008 guide.
+
+## Plan 009 facility typed-model check
+
+On 2026-08-18, the network-free combined builder independently reverified the
+already-downloaded CMS v2, SVI 2022, and Dialysis Facility manifests and every
+referenced byte. It loaded 36,994 CMS rows, 3,144 SVI rows, and 7,490 facility
+rows under build-input format v2 and input-set SHA-256
+`d2f323cc5349ed5d24593f5889e526e997222670dca0f5e68f699d34f911a0f5`.
+No source request or dependency change was made.
+
+The full dbt build completed 380 model, seed, unit-test, and data-test results
+with zero warnings or errors. `raw.cms_dialysis_facility`,
+`stg_cms_dialysis_facility`, `dim_facility`, and
+`fct_facility_quality_snapshot` each contained 7,490 rows. The pinned available
+counts were 6,999 star ratings, 7,176 survival outcomes, 7,231 hospitalization
+outcomes, and 7,054 readmission outcomes. These are dated observations, not
+timeless counts or provider comparisons.
+
+An immediate full rebuild reproduced the same three-source input identity and
+these ordered semantic SHA-256 values:
+
+| Relation | SHA-256 |
+|---|---|
+| `stg_cms_dialysis_facility` | `843f143074ab2a31e31ee2a88a2fd4a65977f2a6ffcf46c07e8f827a2c7d22b3` |
+| `dim_facility` | `e9c2189f2359e9bbc866d6d35174a9716ec8d506ac4738f127420692447d5d30` |
+| `fct_facility_quality_snapshot` | `77bba47594e2d2332b55123a8553b67744e135d6f52490248be213d088eb8a27` |
+
+Failure-injection tests prove T-012 for reported integer star ratings from 1
+through 5 and T-013 for valid measure periods and complete ordered confidence
+intervals. The implementation preserves raw category text, normalizes only
+exact category semantics, retains each source-defined denominator and unit,
+and never averages outcomes into a score. Facility county FIPS remains null
+with `geography_match_status = 'not_attempted'`; the Census Geocoder, geography
+quarantine, coverage gates, county aggregates, and screening enrichment remain
+pending.
+
+The final locked handoff checked all 62 packages with `uv sync --locked`,
+passed Ruff formatting and lint, and passed all 404 deterministic offline
+pytest tests in 1008.37 seconds. A current-code three-source replay reproduced
+input-set SHA-256
+`d2f323cc5349ed5d24593f5889e526e997222670dca0f5e68f699d34f911a0f5`,
+completed all 380 dbt results with zero warnings or errors, and generated a
+fresh dbt catalog. The historical two-source pinned replay separately retained
+its Plan 007 input hash and screening checksums. Rendered Plan 009 guide QA
+covered desktop and 320-pixel layouts, light and dark palettes, native
+controls, and horizontal-overflow containment; the static suite covers links,
+network isolation, focus styling, contrast, responsive, print, and
+reduced-motion rules.
 
 ## CDC/ATSDR SVI county source-contract check
 

@@ -46,7 +46,8 @@ distinct textual CCNs, leading-zero CCNs, and the safe relative blob path. The
 manifest is not visible until the unchanged CSV bytes, ordered header, raw CCN
 grain, API count, and all hashes reconcile. An identical later source snapshot
 reuses the verified blob; it does not overwrite either run's immutable
-manifest. Plan 008 creates no DuckDB relation or mart publication pointer.
+manifest. Plan 008 itself creates no DuckDB relation or mart publication
+pointer; Plan 009 adds the separate manifest-driven load described below.
 
 The CDC/ATSDR SVI extractor uses the same generated-data boundary but retains
 each exact ArcGIS response page separately:
@@ -93,7 +94,8 @@ adds `staging.stg_cdc_svi_county_2022` and `staging.fct_svi_county`. The stage
 converts `-999` and JSON null to typed nulls
 with distinct statuses while reported numeric zero remains zero.
 
-Plan 006 adds an atomic combined-input path:
+Plan 006 introduced an atomic combined-input path. Plan 009 extends its current
+format to all three required sources:
 
 ```text
 data/staging/
@@ -102,15 +104,18 @@ data/staging/
     |-- raw.cms_om_gv_load_audit
     |-- raw.cdc_svi_county_2022
     |-- raw.cdc_svi_county_2022_load_audit
+    |-- raw.cms_dialysis_facility
+    |-- raw.cms_dialysis_facility_load_audit
     `-- raw.build_input_audit
 ```
 
-Both manifests and every referenced blob/page are independently verified in a
-private working directory. The final database appears only after both raw
-relations, both source audits, and the one-row build audit reconcile. The audit
-records both contract versions, manifest runs, row/page counts, source hashes,
-and a deterministic `input_set_sha256`. Same path plus same inputs is a no-op;
-different inputs or an abandoned partial path are blocking conflicts.
+All three manifests and every referenced blob/page are independently verified
+in a private working directory. The final database appears only after all raw
+relations, source audits, and the one-row build audit reconcile. Build-input
+format v2 records all three contract versions, manifest runs, row/page counts,
+source hashes, and one deterministic `input_set_sha256`. Same path plus same
+inputs is a no-op; different inputs or an abandoned partial path are blocking
+conflicts.
 
 dbt adds `staging.dim_year`, the 3,144-current-plus-11-historical
 `staging.dim_county`, `staging.fct_medicare_county_year`, the authoritative
@@ -118,6 +123,13 @@ dbt adds `staging.dim_year`, the 3,144-current-plus-11-historical
 `staging.audit_cms_svi_county_reconciliation`. Historical identities are
 version-controlled metadata only: no successor FIPS, boundary allocation, or
 trend bridge is generated.
+
+Plan 009 also adds `staging.stg_cms_dialysis_facility`, one-row-per-CCN
+`staging.dim_facility`, and CCN-by-source-snapshot
+`staging.fct_facility_quality_snapshot`. Raw facility values remain text beside
+typed values and explicit availability statuses. County assignment fields stay
+null with `geography_match_status = 'not_attempted'`; this path does not call
+the Census Geocoder, aggregate facilities to counties, or alter the screen.
 
 Do not commit downloaded source files, generated manifests, DuckDB databases,
 Parquet outputs, credentials, or patient information. Tests use only the small

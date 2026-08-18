@@ -11,3 +11,5 @@ from audit_counts
 where row_count <> 1
    or build_id_count <> 1
    or input_set_count <> 1
+   or (select build_format_version
+       from {{ source('raw', 'build_input_audit') }}) not in (1, 2)

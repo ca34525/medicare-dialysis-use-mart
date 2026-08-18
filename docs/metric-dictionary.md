@@ -14,8 +14,9 @@ The screen combines two transparent components for analyst investigation:
 
 It is not kidney disease prevalence, unmet need, disease burden, intervention
 opportunity, clinical risk, a composite score, a ranking, an automated
-decision, or a final site-selection recommendation. Facility characteristics
-are not present in Plan 007 and will never alter the screening quadrant.
+decision, or a final site-selection recommendation. Plan 009 prepares facility
+characteristics and quality measures as separate due-diligence context; they
+are not yet present in the screen and will never alter its quadrant.
 
 ## Model grains and run identity
 
@@ -24,16 +25,24 @@ are not present in Plan 007 and will never alter the screening quadrant.
 | `int_county_screening_threshold` | One row per candidate screening run | Records the fixed national county threshold, eligibility counts, method, vintages, and lineage. |
 | `mart_county_screening` | Candidate screening run × current county FIPS | Carries component values, exact statuses, nullable flags, quadrant, vintages, denominator context, and lineage. |
 | `audit_screening_quadrant_summary` | Candidate screening run × five category keys | Reconciles all category and component marginal counts, including zero-count categories. |
+| `stg_cms_dialysis_facility` | Textual CCN × source snapshot | Preserves raw facility tokens beside typed identity, characteristics, availability, periods, denominators, outcomes, and lineage. |
+| `dim_facility` | One current row per textual CCN | Describes facility identity and public business-location context while visibly deferring county assignment. |
+| `fct_facility_quality_snapshot` | Textual CCN × source-snapshot SHA-256 | Retains star rating and each risk-standardized outcome with its own companions and lineage. |
 
 The physical DuckDB input is run-scoped and contains one
 `raw.build_input_audit` row. Plan 007 maps:
 
 - `screening_run_id` to the combined `build_id`;
-- `input_set_sha256` to the canonical ordered CMS/SVI input-set hash; and
+- `input_set_sha256` to the canonical ordered source input-set hash; and
 - `screening_definition_version` to `county_screening.v1`.
 
 These are candidate-run semantics. A later publication plan decides whether a
 successful candidate is exported and updates a latest-successful pointer.
+Plan 007's pinned hash covered CMS and SVI. Build-input format v2 adds the
+facility manifest, contract, content hash, row count, and page count to that
+identity without changing the screening definition or threshold population.
+The Python API preserves format v1 only when rebuilding an explicit historical
+two-source fixture; the current CLI requires all three manifests and emits v2.
 
 ## Component 1: observed outpatient dialysis use
 
@@ -213,10 +222,40 @@ These are dated pinned-snapshot results, not timeless national constants,
 clinical findings, rankings, or recommendations. Full raw rows and generated
 databases remain ignored.
 
+## Facility due-diligence context
+
+Plan 009 types the current facility snapshot independently from the county
+screen. CMS Certification Number (CCN) remains text so leading zeros are not
+lost. Raw station, modality, certification-date, rating, period, category,
+denominator, estimate, and confidence-limit tokens remain beside typed fields.
+
+| Measure | Available rule | Denominator | Unit |
+|---|---|---|---|
+| Five-star rating | Availability code `001`; integer 1-5 | None | Stars |
+| Survival | Code `001`; complete period, category, patient count, estimate, and interval | Source patient count | Rate per 100 patient-years |
+| Hospitalization | Code `001`; complete period, category, patient count, estimate, and interval | Source patient count | Rate per 100 patient-years |
+| Readmission | Code `001`; complete period, category, index-discharge count, estimate, and interval | Source index discharges | Percent of hospital discharges |
+
+Documented unavailable codes remain `not_available` with stable reasons;
+unknown or measure-incompatible codes fail the build. Unavailable raw numbers
+do not become typed reported values, and a reported zero remains zero. Raw
+outcome labels normalize only to `better_than_expected`, `as_expected`, or
+`worse_than_expected`; they are not assigned points or averaged into a score.
+T-012 blocks a reported star rating outside 1-5. T-013 blocks invalid or
+reversed periods and incomplete or reversed confidence intervals.
+
+Every facility metric carries its source snapshot, manifest, release,
+retrieval, and contract lineage. Public facility location is business-location
+context, not patient residence, patient origin, or catchment. County FIPS is
+null and `geography_match_status = 'not_attempted'` until the auditable
+geography cascade and coverage gates are implemented.
+
 ## Deferred work
 
-Plan 007 does not provide facility context, Parquet publication,
-`latest-successful-run`, Airflow, CI expansion, Power BI, BI reconciliation,
-portfolio findings, hosting, or optional AWS infrastructure. A later facility
-slice may add due-diligence columns only after independent contracts and
-geography coverage gates; it must not change this threshold or quadrant.
+Plan 009 does not provide facility-to-county assignment, geography quarantine,
+coverage metrics, county facility aggregates, screening due-diligence columns,
+Parquet publication, `latest-successful-run`, Airflow, CI expansion, Power BI,
+BI reconciliation, portfolio findings, hosting, or optional AWS
+infrastructure. A later slice may add facility due-diligence columns only after
+the geography coverage gates pass; it must not change this threshold or
+quadrant.
